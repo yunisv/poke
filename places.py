@@ -56,7 +56,7 @@ def place_loading(items, place):  # loading items for any map
     if place == "TestHouse":
         # drawing items
         items.add(Stars(19, 16, "from_TestHouse_to_TestMap", 39 * 32, 15 * 32, 'down'))
-        items.add(Stars(23, 8, "from_TestHouse_to_TestHouse2", 6 * 32, 3 * 32, 'left'))
+        items.add(Stars(23, 8, "from_TestHouse_to_TestHouse2", 20 * 32, 10 * 32, 'left'))
         text = "· hi|· my name is Johns!|· I love poke very much! Do you know, that|" \
                "· Which type of poke you prefer?| | "
         text2 = " | |  fire poke can win ice type!| | | "
@@ -87,7 +87,7 @@ def place_loading(items, place):  # loading items for any map
     elif place == "TestMap":
         items.add(Stars(39, 14, "from_TestMap_to_TestHouse", 19 * 32, 15 * 32, 'up'))
     elif place == "TestHouse2":
-        items.add(Stars(7, 3, "from_TestHouse2_to_TestHouse", 24 * 32, 8 * 32, 'right'))
+        items.add(Stars(21, 10, "from_TestHouse2_to_TestHouse", 24 * 32, 8 * 32, 'right'))
 
 
 class Stars(sprite.Sprite):

@@ -169,6 +169,16 @@ class CharacterMain(pygame.sprite.Sprite):
                         self.count -= 4
                         self.rect.y = self.rect.y + self.speed
             else:
+                # In this condition, we check the correctness character's position
+                # (for the right collide with other objects)
+                if self.rect.x % 32 >= 16:
+                    self.rect.x = int(self.rect.x + (32 - (self.rect.x % 32)))
+                elif self.rect.x % 32 < 16:
+                    self.rect.x = int(self.rect.x - (self.rect.x % 32))
+                if (self.rect.y + 16) % 32 >= 16:
+                    self.rect.y = int((self.rect.y + 16) + (32 - ((self.rect.y + 16) % 32))) - 16
+                elif (self.rect.y + 16) % 32 < 16:
+                    self.rect.y = int((self.rect.y + 16) - ((self.rect.y + 16) % 32)) - 16
                 self.animation_on = False  # stop player moving
                 self.poke_move = False  # stop poke moving
 

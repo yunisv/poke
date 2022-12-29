@@ -121,3 +121,8 @@ Fix problems with exe
 Upload and configure git system
 - fix problem with poke_icon (fix empty icon with colliding icon which exist)
 - added status of poke in DB
+
+0.7.2.1:
+Fix some problems:
+- fix the correctness character's position
+- fix testhouse2 map
