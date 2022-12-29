@@ -120,7 +120,7 @@ class Pokemon:
                     self.LV = row[21]
                     self.poke_gender = row[22]
                     self.poke_character = row[23]
-                    self.status = row[24]
+                    self.status = row[30]
 
                     self.current_XP = int(self.XP + (self.LV * 10 * (self.LV - 1)) / 2)
 
@@ -161,7 +161,7 @@ class Pokemon:
                 self.LV = row[21]
                 self.poke_gender = row[22]
                 self.poke_character = row[23]
-                self.status = row[24]
+                self.status = row[30]
 
                 self.current_XP = int(self.XP + (self.LV * 10 * (self.LV - 1)) / 2)
 
@@ -290,7 +290,7 @@ class Poke_info(sprite.Sprite):
                 self.LV = row[21]
                 self.poke_gender = row[22]
                 self.poke_character = row[23]
-                self.status = row[24]
+                self.status = row[30]
 
                 self.current_XP = int(self.XP + (self.LV * 10 * (self.LV - 1)) / 2)
                 self.till_next = self.LV * 10 - self.XP

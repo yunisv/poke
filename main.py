@@ -281,9 +281,10 @@ while True:
                             if sprite.type_system == "icon_poke":
                                 if sprite != mouse_cursor:  # except itself
                                     if sprite.poke_exist:  # if there is poke in slot
-                                        if sprite.rect.collidepoint(pygame.mouse.get_pos()):
-                                            is_settled = True
-                                            collided_item = sprite
+                                        if mouse_cursor.poke_exist:
+                                            if sprite.rect.collidepoint(pygame.mouse.get_pos()):
+                                                is_settled = True
+                                                collided_item = sprite
 
                         if is_settled:
                             settings.player_pokes.changer_poke_icon(collided_item, mouse_cursor, system_mech)

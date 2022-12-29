@@ -1,0 +1,123 @@
+versions
+
+0.0.1:
+Pygame environment realization
+
+0.0.2:
+Initialization pygame display
+
+0.0.3:
+Including resources (sprites)
+
+0.0.4:
+Creating player class (sprites)
+
+0.0.5:
+Initialize player movement mechanics
+
+0.0.6:
+Creating "desktop clearing" function
+
+0.0.7:
+Creating background environment
+
+0.1.0:
+Fix bugs and update somethings
+
+0.1.1:
+Creating "Items" class
+
+0.1.2:
+Creating collide mechanics
+
+0.1.3:
+Creating animations of moves (join pyganim)
+
+0.1.4:
+Make better FPS mechanics
+
+0.2.0:
+Creating "Tiles" system (better uploading map)
+
+0.2.1:
+Fix tiles error
+
+0.2.2:
+Creating savepoint mechanics
+
+0.3.0:
+Creating Teleport system
+
+0.3.1:
+Upload new resources (video)
+
+0.3.1.2:
+Include new library for working with video (moviepy)
+
+0.3.1.3:
+Upgrade teleport system (with using moviepy)
+
+0.3.2:
+Creating camera system ( This class will used for big maps )
+
+0.3.3:
+Fix some bugs and upgrade some classes
+
+0.4.0:
+Create NPC and items (also dialog mechanics)
+
+0.4.1:
+Create new collide system
+
+0.4.2:
+Create interacting system
+
+0.4.3:
+Create dialog system (for all)
+
+0.5.0:
+Upload new resources (pokemons and database)
+
+0.5.1:
+Creating poke sprites
+
+0.5.2:
+Creating world "status" system
+
+0.5.3:
+Creating player's poke
+
+0.5.4:
+Creating "player_icon" class
+
+0.5.5:
+Including new fonts and sounds
+
+0.6.0:
+Creating settings file
+
+0.6.1:
+Creating DB (poke)
+
+0.6.2:
+Creating "poke_info" class
+
+0.6.3:
+Creating DB update mechanics
+
+0.6.4:
+Adding moves (anim) of poke_landing
+
+0.6.5:
+Creating func for changing players poke
+
+0.7.0:
+Creating first exe file (alpha version 0.0.1)
+
+0.7.1:
+Fix problems with exe
+
+0.7.2:
+Upload and configure git system
+- fix problem with poke_icon (fix empty icon with colliding icon which exist)
+- added status of poke in DB
