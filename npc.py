@@ -4,6 +4,7 @@ from pygame import *
 import pygame
 import pyganim
 from setting import *
+from battle import  *
 
 
 def resource_path(relative_path):
@@ -57,7 +58,10 @@ class Dialogue(pygame.sprite.Sprite):
 
 
 class NPC(pygame.sprite.Sprite):
-    def __init__(self, id_npc, x, y, start_dir, start_time_delay, text, *questions):
+    def __init__(self, action_data, id_npc, x, y, start_dir, start_time_delay, text, *questions):
+        # action_data :if 'talk': ["type_of_action"]
+        # action_data :if 'battle_with_selection': ["type_of_action", num_of_accept, opponent_team]
+        # action_data :if 'battle': ["type_of_action", num_of_accept, opponent_team]
         super(NPC, self).__init__()
         self.animation_on = None  # component for moving function
         self.count = 0  # component for moving function
@@ -69,8 +73,15 @@ class NPC(pygame.sprite.Sprite):
         self.action_on = False  # setting action mechanic
         self.dialogue = None
         self.dialogue_create = True  # setting action mechanic
-        # if action_data == "talk":
-        #     self.talking = False  # setting, would be npc talk or no
+
+        # setting, would be npc talk or no
+        if action_data[0] == "battle":
+            self.talking = False
+        else:
+            self.talking = True
+
+        self.action_data = action_data[:]
+
         default_text = text[:]
         self.text_default = default_text[0].split("|")
         self.text_default2 = default_text[1].split("|")
@@ -292,269 +303,125 @@ class NPC(pygame.sprite.Sprite):
 
         if self.action:
             if self.action_on:
-                # try to create dialog
-                if self.dialogue_create:
-                    settings.world_status_changer("DIALOG")
-                    self.dialogue = Dialogue()
-                    system_mech.add(self.dialogue)
-                    if player.last_move == "left":
-                        self.image.fill((255, 255, 255, 0))  # clear image with transparent color for next animation
-                        self.image.blit(self.npc_right_0, (0, 0))
-                    elif player.last_move == "right":
-                        self.image.fill((255, 255, 255, 0))
-                        self.image.blit(self.npc_left_0, (0, 0))
-                    elif player.last_move == "up":
-                        self.image.fill((255, 255, 255, 0))
-                        self.image.blit(self.npc_down_0, (0, 0))
-                    elif player.last_move == "down":
-                        self.image.fill((255, 255, 255, 0))
-                        self.image.blit(self.npc_up_0, (0, 0))
-                    self.dialogue_create = False
-                # if dialog already is existed
-                try:
-                    for q in self.questions:
-                        if q["index"] == self.text_index:
-                            settings.world_status_changer("DIALOG_ANSWER")
-                            if self.index_of_answers != q["answer_count"]:
-                                for i in q["answer"]:
-                                    if self.index_of_answers == 0:
-                                        self.color2 = self.color_active
-                                        self.text2 += i
-                                    elif self.index_of_answers == 1:
-                                        self.color3 = self.color_not_active
-                                        self.text3 += i
-                                    elif self.index_of_answers == 2:
-                                        self.color4 = self.color_not_active
-                                        self.text4 += i
+                if self.talking:
+                    # try to create dialog
+                    if self.dialogue_create:
+                        settings.world_status_changer("DIALOG")
+                        self.dialogue = Dialogue()
+                        system_mech.add(self.dialogue)
+                        if player.last_move == "left":
+                            self.image.fill((255, 255, 255, 0))  # clear image with transparent color for next animation
+                            self.image.blit(self.npc_right_0, (0, 0))
+                        elif player.last_move == "right":
+                            self.image.fill((255, 255, 255, 0))
+                            self.image.blit(self.npc_left_0, (0, 0))
+                        elif player.last_move == "up":
+                            self.image.fill((255, 255, 255, 0))
+                            self.image.blit(self.npc_down_0, (0, 0))
+                        elif player.last_move == "down":
+                            self.image.fill((255, 255, 255, 0))
+                            self.image.blit(self.npc_up_0, (0, 0))
+                        self.dialogue_create = False
+                    # if dialog already is existed
+                    try:
+                        for q in self.questions:
+                            if q["index"] == self.text_index:
+                                settings.world_status_changer("DIALOG_ANSWER")
+                                if self.index_of_answers != q["answer_count"]:
+                                    for i in q["answer"]:
+                                        if self.index_of_answers == 0:
+                                            self.color2 = self.color_active
+                                            self.text2 += i
+                                        elif self.index_of_answers == 1:
+                                            self.color3 = self.color_not_active
+                                            self.text3 += i
+                                        elif self.index_of_answers == 2:
+                                            self.color4 = self.color_not_active
+                                            self.text4 += i
 
-                                    self.index_of_answers += 1
+                                        self.index_of_answers += 1
 
-                    if self.letter_index != len(self.text_content[self.text_index]):
-                        sans_sound.play()
-                        self.text += self.text_content[self.text_index][self.letter_index]
-                        self.letter_index += 1
-                    else:
-                        if self.letter_index2 != len(self.text_content2[self.text_index]):
+                        if self.letter_index != len(self.text_content[self.text_index]):
                             sans_sound.play()
-                            self.text2 += self.text_content2[self.text_index][self.letter_index2]
-                            self.letter_index2 += 1
+                            self.text += self.text_content[self.text_index][self.letter_index]
+                            self.letter_index += 1
                         else:
-                            if self.letter_index3 != len(self.text_content3[self.text_index]):
+                            if self.letter_index2 != len(self.text_content2[self.text_index]):
                                 sans_sound.play()
-                                self.text3 += self.text_content3[self.text_index][self.letter_index3]
-                                self.letter_index3 += 1
+                                self.text2 += self.text_content2[self.text_index][self.letter_index2]
+                                self.letter_index2 += 1
                             else:
-                                if self.letter_index4 != len(self.text_content4[self.text_index]):
+                                if self.letter_index3 != len(self.text_content3[self.text_index]):
                                     sans_sound.play()
-                                    self.text4 += self.text_content4[self.text_index][self.letter_index4]
-                                    self.letter_index4 += 1
-                    self.time_delay = self.time_delay + 1
-                    text_surface = font_of_npc.render(self.text, True, self.color1)
-                    text_surface2 = font_of_npc.render(self.text2, True, self.color2)
-                    text_surface3 = font_of_npc.render(self.text3, True, self.color3)
-                    text_surface4 = font_of_npc.render(self.text4, True, self.color4)
-                    self.dialogue.text_set(text_surface, text_surface2, text_surface3, text_surface4)
-                    if self.delay_text != 0:
-                        self.delay_text -= 1
-                        self.change = False
+                                    self.text3 += self.text_content3[self.text_index][self.letter_index3]
+                                    self.letter_index3 += 1
+                                else:
+                                    if self.letter_index4 != len(self.text_content4[self.text_index]):
+                                        sans_sound.play()
+                                        self.text4 += self.text_content4[self.text_index][self.letter_index4]
+                                        self.letter_index4 += 1
+                        self.time_delay = self.time_delay + 1
+                        text_surface = font_of_npc.render(self.text, True, self.color1)
+                        text_surface2 = font_of_npc.render(self.text2, True, self.color2)
+                        text_surface3 = font_of_npc.render(self.text3, True, self.color3)
+                        text_surface4 = font_of_npc.render(self.text4, True, self.color4)
+                        self.dialogue.text_set(text_surface, text_surface2, text_surface3, text_surface4)
+                        if self.delay_text != 0:
+                            self.delay_text -= 1
+                            self.change = False
 
-                # if dialog ends
-                except IndexError:
-                    self.delay_text = 5
-                    self.text_index = 0
-                    self.text = ""
-                    self.text2 = ""
-                    self.text3 = ""
-                    self.text4 = ""
-                    self.letter_index = 0
-                    self.letter_index2 = 0
-                    self.letter_index3 = 0
-                    self.letter_index4 = 0
+                    # if dialog ends
+                    except IndexError:
+                        # checking npc will beb battle or not, and create their mechanics
+                        if self.action_data[0] == "battle_with_selection":
+                            if self.answer == 2:
+                                test_battle_sprite = Battle_System("wild_poke", 200, 100,
+                                                                   ["wild_poke", 1, "wild_poke.db"],
+                                                                   ["forest", 13.3])
+                                system_mech.add(test_battle_sprite)
 
-                    self.set_default_text_content()
-                    self.dialogue.kill()
-                    system_mech.remove(self.dialogue)
-                    self.dialogue_create = True
-                    self.action_on = False
-                    self.text_index = 0
+                        self.delay_text = 5
+                        self.text_index = 0
+                        self.text = ""
+                        self.text2 = ""
+                        self.text3 = ""
+                        self.text4 = ""
+                        self.letter_index = 0
+                        self.letter_index2 = 0
+                        self.letter_index3 = 0
+                        self.letter_index4 = 0
+                        self.answer = 2
 
-                    settings.world_status_changer("MAIN")
+                        self.set_default_text_content()
+                        self.dialogue.kill()
+                        system_mech.remove(self.dialogue)
+                        self.dialogue_create = True
+                        self.action_on = False
+                        self.text_index = 0
+
+                        settings.world_status_changer("MAIN")
 
             # if dialog message not ended - we end this
             if self.change:
-                if settings.world_status == "DIALOG":
-                    if self.text != self.text_content[self.text_index] and \
-                            self.text2 != self.text_content2[self.text_index] and \
-                            self.text3 != self.text_content3[self.text_index] and \
-                            self.text4 != self.text_content4[self.text_index]:
-                        self.letter_index = len(self.text_content[self.text_index])
-                        self.letter_index2 = len(self.text_content2[self.text_index])
-                        self.letter_index3 = len(self.text_content3[self.text_index])
-                        self.letter_index4 = len(self.text_content4[self.text_index])
-                        self.text = self.text_content[self.text_index]
-                        self.text2 = self.text_content2[self.text_index]
-                        self.text3 = self.text_content3[self.text_index]
-                        self.text4 = self.text_content4[self.text_index]
-                        self.change = False
+                if self.talking:
+                    if settings.world_status == "DIALOG":
+                        if self.text != self.text_content[self.text_index] and \
+                                self.text2 != self.text_content2[self.text_index] and \
+                                self.text3 != self.text_content3[self.text_index] and \
+                                self.text4 != self.text_content4[self.text_index]:
+                            self.letter_index = len(self.text_content[self.text_index])
+                            self.letter_index2 = len(self.text_content2[self.text_index])
+                            self.letter_index3 = len(self.text_content3[self.text_index])
+                            self.letter_index4 = len(self.text_content4[self.text_index])
+                            self.text = self.text_content[self.text_index]
+                            self.text2 = self.text_content2[self.text_index]
+                            self.text3 = self.text_content3[self.text_index]
+                            self.text4 = self.text_content4[self.text_index]
+                            self.change = False
 
             # change dialog part
             if self.change:
-                if settings.world_status == "DIALOG":
-                    self.delay_text = 5
-                    self.text_index += 1
-                    self.text = ""
-                    self.text2 = ""
-                    self.text3 = ""
-                    self.text4 = ""
-                    self.letter_index = 0
-                    self.letter_index2 = 0
-                    self.letter_index3 = 0
-                    self.letter_index4 = 0
-                    self.change = False
-
-            if self.up_answer:
-                if self.fps_answer_delay != 0:
-                    self.fps_answer_delay -= 1
-                else:
-                    for q in self.questions:
-                        if self.answer == 2:
-                            if q["answer_count"] == 3:
-                                self.answer = 4
-                            elif q["answer_count"] == 2:
-                                self.answer = 3
-                            else:
-                                self.answer = 2
-                        elif self.answer == 3:
-                            if q["answer_count"] == 3:
-                                self.answer = 2
-                            elif q["answer_count"] == 2:
-                                self.answer = 2
-                        elif self.answer == 4:
-                            if q["answer_count"] == 3:
-                                self.answer = 3
-
-                        if self.answer == 2:
-                            self.color2 = self.color_active
-                            self.color3 = self.color_not_active
-                            self.color4 = self.color_not_active
-                        elif self.answer == 3:
-                            self.color2 = self.color_not_active
-                            self.color3 = self.color_active
-                            self.color4 = self.color_not_active
-                        elif self.answer == 4:
-                            self.color2 = self.color_not_active
-                            self.color3 = self.color_not_active
-                            self.color4 = self.color_active
-                    self.fps_answer_delay = 3
-                    self.up_answer = False
-
-            if self.down_answer:
-                if self.fps_answer_delay != 0:
-                    self.fps_answer_delay -= 1
-                else:
-                    for q in self.questions:
-                        if self.answer == 2:
-                            if q["answer_count"] == 3:
-                                self.answer = 3
-                            elif q["answer_count"] == 2:
-                                self.answer = 3
-                            else:
-                                self.answer = 2
-                        elif self.answer == 3:
-                            if q["answer_count"] == 3:
-                                self.answer = 4
-                            elif q["answer_count"] == 2:
-                                self.answer = 2
-                        elif self.answer == 4:
-                            if q["answer_count"] == 3:
-                                self.answer = 2
-
-                        if self.answer == 2:
-                            self.color2 = self.color_active
-                            self.color3 = self.color_not_active
-                            self.color4 = self.color_not_active
-                        elif self.answer == 3:
-                            self.color2 = self.color_not_active
-                            self.color3 = self.color_active
-                            self.color4 = self.color_not_active
-                        elif self.answer == 4:
-                            self.color2 = self.color_not_active
-                            self.color3 = self.color_not_active
-                            self.color4 = self.color_active
-                    self.fps_answer_delay = 3
-                    self.down_answer = False
-
-            if self.change_with_active:
-                if self.fps_answer_delay != 0:
-                    self.fps_answer_delay -= 1
-                else:
-                    for q in self.questions:
-                        if self.answer == 2:
-                            index_of_text_after = 1
-                            for i in q["text_after"]:
-                                text = i.split("/")
-                                if len(text) == 1:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                elif len(text) == 2:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                elif len(text) == 3:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                    self.text_content3[self.text_index + index_of_text_after] = text[2]
-                                elif len(text) == 4:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                    self.text_content3[self.text_index + index_of_text_after] = text[2]
-                                    self.text_content4[self.text_index + index_of_text_after] = text[3]
-                                index_of_text_after += 1
-                        elif self.answer == 3:
-                            index_of_text_after = 1
-                            for i in q["text_after_2"]:
-                                text = i.split("/")
-                                if len(text) == 1:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                elif len(text) == 2:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                elif len(text) == 3:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                    self.text_content3[self.text_index + index_of_text_after] = text[2]
-                                elif len(text) == 4:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                    self.text_content3[self.text_index + index_of_text_after] = text[2]
-                                    self.text_content4[self.text_index + index_of_text_after] = text[3]
-                                index_of_text_after += 1
-                        elif self.answer == 4:
-                            index_of_text_after = 1
-                            for i in q["text_after_3"]:
-                                text = i.split("/")
-                                if len(text) == 1:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                elif len(text) == 2:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                elif len(text) == 3:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                    self.text_content3[self.text_index + index_of_text_after] = text[2]
-                                elif len(text) == 4:
-                                    self.text_content[self.text_index + index_of_text_after] = text[0]
-                                    self.text_content2[self.text_index + index_of_text_after] = text[1]
-                                    self.text_content3[self.text_index + index_of_text_after] = text[2]
-                                    self.text_content4[self.text_index + index_of_text_after] = text[3]
-                                index_of_text_after += 1
-
-                    self.color2 = self.color1
-                    self.color3 = self.color1
-                    self.color4 = self.color1
-                    self.fps_answer_delay = 5
-                    self.change_with_active = False
-                    self.index_of_answers = 0
-                    settings.world_status_changer("DIALOG")
-
+                if self.talking:
                     if settings.world_status == "DIALOG":
                         self.delay_text = 5
                         self.text_index += 1
@@ -568,30 +435,199 @@ class NPC(pygame.sprite.Sprite):
                         self.letter_index4 = 0
                         self.change = False
 
-            # checking, if dialogue is empty, kill him
-            try:
-                if self.text_content[self.text_index] == " " and self.text_content2[self.text_index] == " " and \
-                        self.text_content3[self.text_index] == " " and self.text_content4[self.text_index] == " ":
-                    self.delay_text = 5
-                    self.text_index = 0
-                    self.text = ""
-                    self.text2 = ""
-                    self.text3 = ""
-                    self.text4 = ""
-                    self.letter_index = 0
-                    self.letter_index2 = 0
-                    self.letter_index3 = 0
-                    self.letter_index4 = 0
-                    self.set_default_text_content()
+            if self.up_answer:
+                if self.talking:
+                    if self.fps_answer_delay != 0:
+                        self.fps_answer_delay -= 1
+                    else:
+                        for q in self.questions:
+                            if self.answer == 2:
+                                if q["answer_count"] == 3:
+                                    self.answer = 4
+                                elif q["answer_count"] == 2:
+                                    self.answer = 3
+                                else:
+                                    self.answer = 2
+                            elif self.answer == 3:
+                                if q["answer_count"] == 3:
+                                    self.answer = 2
+                                elif q["answer_count"] == 2:
+                                    self.answer = 2
+                            elif self.answer == 4:
+                                if q["answer_count"] == 3:
+                                    self.answer = 3
 
-                    self.dialogue.kill()
-                    system_mech.remove(self.dialogue)
-                    self.dialogue_create = True
-                    self.action_on = False
-                    self.text_index = 0
-                    settings.world_status_changer("MAIN")
-            except IndexError:
-                pass
+                            if self.answer == 2:
+                                self.color2 = self.color_active
+                                self.color3 = self.color_not_active
+                                self.color4 = self.color_not_active
+                            elif self.answer == 3:
+                                self.color2 = self.color_not_active
+                                self.color3 = self.color_active
+                                self.color4 = self.color_not_active
+                            elif self.answer == 4:
+                                self.color2 = self.color_not_active
+                                self.color3 = self.color_not_active
+                                self.color4 = self.color_active
+                        self.fps_answer_delay = 3
+                        self.up_answer = False
+
+            if self.down_answer:
+                if self.talking:
+                    if self.fps_answer_delay != 0:
+                        self.fps_answer_delay -= 1
+                    else:
+                        for q in self.questions:
+                            if self.answer == 2:
+                                if q["answer_count"] == 3:
+                                    self.answer = 3
+                                elif q["answer_count"] == 2:
+                                    self.answer = 3
+                                else:
+                                    self.answer = 2
+                            elif self.answer == 3:
+                                if q["answer_count"] == 3:
+                                    self.answer = 4
+                                elif q["answer_count"] == 2:
+                                    self.answer = 2
+                            elif self.answer == 4:
+                                if q["answer_count"] == 3:
+                                    self.answer = 2
+
+                            if self.answer == 2:
+                                self.color2 = self.color_active
+                                self.color3 = self.color_not_active
+                                self.color4 = self.color_not_active
+                            elif self.answer == 3:
+                                self.color2 = self.color_not_active
+                                self.color3 = self.color_active
+                                self.color4 = self.color_not_active
+                            elif self.answer == 4:
+                                self.color2 = self.color_not_active
+                                self.color3 = self.color_not_active
+                                self.color4 = self.color_active
+                        self.fps_answer_delay = 3
+                        self.down_answer = False
+
+            if self.change_with_active:
+                if self.talking:
+                    if self.fps_answer_delay != 0:
+                        self.fps_answer_delay -= 1
+                    else:
+                        for q in self.questions:
+                            if self.answer == 2:
+                                index_of_text_after = 1
+                                for i in q["text_after"]:
+                                    text = i.split("/")
+                                    if len(text) == 1:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                    elif len(text) == 2:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                    elif len(text) == 3:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                        self.text_content3[self.text_index + index_of_text_after] = text[2]
+                                    elif len(text) == 4:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                        self.text_content3[self.text_index + index_of_text_after] = text[2]
+                                        self.text_content4[self.text_index + index_of_text_after] = text[3]
+                                    index_of_text_after += 1
+                            elif self.answer == 3:
+                                index_of_text_after = 1
+                                for i in q["text_after_2"]:
+                                    text = i.split("/")
+                                    if len(text) == 1:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                    elif len(text) == 2:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                    elif len(text) == 3:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                        self.text_content3[self.text_index + index_of_text_after] = text[2]
+                                    elif len(text) == 4:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                        self.text_content3[self.text_index + index_of_text_after] = text[2]
+                                        self.text_content4[self.text_index + index_of_text_after] = text[3]
+                                    index_of_text_after += 1
+                            elif self.answer == 4:
+                                index_of_text_after = 1
+                                for i in q["text_after_3"]:
+                                    text = i.split("/")
+                                    if len(text) == 1:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                    elif len(text) == 2:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                    elif len(text) == 3:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                        self.text_content3[self.text_index + index_of_text_after] = text[2]
+                                    elif len(text) == 4:
+                                        self.text_content[self.text_index + index_of_text_after] = text[0]
+                                        self.text_content2[self.text_index + index_of_text_after] = text[1]
+                                        self.text_content3[self.text_index + index_of_text_after] = text[2]
+                                        self.text_content4[self.text_index + index_of_text_after] = text[3]
+                                    index_of_text_after += 1
+
+                        self.color2 = self.color1
+                        self.color3 = self.color1
+                        self.color4 = self.color1
+                        self.fps_answer_delay = 5
+                        self.change_with_active = False
+                        self.index_of_answers = 0
+                        settings.world_status_changer("DIALOG")
+
+                        if settings.world_status == "DIALOG":
+                            self.delay_text = 5
+                            self.text_index += 1
+                            self.text = ""
+                            self.text2 = ""
+                            self.text3 = ""
+                            self.text4 = ""
+                            self.letter_index = 0
+                            self.letter_index2 = 0
+                            self.letter_index3 = 0
+                            self.letter_index4 = 0
+                            self.change = False
+
+            # checking, if dialogue is empty, kill him
+            if self.talking:
+                try:
+                    if self.text_content[self.text_index] == " " and self.text_content2[self.text_index] == " " and \
+                            self.text_content3[self.text_index] == " " and self.text_content4[self.text_index] == " ":
+                        self.delay_text = 5
+                        self.text_index = 0
+                        self.text = ""
+                        self.text2 = ""
+                        self.text3 = ""
+                        self.text4 = ""
+                        self.letter_index = 0
+                        self.letter_index2 = 0
+                        self.letter_index3 = 0
+                        self.letter_index4 = 0
+                        self.answer = 2
+                        self.set_default_text_content()
+
+                        self.dialogue.kill()
+                        system_mech.remove(self.dialogue)
+                        self.dialogue_create = True
+                        self.action_on = False
+                        self.text_index = 0
+                        settings.world_status_changer("MAIN")
+
+                        # checking npc will beb battle or not, and create their mechanics
+                        if self.action_data[0] == "battle_with_selection":
+                            if self.answer == 2:
+                                test_battle_sprite = Battle_System("wild_poke", 200, 100,
+                                                                   ["wild_poke", 1, "wild_poke.db"],
+                                                                   ["forest", 13.3])
+                                system_mech.add(test_battle_sprite)
+                except IndexError:
+                    pass
 
     def draw(self, screen):  # draw player to map
         screen.blit(self.image, (self.rect.x, self.rect.y))

@@ -71,7 +71,7 @@ def place_loading(items, place):  # loading items for any map
             "text_after_2": ["· i love ice poke too!"],
             "text_after_3": ["· hmm, grass type is strong type,/ i agree with you"]
         }
-        boy = NPC("sprite2", 24 * 32, 13 * 32, "d", 10, text, q1)
+        boy = NPC(["talk"], "sprite2", 24 * 32, 13 * 32, "d", 10, text, q1)
         boy.movement(32, 1, 1, 'd', 'l', 'r', 'u', 80, 60, 60, 60)
         items.add(boy)
         text_fridge = ["There are a lot of interesting things inside.",
@@ -86,6 +86,16 @@ def place_loading(items, place):  # loading items for any map
         tv = Dialog_box(19 * 32, 11 * 32, tv_text)
         items.add(tv)
     elif place == "TestMap":
+        text = ["· You want battle with me?| ", " | ", " | ", " | "]
+        q1 = {
+            "index": 0,
+            "answer_count": 2,
+            "answer": ["- oF COURSE!!", "- no, thanks, just looking around."],
+            "text_after": ["· Ok. GET READY TO LOSE!!!"],
+            "text_after_2": ["· HA, looser"],
+        }
+        boy = NPC(["battle_with_selection", 1], "sprite2", 24 * 32, 13 * 32, "d", 10, text, q1)
+        items.add(boy)
         items.add(Stars(39, 14, "from_TestMap_to_TestHouse", 19 * 32, 15 * 32, 'up'))
     elif place == "TestHouse2":
         items.add(Stars(21, 10, "from_TestHouse2_to_TestHouse", 24 * 32, 8 * 32, 'right'))
