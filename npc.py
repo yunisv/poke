@@ -69,7 +69,8 @@ class NPC(pygame.sprite.Sprite):
         self.action_on = False  # setting action mechanic
         self.dialogue = None
         self.dialogue_create = True  # setting action mechanic
-        self.talking = False  # setting, would be npc talk or no
+        # if action_data == "talk":
+        #     self.talking = False  # setting, would be npc talk or no
         self.text_default = text.split("|")
         self.text_default2 = text2.split("|")
         self.text_default3 = text3.split("|")

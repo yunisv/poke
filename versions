@@ -126,3 +126,9 @@ Upload and configure git system
 Fix some problems:
 - fix the correctness character's position
 - fix testhouse2 map
+
+0.7.3:
+Create some parts of battle sprite and mechanics v 0.0.1
+Other:
+- upload new files (locations for battle background)
+- connect new test DB (wild_poke.db) fro testing battle system
