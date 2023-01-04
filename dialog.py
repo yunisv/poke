@@ -4,7 +4,7 @@ from npc import NPC, Dialogue, sans_sound
 
 
 class Dialog_box(pygame.sprite.Sprite):
-    def __init__(self, x, y, text, text2, text3, text4, *questions):
+    def __init__(self, x, y, text, *questions):
         super(Dialog_box, self).__init__()
         self.type = "item"
 
@@ -13,14 +13,15 @@ class Dialog_box(pygame.sprite.Sprite):
         self.dialogue = None
         self.dialogue_create = True  # setting action mechanic
         self.talking = False  # setting, would be npc talk or no
-        self.text_default = text.split("|")
-        self.text_default2 = text2.split("|")
-        self.text_default3 = text3.split("|")
-        self.text_default4 = text4.split("|")
-        self.text_content = text.split("|")
-        self.text_content2 = text2.split("|")
-        self.text_content3 = text3.split("|")
-        self.text_content4 = text4.split("|")
+        default_text = text[:]
+        self.text_default = default_text[0].split("|")
+        self.text_default2 = default_text[1].split("|")
+        self.text_default3 = default_text[2].split("|")
+        self.text_default4 = default_text[3].split("|")
+        self.text_content = text[0].split("|")
+        self.text_content2 = text[1].split("|")
+        self.text_content3 = text[2].split("|")
+        self.text_content4 = text[3].split("|")
         self.text = ""  # our text
         self.text2 = ""  # our text
         self.text3 = ""  # our text

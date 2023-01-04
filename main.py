@@ -180,7 +180,7 @@ mouse_sprite_group = pygame.sprite.Group()
 x_diff = 0  # difference between clicked pos and sprite (std-0)
 y_diff = 0  # difference between clicked pos and sprite (std-0)
 
-test_battle_sprite = Battle_System("wild_poke", 200, 100, ["wild_poke", 1, "wild_poke.db"], ["forest", 13.3])
+test_battle_sprite = Battle_System("wild_poke", 2000, 1000, ["wild_poke", 1, "wild_poke.db"], ["forest", 13.3])
 while True:
     world1.current_place.draw_setter(screen)
     world1.current_place.layer_internal.blit(world1.current_place.current_map.background_internal,

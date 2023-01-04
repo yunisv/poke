@@ -57,11 +57,11 @@ def place_loading(items, place):  # loading items for any map
         # drawing items
         items.add(Stars(19, 16, "from_TestHouse_to_TestMap", 39 * 32, 15 * 32, 'down'))
         items.add(Stars(23, 8, "from_TestHouse_to_TestHouse2", 20 * 32, 10 * 32, 'left'))
-        text = "· hi|· my name is Johns!|· I love poke very much! Do you know, that|" \
-               "· Which type of poke you prefer?| | "
-        text2 = " | |  fire poke can win ice type!| | | "
-        text3 = " | | -ps: i've hear this from Pr.Oak| | | "
-        text4 = " | | -pss: but i know this myself too| | | "
+        text = ["· hi|· my name is Johns!|· I love poke very much! Do you know, that|"
+                "· Which type of poke you prefer?| | ",
+                " | |  fire poke can win ice type!| | | ",
+                " | | -ps: i've hear this from Pr.Oak| | | ",
+                " | | -pss: but i know this myself too| | | "]
         q1 = {
             "index": 3,
             "answer_count": 3,
@@ -71,18 +71,19 @@ def place_loading(items, place):  # loading items for any map
             "text_after_2": ["· i love ice poke too!"],
             "text_after_3": ["· hmm, grass type is strong type,/ i agree with you"]
         }
-        boy = NPC("sprite2", 24 * 32, 13 * 32, "d", 10, text, text2, text3, text4, q1)
+        boy = NPC("sprite2", 24 * 32, 13 * 32, "d", 10, text, q1)
         boy.movement(32, 1, 1, 'd', 'l', 'r', 'u', 80, 60, 60, 60)
         items.add(boy)
-        text_fridge = "There are a lot of interesting things inside."
-        text_fridge2 = "But the cake in the middle attracts the most."
-        text_fridge3 = "It looks very tasty."
-        fridge = Dialog_box(17 * 32, 8 * 32, text_fridge, text_fridge2, text_fridge3, " ")
-        fridge2 = Dialog_box(16 * 32, 8 * 32, text_fridge, text_fridge2, text_fridge3, " ")
+        text_fridge = ["There are a lot of interesting things inside.",
+                       "But the cake in the middle attracts the most.",
+                       "It looks very tasty.",
+                       " "]
+        fridge = Dialog_box(17 * 32, 8 * 32, text_fridge)
+        fridge2 = Dialog_box(16 * 32, 8 * 32, text_fridge)
         items.add(fridge)
         items.add(fridge2)
-        tv_text = "\"TOP-5 Epic Pokemon Battle\" show is on TV"
-        tv = Dialog_box(19 * 32, 11 * 32, tv_text, " ", " ", " ")
+        tv_text = ["\"TOP-5 Epic Pokemon Battle\" show is on TV", " ", " ", " "]
+        tv = Dialog_box(19 * 32, 11 * 32, tv_text)
         items.add(tv)
     elif place == "TestMap":
         items.add(Stars(39, 14, "from_TestMap_to_TestHouse", 19 * 32, 15 * 32, 'up'))

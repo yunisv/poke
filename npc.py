@@ -57,7 +57,7 @@ class Dialogue(pygame.sprite.Sprite):
 
 
 class NPC(pygame.sprite.Sprite):
-    def __init__(self, id_npc, x, y, start_dir, start_time_delay, text, text2, text3, text4, *questions):
+    def __init__(self, id_npc, x, y, start_dir, start_time_delay, text, *questions):
         super(NPC, self).__init__()
         self.animation_on = None  # component for moving function
         self.count = 0  # component for moving function
@@ -71,14 +71,15 @@ class NPC(pygame.sprite.Sprite):
         self.dialogue_create = True  # setting action mechanic
         # if action_data == "talk":
         #     self.talking = False  # setting, would be npc talk or no
-        self.text_default = text.split("|")
-        self.text_default2 = text2.split("|")
-        self.text_default3 = text3.split("|")
-        self.text_default4 = text4.split("|")
-        self.text_content = text.split("|")
-        self.text_content2 = text2.split("|")
-        self.text_content3 = text3.split("|")
-        self.text_content4 = text4.split("|")
+        default_text = text[:]
+        self.text_default = default_text[0].split("|")
+        self.text_default2 = default_text[1].split("|")
+        self.text_default3 = default_text[2].split("|")
+        self.text_default4 = default_text[3].split("|")
+        self.text_content = text[0].split("|")
+        self.text_content2 = text[1].split("|")
+        self.text_content3 = text[2].split("|")
+        self.text_content4 = text[3].split("|")
         self.text = ""  # our text
         self.text2 = ""  # our text
         self.text3 = ""  # our text
@@ -379,7 +380,7 @@ class NPC(pygame.sprite.Sprite):
 
                     settings.world_status_changer("MAIN")
 
-            # if dialog part (message) not ended - we end this
+            # if dialog message not ended - we end this
             if self.change:
                 if settings.world_status == "DIALOG":
                     if self.text != self.text_content[self.text_index] and \
