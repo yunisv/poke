@@ -4,7 +4,7 @@ import os
 import pygame
 from pygame import *
 import sqlite3
-from setting import Pokemon
+from setting import Pokemon, font_standart
 
 
 def resource_path(relative_path):
@@ -27,6 +27,7 @@ class Battle_System(pygame.sprite.Sprite):
         # opponent {arg} => [type_of_opponent, id_of_npc] (npc)
         # place {arg} => [location, time]
         super(Battle_System, self).__init__()
+        self.type_system = "battle_system"
         self.type_of_battle = type_of_battle
         self.place = place[0]
         self.time = place[1]
@@ -62,8 +63,25 @@ class Battle_System(pygame.sprite.Sprite):
         poke_icon_false.blit(system_photo, (0, 0), [704, 12, 19, 19])
         poke_icon_none.blit(system_photo, (0, 0), [1500, 400, 20, 21])
 
+        # setting buttons icons
+        surrender_icon_none = pygame.Surface([70, 56], pygame.SRCALPHA)
+        surrender_icon_none.blit(system_photo, (0, 0), [725, 266, 70, 56])
+        surrender_icon_hover = pygame.Surface([70, 56], pygame.SRCALPHA)
+        surrender_icon_hover.blit(system_photo, (0, 0), [725, 210, 70, 56])
+        self.image.blit(surrender_icon_none, (300, 300))
+
         self.active = True  # Battle status (going/end)
-        self.action = False  # Action (its mean move, item, change or surrender)
+        self.battle_status = "waiting"  # status of battle
+        self.action = False  # action mechanics
+        self.action_A = None  # action of player A
+        self.action_B = None  # action of player B
+
+        self.time_delay = 120
+        self.log = None  # message mechanics
+        self.text = ""  # message mechanics
+        self.text_surface = None
+        self.letter_index = 0
+        self.color = (0, 0, 0)
 
         self.battle_log = []  # here will be keep battle_log
 
@@ -77,7 +95,7 @@ class Battle_System(pygame.sprite.Sprite):
             exec(f"self.player_A_poke_{i}=None")
             exec(f"self.player_B_poke_{i}=None")
 
-        # getting player's_pokes
+        # getting A player's_pokes
         try:
             sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
             cursor = sqlite_connection.cursor()
@@ -215,12 +233,26 @@ class Battle_System(pygame.sprite.Sprite):
         # self.player_B_active_poke_icon = pygame.transform.scale(self.player_B_active_poke_icon_standart, (192, 192))
         self.image.blit(self.player_A_active_poke_icon, [30, 215])
         self.image.blit(self.player_B_active_poke_icon, [370, 82])
+        self.text_surface = font_standart.render(self.text, True, self.color)
 
         if type_of_battle == "wild_poke":
             catch_success = False
 
         # # TEST
         # self.item_effect(2)
+
+        if self.active:
+            if self.battle_status == "waiting":
+                if self.action_A is None or self.action_B is None:
+                    pass
+                else:
+                    self.battle_status = "action"
+            if self.battle_status == "action":
+                if not self.action:
+                    self.action_func(self.action_A, self.action_B)
+                    self.action = True
+                else:
+                    pass
 
     def item_access(self, id_of_item):
         if self.type_of_battle == "NPC":
@@ -276,11 +308,12 @@ class Battle_System(pygame.sprite.Sprite):
                           (1 - (2 / 3) * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP))) / 255
             catch_number = random.random()
             if catch_number < catch_rate:
-                print(catch_number)
+                print(f"catch_rate is: {catch_number}")
                 catch_rate = True
 
-    def action_func(self, action_A, action_B):
+    def action_func(self, action_A, action_B):  # WE NEED CHECK IT < ADD BUTTON SURRENDER
         if action_A == "surrender" or action_B == "surrender":
+            self.log_message("you are surrender!")
             self.kill()
         # if action_A == "change" or action_A == "item":
         #     if action_B == "change" or action_B == "item":
@@ -290,8 +323,33 @@ class Battle_System(pygame.sprite.Sprite):
         #
         #         else:
 
+    def battle_status_changer(self, status):
+        self.battle_status = status
+
     def start_battle(self):
         self.battle_log.append("")
 
-    def update(self, screen):
+    def log_message(self, message):
+        self.log = message
+        if self.time_delay == 0:
+            if self.action:
+                self.battle_status = "waiting"
+                self.action = False
+            self.time_delay = 120
+        else:
+            if self.letter_index != len(self.log):
+                self.text += self.log[self.letter_index]
+                self.letter_index += 1
+            else:
+                self.time_delay -= 1
+            self.text_surface = font_standart.render(self.text, True, self.color)
+            pass
+
+    def button_hover(self, x_mouse, y_mouse):
+        if 300 < x_mouse < 400 and 100 < y_mouse < 200:
+            print("moused")
+
+    def update(self, screen, *args):
+        self.button_hover(args[0][0], args[0][1])
+        self.image.blit(self.text_surface, (100, 100))
         screen.blit(self.image, (self.rect.x, self.rect.y))

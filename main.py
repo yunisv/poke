@@ -181,7 +181,6 @@ x_diff = 0  # difference between clicked pos and sprite (std-0)
 y_diff = 0  # difference between clicked pos and sprite (std-0)
 
 while True:
-    print(settings.world_status)
     world1.current_place.draw_setter(screen)
     world1.current_place.layer_internal.blit(world1.current_place.current_map.background_internal,
                                              (0, 0))  # clearing image after animations
@@ -189,6 +188,8 @@ while True:
     # if the event is quit means we clicked on the close window button
     is_settled = False  # mouse set action (std-False)
     collided_item = None  # collided item ( its mean when we collide 2 system sprite )
+
+    pos = pygame.mouse.get_pos()
     for e in pygame.event.get():
         # check for closing window
         if e.type == pygame.QUIT:
@@ -236,7 +237,7 @@ while True:
             for sprite in system_mech:  # getting all sprites from system_mech
                 # getting sprites type="icon_poke"
                 if sprite.type_system == "icon_poke" or sprite.type_system == "poke_info":
-                    if sprite.rect.collidepoint(pygame.mouse.get_pos()):  # getting clicked sprite
+                    if sprite.rect.collidepoint(pos):  # getting clicked sprite
                         mouse_cursor = sprite  # getting mouse_curso
                         x_diff = e.pos[0] - mouse_cursor.rect.x
                         y_diff = e.pos[1] - mouse_cursor.rect.y
@@ -282,11 +283,11 @@ while True:
                                 if sprite != mouse_cursor:  # except itself
                                     if sprite.poke_exist:  # if there is poke in slot
                                         if mouse_cursor.poke_exist:
-                                            if sprite.rect.collidepoint(pygame.mouse.get_pos()):
+                                            if sprite.rect.collidepoint(pos):
                                                 is_settled = True
                                                 collided_item = sprite
 
-                        if is_settled:
+                        if is_settled and settings.world_status == "MAIN":
                             settings.player_pokes.changer_poke_icon(collided_item, mouse_cursor, system_mech)
                             del land_poke  # delete current land poke
                             # And create a new land poke
@@ -330,6 +331,7 @@ while True:
     player.draw(world1.current_place.layer_internal)
 
     items.update(player, world1.current_place.layer_internal, font, system_mech, settings)
+    print(pos)
     system_mech.update(screen)
 
     clock.tick(settings.FPS)
