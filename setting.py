@@ -76,7 +76,7 @@ shiny_icon_s.blit(system_photo, (0, 0), [2038, 1713, 10, 14])
 
 
 class Pokemon:
-    def __init__(self, id_db_poke=None, db=None, *args):
+    def __init__(self, id_db_poke=None, db=None, query=None, *args):
         # [id, ID, type(shiny), Ability, XP, HP, MOVES_ID[ID, PP], item]
         self.poke_exist = True  # poke found in db (std-True)
         self.id_db_poke = id_db_poke
@@ -85,7 +85,10 @@ class Pokemon:
             try:
                 sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/{db}'))
                 cursor = sqlite_connection.cursor()
-                sqlite_select_query = f'SELECT * FROM poke WHERE id_db like {self.id_db_poke}'
+                if query:
+                    sqlite_select_query = query
+                else:
+                    sqlite_select_query = f'SELECT * FROM poke WHERE id_db like {self.id_db_poke}'
                 cursor.execute(sqlite_select_query)
                 records = cursor.fetchall()
                 if len(records) == 0:

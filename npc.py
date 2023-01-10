@@ -60,8 +60,8 @@ class Dialogue(pygame.sprite.Sprite):
 class NPC(pygame.sprite.Sprite):
     def __init__(self, action_data, id_npc, x, y, start_dir, start_time_delay, text, *questions):
         # action_data :if 'talk': ["type_of_action"]
-        # action_data :if 'battle_with_selection': ["type_of_action", num_of_accept, opponent_team]
-        # action_data :if 'battle': ["type_of_action", num_of_accept, opponent_team]
+        # action_data :if 'battle_with_selection': ["type_of_action", opponent_team]
+        # action_data :if 'battle': ["type_of_action", opponent_team]
         super(NPC, self).__init__()
         self.animation_on = None  # component for moving function
         self.count = 0  # component for moving function
@@ -372,13 +372,19 @@ class NPC(pygame.sprite.Sprite):
 
                     # if dialog ends
                     except IndexError:
-                        # checking npc will beb battle or not, and create their mechanics
+                        # checking npc will be battle or not, and create their mechanics
                         if self.action_data[0] == "battle_with_selection":
                             if self.answer == 2:
-                                test_battle_sprite = Battle_System("wild_poke", 200, 100,
-                                                                   ["wild_poke", 1, "wild_poke.db"],
+                                test_battle_sprite = Battle_System("npc", 200, 100,
+                                                                   ["npc", self.action_data[1]],
                                                                    ["forest", 13.3])
                                 system_mech.add(test_battle_sprite)
+                                settings.world_status_changer("BATTLE")
+
+                        settings.world_status_changer("MAIN")
+                        if self.action_data[0] == "battle_with_selection":
+                            if self.answer == 2:
+                                settings.world_status_changer("BATTLE")
 
                         self.delay_text = 5
                         self.text_index = 0
@@ -398,8 +404,6 @@ class NPC(pygame.sprite.Sprite):
                         self.dialogue_create = True
                         self.action_on = False
                         self.text_index = 0
-
-                        settings.world_status_changer("MAIN")
 
             # if dialog message not ended - we end this
             if self.change:
@@ -599,6 +603,20 @@ class NPC(pygame.sprite.Sprite):
                 try:
                     if self.text_content[self.text_index] == " " and self.text_content2[self.text_index] == " " and \
                             self.text_content3[self.text_index] == " " and self.text_content4[self.text_index] == " ":
+
+                        # checking npc will be battle or not, and create their mechanics
+                        if self.action_data[0] == "battle_with_selection":
+                            if self.answer == 2:
+                                test_battle_sprite = Battle_System("npc", 200, 100,
+                                                                   ["npc", self.action_data[1]],
+                                                                   ["forest", 13.3])
+                                system_mech.add(test_battle_sprite)
+
+                        settings.world_status_changer("MAIN")
+                        if self.action_data[0] == "battle_with_selection":
+                            if self.answer == 2:
+                                settings.world_status_changer("BATTLE")
+
                         self.delay_text = 5
                         self.text_index = 0
                         self.text = ""
@@ -619,13 +637,6 @@ class NPC(pygame.sprite.Sprite):
                         self.text_index = 0
                         settings.world_status_changer("MAIN")
 
-                        # checking npc will beb battle or not, and create their mechanics
-                        if self.action_data[0] == "battle_with_selection":
-                            if self.answer == 2:
-                                test_battle_sprite = Battle_System("wild_poke", 200, 100,
-                                                                   ["wild_poke", 1, "wild_poke.db"],
-                                                                   ["forest", 13.3])
-                                system_mech.add(test_battle_sprite)
                 except IndexError:
                     pass
 

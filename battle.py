@@ -23,8 +23,9 @@ system_photo = pygame.image.load(resource_path("resources/system/sprites/MainUIA
 
 class Battle_System(pygame.sprite.Sprite):
     def __init__(self, type_of_battle, x, y, opponent, place):
-        # opponent [type_of_opponent, id_of_poke, db]
-        # place [location, time]
+        # opponent {arg} => [type_of_opponent, id_of_poke] (wild_poke)
+        # opponent {arg} => [type_of_opponent, id_of_npc] (npc)
+        # place {arg} => [location, time]
         super(Battle_System, self).__init__()
         self.type_of_battle = type_of_battle
         self.place = place[0]
@@ -49,13 +50,17 @@ class Battle_System(pygame.sprite.Sprite):
         left_hp_background = pygame.Surface([157, 41], pygame.SRCALPHA)
         right_hp_background.blit(system_photo, (0, 0), [1843, 1237, 157, 41])
         left_hp_background.blit(system_photo, (0, 0), [1843, 1279, 157, 41])
-        poke_icon_true = pygame.Surface([19, 19], pygame.SRCALPHA)
-        poke_icon_false = pygame.Surface([19, 19], pygame.SRCALPHA)
-        poke_icon_true.blit(system_photo, (0, 0), [704, 123, 19, 19])
-        poke_icon_false.blit(system_photo, (0, 0), [704, 12, 19, 19])
         self.image.blit(self.battle_location_background, [9, 50])
         self.image.blit(right_hp_background, [20, 70])
         self.image.blit(left_hp_background, [410, 305])
+
+        # setting pokeballs icons
+        poke_icon_true = pygame.Surface([19, 19], pygame.SRCALPHA)
+        poke_icon_false = pygame.Surface([19, 19], pygame.SRCALPHA)
+        poke_icon_none = pygame.Surface([19, 19], pygame.SRCALPHA)
+        poke_icon_true.blit(system_photo, (0, 0), [704, 123, 19, 19])
+        poke_icon_false.blit(system_photo, (0, 0), [704, 12, 19, 19])
+        poke_icon_none.blit(system_photo, (0, 0), [1500, 400, 20, 21])
 
         self.active = True  # Battle status (going/end)
         self.action = False  # Action (its mean move, item, change or surrender)
@@ -81,39 +86,50 @@ class Battle_System(pygame.sprite.Sprite):
                 cursor.execute(sqlite_select_query)
                 records = cursor.fetchall()
                 if len(records) == 0:
-                    continue
+                    if i == 1:
+                        self.image.blit(poke_icon_none, [432, 355])
+                    elif i == 2:
+                        self.image.blit(poke_icon_none, [454, 355])
+                    elif i == 3:
+                        self.image.blit(poke_icon_none, [476, 355])
+                    elif i == 4:
+                        self.image.blit(poke_icon_none, [498, 355])
+                    elif i == 5:
+                        self.image.blit(poke_icon_none, [520, 355])
+                    elif i == 6:
+                        self.image.blit(poke_icon_none, [542, 355])
                 else:
                     exec(f'self.player_A_poke_{i} = Pokemon(i, "player_pokes.db")')
                     if i == 1:
                         if self.player_A_poke_1.HP == 0:
-                            self.image.blit(poke_icon_false, [542, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [542, 355])
-                    elif i == 2:
-                        if self.player_A_poke_2.HP == 0:
-                            self.image.blit(poke_icon_false, [520, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [520, 355])
-                    elif i == 3:
-                        if self.player_A_poke_3.HP == 0:
-                            self.image.blit(poke_icon_false, [498, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [498, 355])
-                    elif i == 4:
-                        if self.player_A_poke_4.HP == 0:
-                            self.image.blit(poke_icon_false, [476, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [476, 355])
-                    elif i == 5:
-                        if self.player_A_poke_5.HP == 0:
-                            self.image.blit(poke_icon_false, [454, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [454, 355])
-                    elif i == 6:
-                        if self.player_A_poke_6.HP == 0:
                             self.image.blit(poke_icon_false, [432, 355])
                         else:
                             self.image.blit(poke_icon_true, [432, 355])
+                    elif i == 2:
+                        if self.player_A_poke_2.HP == 0:
+                            self.image.blit(poke_icon_false, [454, 355])
+                        else:
+                            self.image.blit(poke_icon_true, [454, 355])
+                    elif i == 3:
+                        if self.player_A_poke_3.HP == 0:
+                            self.image.blit(poke_icon_false, [476, 355])
+                        else:
+                            self.image.blit(poke_icon_true, [476, 355])
+                    elif i == 4:
+                        if self.player_A_poke_4.HP == 0:
+                            self.image.blit(poke_icon_false, [498, 355])
+                        else:
+                            self.image.blit(poke_icon_true, [498, 355])
+                    elif i == 5:
+                        if self.player_A_poke_5.HP == 0:
+                            self.image.blit(poke_icon_false, [520, 355])
+                        else:
+                            self.image.blit(poke_icon_true, [520, 355])
+                    elif i == 6:
+                        if self.player_A_poke_6.HP == 0:
+                            self.image.blit(poke_icon_false, [542, 355])
+                        else:
+                            self.image.blit(poke_icon_true, [542, 355])
 
             cursor.close()
             sqlite_connection.close()
@@ -123,16 +139,88 @@ class Battle_System(pygame.sprite.Sprite):
 
         # getting B pokes
         if opponent[0] == "wild_poke":
-            self.player_B_poke_1 = Pokemon(opponent[1], opponent[2])
+            self.player_B_poke_1 = Pokemon(opponent[1], "wild")
+        elif opponent[0] == "npc":
+            try:
+                sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/npc_pokes.db'))
+                cursor = sqlite_connection.cursor()
+                for i in range(1, 7):
+                    sqlite_select_query = f'SELECT * FROM [{i}] WHERE id_npc like {opponent[1]}'
+                    cursor.execute(sqlite_select_query)
+                    records = cursor.fetchall()
+                    if len(records) == 0:
+                        if i == 1:
+                            self.image.blit(poke_icon_none, [26, 120])
+                        elif i == 2:
+                            self.image.blit(poke_icon_none, [48, 120])
+                        elif i == 3:
+                            self.image.blit(poke_icon_none, [70, 120])
+                        elif i == 4:
+                            self.image.blit(poke_icon_none, [92, 120])
+                        elif i == 5:
+                            self.image.blit(poke_icon_none, [114, 120])
+                        elif i == 6:
+                            self.image.blit(poke_icon_none, [136, 120])
+                    else:
+                        exec(f'self.player_B_poke_{i} = Pokemon(i, "npc_pokes.db",'
+                             f'"SELECT * FROM [{i}] WHERE id_npc like {opponent[1]}")')
+                        if i == 1:
+                            if self.player_B_poke_1.HP == 0:
+                                self.image.blit(poke_icon_false, [26, 120])
+                            else:
+                                self.image.blit(poke_icon_true, [26, 120])
+                        elif i == 2:
+                            if self.player_B_poke_2.HP == 0:
+                                self.image.blit(poke_icon_false, [48, 120])
+                            else:
+                                self.image.blit(poke_icon_true, [48, 120])
+                        elif i == 3:
+                            if self.player_B_poke_3.HP == 0:
+                                self.image.blit(poke_icon_false, [70, 120])
+                            else:
+                                self.image.blit(poke_icon_true, [70, 120])
+                        elif i == 4:
+                            if self.player_B_poke_4.HP == 0:
+                                self.image.blit(poke_icon_false, [92, 120])
+                            else:
+                                self.image.blit(poke_icon_true, [92, 120])
+                        elif i == 5:
+                            if self.player_B_poke_5.HP == 0:
+                                self.image.blit(poke_icon_false, [114, 120])
+                            else:
+                                self.image.blit(poke_icon_true, [114, 120])
+                        elif i == 6:
+                            if self.player_B_poke_6.HP == 0:
+                                self.image.blit(poke_icon_false, [136, 120])
+                            else:
+                                self.image.blit(poke_icon_true, [136, 120])
+
+                cursor.close()
+                sqlite_connection.close()
+
+            except sqlite3.Error as error:
+                print("Ошибка при работе с SQLite", error)
 
         self.player_A_active_poke = self.player_A_poke_1
         self.player_B_active_poke = self.player_B_poke_1
 
+        # bliting poke_icons on field
+        self.player_A_active_poke_icon_standart = pygame.image.load(
+            resource_path(f"resources/pokemon/"
+                          f"{self.player_A_active_poke.type_poke}/{self.player_A_active_poke.id_pokedex}/me.png"))
+        self.player_B_active_poke_icon = pygame.image.load(
+            resource_path(f"resources/pokemon/"
+                          f"{self.player_B_active_poke.type_poke}/{self.player_B_active_poke.id_pokedex}/foe.png"))
+        self.player_A_active_poke_icon = pygame.transform.scale(self.player_A_active_poke_icon_standart, (192, 192))
+        # self.player_B_active_poke_icon = pygame.transform.scale(self.player_B_active_poke_icon_standart, (192, 192))
+        self.image.blit(self.player_A_active_poke_icon, [30, 215])
+        self.image.blit(self.player_B_active_poke_icon, [370, 82])
+
         if type_of_battle == "wild_poke":
             catch_success = False
 
-        # TEST
-        self.item_effect(2)
+        # # TEST
+        # self.item_effect(2)
 
     def item_access(self, id_of_item):
         if self.type_of_battle == "NPC":

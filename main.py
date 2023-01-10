@@ -181,6 +181,7 @@ x_diff = 0  # difference between clicked pos and sprite (std-0)
 y_diff = 0  # difference between clicked pos and sprite (std-0)
 
 while True:
+    print(settings.world_status)
     world1.current_place.draw_setter(screen)
     world1.current_place.layer_internal.blit(world1.current_place.current_map.background_internal,
                                              (0, 0))  # clearing image after animations
