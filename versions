@@ -141,7 +141,7 @@ Upgrade NPC:
 - Added battle function (now we can battle with NPC (if its possible)
 - Fix some problems with Dialog
 
-0.7.3.2:
+0.7.3.3:
 Upgrade Battle system:
 - Added poke icons on battle background field
 - Added world_status when battling
