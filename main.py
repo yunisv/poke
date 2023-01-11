@@ -331,8 +331,7 @@ while True:
     player.draw(world1.current_place.layer_internal)
 
     items.update(player, world1.current_place.layer_internal, font, system_mech, settings)
-    print(pos)
-    system_mech.update(screen)
+    system_mech.update(screen, pos)
 
     clock.tick(settings.FPS)
     pygame.display.update()

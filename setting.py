@@ -239,7 +239,7 @@ class Poke_icon(sprite.Sprite):
             self.image.blit(self.icon_of_poke, (11, 6))
             self.line_of_HP = pygame.draw.line(self.image, (0, 200, 64), [57, 32], [self.HP_line_percentage, 32])
 
-    def update(self, screen):
+    def update(self, screen, *args):
         screen.blit(self.image, (self.rect.x, self.rect.y))
         if self.info_shows:
             screen.blit(self.info_background, (self.rect.x + 125, self.rect.y))
@@ -307,7 +307,7 @@ class Poke_info(sprite.Sprite):
         self.image = Surface((460, 291), pygame.SRCALPHA)
         self.rect = Rect(x, y, 460, 291)
         self.close_button_x = [self.rect.x + 430, self.rect.x + 450]
-        self.close_button_y = [self.rect.y + 20, self.rect.x + 40]
+        self.close_button_y = [self.rect.y + 20, self.rect.y + 40]
 
         self.STAT_ATK = self.stat_formula(pokemons[self.id_pokedex]["ATK"], self.IVATK, self.EVATK,
                                           self.LV, self.poke_character, "ATK")
@@ -567,7 +567,7 @@ class Poke_info(sprite.Sprite):
         self.image.blit(self.OT, (220, 183))  # bliting "original poke name" word
         # self.line_of_HP = pygame.draw.line(self.image, (0, 200, 64), [57, 32], [self.HP_line_percentage, 32])
 
-    def update(self, screen):
+    def update(self, screen, *args):
         self.close_button_x = [self.rect.x + 430, self.rect.x + 450]
         self.close_button_y = [self.rect.y + 20, self.rect.y + 40]
         if self.move_1_buttons_status:
@@ -868,7 +868,8 @@ class Poke_info(sprite.Sprite):
                     f'UPDATE poke SET pp_4={self.pp_1} WHERE id_db = {self.id_db_poke};'
 
                 try:
-                    sqlite_connection_for_move = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+                    sqlite_connection_for_move = sqlite3.connect(
+                        resource_path(f'resources/system/database/player_pokes.db'))
                     cursor = sqlite_connection_for_move.cursor()
 
                     cursor.execute(sqlite_select_query_1_move)

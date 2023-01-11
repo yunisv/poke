@@ -47,35 +47,39 @@ class Battle_System(pygame.sprite.Sprite):
         # bliting field (where we battle)
         self.battle_location_background = \
             pygame.image.load(resource_path(f"resources/img/places/location/{self.place}_{self.time}.png"))
-        right_hp_background = pygame.Surface([157, 41], pygame.SRCALPHA)
-        left_hp_background = pygame.Surface([157, 41], pygame.SRCALPHA)
-        right_hp_background.blit(system_photo, (0, 0), [1843, 1237, 157, 41])
-        left_hp_background.blit(system_photo, (0, 0), [1843, 1279, 157, 41])
+        self.right_hp_background = pygame.Surface([157, 41], pygame.SRCALPHA)
+        self.left_hp_background = pygame.Surface([157, 41], pygame.SRCALPHA)
+        self.right_hp_background.blit(system_photo, (0, 0), [1843, 1237, 157, 41])
+        self.left_hp_background.blit(system_photo, (0, 0), [1843, 1279, 157, 41])
         self.image.blit(self.battle_location_background, [9, 50])
-        self.image.blit(right_hp_background, [20, 70])
-        self.image.blit(left_hp_background, [410, 305])
+        self.image.blit(self.right_hp_background, [20, 70])
+        self.image.blit(self.left_hp_background, [410, 305])
 
         # setting pokeballs icons
-        poke_icon_true = pygame.Surface([19, 19], pygame.SRCALPHA)
-        poke_icon_false = pygame.Surface([19, 19], pygame.SRCALPHA)
-        poke_icon_none = pygame.Surface([19, 19], pygame.SRCALPHA)
-        poke_icon_true.blit(system_photo, (0, 0), [704, 123, 19, 19])
-        poke_icon_false.blit(system_photo, (0, 0), [704, 12, 19, 19])
-        poke_icon_none.blit(system_photo, (0, 0), [1500, 400, 20, 21])
+        self.poke_icon_true = pygame.Surface([19, 19], pygame.SRCALPHA)
+        self.poke_icon_false = pygame.Surface([19, 19], pygame.SRCALPHA)
+        self.poke_icon_none = pygame.Surface([19, 19], pygame.SRCALPHA)
+        self.poke_icon_true.blit(system_photo, (0, 0), [704, 123, 19, 19])
+        self.poke_icon_false.blit(system_photo, (0, 0), [704, 12, 19, 19])
+        self.poke_icon_none.blit(system_photo, (0, 0), [1500, 400, 20, 21])
 
         # setting buttons icons
-        surrender_icon_none = pygame.Surface([70, 56], pygame.SRCALPHA)
-        surrender_icon_none.blit(system_photo, (0, 0), [725, 266, 70, 56])
-        surrender_icon_hover = pygame.Surface([70, 56], pygame.SRCALPHA)
-        surrender_icon_hover.blit(system_photo, (0, 0), [725, 210, 70, 56])
-        self.image.blit(surrender_icon_none, (300, 300))
+        self.surrender_icon_none = pygame.Surface([70, 56], pygame.SRCALPHA)
+        self.surrender_icon_none.blit(system_photo, (0, 0), [725, 266, 70, 56])
+        self.surrender_icon_hover = pygame.Surface([70, 56], pygame.SRCALPHA)
+        self.surrender_icon_hover.blit(system_photo, (0, 0), [725, 210, 70, 56])
 
+        self.surrender_button_x = [self.rect.x + 700, self.rect.x + 770]
+        self.surrender_button_y = [self.rect.y + 400, self.rect.y + 456]
+
+        # Action mechanics
         self.active = True  # Battle status (going/end)
         self.battle_status = "waiting"  # status of battle
         self.action = False  # action mechanics
         self.action_A = None  # action of player A
         self.action_B = None  # action of player B
 
+        # Log mechanics
         self.time_delay = 120
         self.log = None  # message mechanics
         self.text = ""  # message mechanics
@@ -104,50 +108,9 @@ class Battle_System(pygame.sprite.Sprite):
                 cursor.execute(sqlite_select_query)
                 records = cursor.fetchall()
                 if len(records) == 0:
-                    if i == 1:
-                        self.image.blit(poke_icon_none, [432, 355])
-                    elif i == 2:
-                        self.image.blit(poke_icon_none, [454, 355])
-                    elif i == 3:
-                        self.image.blit(poke_icon_none, [476, 355])
-                    elif i == 4:
-                        self.image.blit(poke_icon_none, [498, 355])
-                    elif i == 5:
-                        self.image.blit(poke_icon_none, [520, 355])
-                    elif i == 6:
-                        self.image.blit(poke_icon_none, [542, 355])
+                    pass
                 else:
                     exec(f'self.player_A_poke_{i} = Pokemon(i, "player_pokes.db")')
-                    if i == 1:
-                        if self.player_A_poke_1.HP == 0:
-                            self.image.blit(poke_icon_false, [432, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [432, 355])
-                    elif i == 2:
-                        if self.player_A_poke_2.HP == 0:
-                            self.image.blit(poke_icon_false, [454, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [454, 355])
-                    elif i == 3:
-                        if self.player_A_poke_3.HP == 0:
-                            self.image.blit(poke_icon_false, [476, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [476, 355])
-                    elif i == 4:
-                        if self.player_A_poke_4.HP == 0:
-                            self.image.blit(poke_icon_false, [498, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [498, 355])
-                    elif i == 5:
-                        if self.player_A_poke_5.HP == 0:
-                            self.image.blit(poke_icon_false, [520, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [520, 355])
-                    elif i == 6:
-                        if self.player_A_poke_6.HP == 0:
-                            self.image.blit(poke_icon_false, [542, 355])
-                        else:
-                            self.image.blit(poke_icon_true, [542, 355])
 
             cursor.close()
             sqlite_connection.close()
@@ -167,51 +130,10 @@ class Battle_System(pygame.sprite.Sprite):
                     cursor.execute(sqlite_select_query)
                     records = cursor.fetchall()
                     if len(records) == 0:
-                        if i == 1:
-                            self.image.blit(poke_icon_none, [26, 120])
-                        elif i == 2:
-                            self.image.blit(poke_icon_none, [48, 120])
-                        elif i == 3:
-                            self.image.blit(poke_icon_none, [70, 120])
-                        elif i == 4:
-                            self.image.blit(poke_icon_none, [92, 120])
-                        elif i == 5:
-                            self.image.blit(poke_icon_none, [114, 120])
-                        elif i == 6:
-                            self.image.blit(poke_icon_none, [136, 120])
+                        pass
                     else:
                         exec(f'self.player_B_poke_{i} = Pokemon(i, "npc_pokes.db",'
                              f'"SELECT * FROM [{i}] WHERE id_npc like {opponent[1]}")')
-                        if i == 1:
-                            if self.player_B_poke_1.HP == 0:
-                                self.image.blit(poke_icon_false, [26, 120])
-                            else:
-                                self.image.blit(poke_icon_true, [26, 120])
-                        elif i == 2:
-                            if self.player_B_poke_2.HP == 0:
-                                self.image.blit(poke_icon_false, [48, 120])
-                            else:
-                                self.image.blit(poke_icon_true, [48, 120])
-                        elif i == 3:
-                            if self.player_B_poke_3.HP == 0:
-                                self.image.blit(poke_icon_false, [70, 120])
-                            else:
-                                self.image.blit(poke_icon_true, [70, 120])
-                        elif i == 4:
-                            if self.player_B_poke_4.HP == 0:
-                                self.image.blit(poke_icon_false, [92, 120])
-                            else:
-                                self.image.blit(poke_icon_true, [92, 120])
-                        elif i == 5:
-                            if self.player_B_poke_5.HP == 0:
-                                self.image.blit(poke_icon_false, [114, 120])
-                            else:
-                                self.image.blit(poke_icon_true, [114, 120])
-                        elif i == 6:
-                            if self.player_B_poke_6.HP == 0:
-                                self.image.blit(poke_icon_false, [136, 120])
-                            else:
-                                self.image.blit(poke_icon_true, [136, 120])
 
                 cursor.close()
                 sqlite_connection.close()
@@ -243,7 +165,7 @@ class Battle_System(pygame.sprite.Sprite):
 
         if self.active:
             if self.battle_status == "waiting":
-                if self.action_A is None or self.action_B is None:
+                if self.action_A is None and self.action_B is None:  # BUT HERE MUST BE OR (not and)
                     pass
                 else:
                     self.battle_status = "action"
@@ -314,6 +236,8 @@ class Battle_System(pygame.sprite.Sprite):
     def action_func(self, action_A, action_B):  # WE NEED CHECK IT < ADD BUTTON SURRENDER
         if action_A == "surrender" or action_B == "surrender":
             self.log_message("you are surrender!")
+            self.battle_status = "waiting"
+            self.action = False
             self.kill()
         # if action_A == "change" or action_A == "item":
         #     if action_B == "change" or action_B == "item":
@@ -331,25 +255,68 @@ class Battle_System(pygame.sprite.Sprite):
 
     def log_message(self, message):
         self.log = message
-        if self.time_delay == 0:
-            if self.action:
-                self.battle_status = "waiting"
-                self.action = False
+        if self.letter_index != len(self.log):
+            self.text += self.log[self.letter_index]
+            self.letter_index += 1
+            print(self.text)
+        self.text_surface = font_standart.render(self.text, True, self.color)
+
+    def delay_func(self):
+        if self.time_delay < 0:
             self.time_delay = 120
+            return True
         else:
-            if self.letter_index != len(self.log):
-                self.text += self.log[self.letter_index]
-                self.letter_index += 1
-            else:
-                self.time_delay -= 1
-            self.text_surface = font_standart.render(self.text, True, self.color)
-            pass
+            self.time_delay -= 1
+            return False
 
     def button_hover(self, x_mouse, y_mouse):
-        if 300 < x_mouse < 400 and 100 < y_mouse < 200:
-            print("moused")
+        if (700 + self.rect.x) < x_mouse < (770 + self.rect.x) and (400 + self.rect.y) < y_mouse < (456 + self.rect.y):
+            self.image.blit(self.surrender_icon_hover, (700, 400))
+        else:
+            self.image.blit(self.surrender_icon_none, (700, 400))
+
+    def press_checker(self, e_pos_x, e_pos_y):
+        # close button condition
+        if self.close_button_x[0] <= e_pos_x <= self.close_button_x[1] and \
+                self.close_button_y[0] <= e_pos_y <= self.close_button_y[1]:
+            self.action_A = "surrender"
 
     def update(self, screen, *args):
-        self.button_hover(args[0][0], args[0][1])
+        self.image.fill((255, 255, 255, 0))
+        self.image.blit(self.background_img, [0, 0])
+
+        self.image.blit(self.battle_location_background, [9, 50])
+        self.image.blit(self.right_hp_background, [20, 70])
+        self.image.blit(self.left_hp_background, [410, 305])
+
+        self.pokeball_icons_draw()
+        self.button_hover(args[0][0], args[0][1])  # mouse pos in args
+
+        self.image.blit(self.player_A_active_poke_icon, [30, 215])
+        self.image.blit(self.player_B_active_poke_icon, [370, 82])
+
         self.image.blit(self.text_surface, (100, 100))
         screen.blit(self.image, (self.rect.x, self.rect.y))
+
+    def pokeball_icons_draw(self):
+        x_cord_of_A_icons = 432
+        x_cord_of_B_icons = 26
+        for i in range(1, 7):
+            if eval(f"self.player_A_poke_{i} is None"):
+                self.image.blit(self.poke_icon_none, [x_cord_of_A_icons, 355])
+            else:
+                if eval(f"self.player_A_poke_{i}.HP == 0"):
+                    self.image.blit(self.poke_icon_false, [x_cord_of_A_icons, 355])
+                else:
+                    self.image.blit(self.poke_icon_true, [x_cord_of_A_icons, 355])
+
+            if eval(f"self.player_B_poke_{i} is None"):
+                self.image.blit(self.poke_icon_none, [x_cord_of_B_icons, 120])
+            else:
+                if eval(f"self.player_B_poke_{i}.HP == 0"):
+                    self.image.blit(self.poke_icon_false, [x_cord_of_B_icons, 120])
+                else:
+                    self.image.blit(self.poke_icon_true, [x_cord_of_B_icons, 120])
+
+            x_cord_of_A_icons = x_cord_of_A_icons + 22
+            x_cord_of_B_icons = x_cord_of_B_icons + 22

@@ -45,7 +45,7 @@ class Dialogue(pygame.sprite.Sprite):
         self.text3 = text3
         self.text4 = text4
 
-    def update(self, screen):
+    def update(self, screen, *args):
         self.image.blit(dialog_image, (0, 0))
         self.image.blit(self.text, (40, 30))
         self.image.blit(self.text2, (40, 65))
