@@ -2,9 +2,10 @@ import random
 import sys
 import os
 import pygame
+import pyganim
 from pygame import *
 import sqlite3
-from setting import Pokemon, font_standart
+from setting import Pokemon
 
 
 def resource_path(relative_path):
@@ -19,6 +20,7 @@ def resource_path(relative_path):
 
 
 system_photo = pygame.image.load(resource_path("resources/system/sprites/MainUIAtlasTrilinear.png"))
+font = pygame.font.Font(resource_path("resources/font/Pixel_Times.ttf"), 20)  # setting font
 
 
 class Battle_System(pygame.sprite.Sprite):
@@ -47,6 +49,8 @@ class Battle_System(pygame.sprite.Sprite):
         # bliting field (where we battle)
         self.battle_location_background = \
             pygame.image.load(resource_path(f"resources/img/places/location/{self.place}_{self.time}.png"))
+        self.battle_log_background = \
+            pygame.image.load(resource_path(f"resources/system/sprites/battle_log.png"))
         self.right_hp_background = pygame.Surface([157, 41], pygame.SRCALPHA)
         self.left_hp_background = pygame.Surface([157, 41], pygame.SRCALPHA)
         self.right_hp_background.blit(system_photo, (0, 0), [1843, 1237, 157, 41])
@@ -79,13 +83,20 @@ class Battle_System(pygame.sprite.Sprite):
         self.action_A = None  # action of player A
         self.action_B = None  # action of player B
 
+        self.actions_list = []  # actions list
+        self.arguments_list = []  # args list
+        self.current_action = None  # current action
+        self.current_arguments = None  # current arguments for function
+        self.current_action_value = False  # current action value (checking function is going or not)
+        self.action_index = 0
+
         # Log mechanics
-        self.time_delay = 120
+        self.time_delay = 50
         self.log = None  # message mechanics
         self.text = ""  # message mechanics
         self.text_surface = None
         self.letter_index = 0
-        self.color = (0, 0, 0)
+        self.color = (255, 255, 255)
 
         self.battle_log = []  # here will be keep battle_log
 
@@ -145,17 +156,14 @@ class Battle_System(pygame.sprite.Sprite):
         self.player_B_active_poke = self.player_B_poke_1
 
         # bliting poke_icons on field
-        self.player_A_active_poke_icon_standart = pygame.image.load(
-            resource_path(f"resources/pokemon/"
-                          f"{self.player_A_active_poke.type_poke}/{self.player_A_active_poke.id_pokedex}/me.png"))
-        self.player_B_active_poke_icon = pygame.image.load(
-            resource_path(f"resources/pokemon/"
-                          f"{self.player_B_active_poke.type_poke}/{self.player_B_active_poke.id_pokedex}/foe.png"))
-        self.player_A_active_poke_icon = pygame.transform.scale(self.player_A_active_poke_icon_standart, (192, 192))
-        # self.player_B_active_poke_icon = pygame.transform.scale(self.player_B_active_poke_icon_standart, (192, 192))
-        self.image.blit(self.player_A_active_poke_icon, [30, 215])
-        self.image.blit(self.player_B_active_poke_icon, [370, 82])
-        self.text_surface = font_standart.render(self.text, True, self.color)
+        self.player_A_active_poke_icon_standart = None
+        self.player_B_active_poke_icon = None
+        self.player_A_active_poke_standart = None
+        self.player_A_active_poke_icon = None
+        self.player_A_active_poke_icon_frame_1 = None
+        self.player_A_active_poke_icon_frame_2 = None
+        self.player_A_active_poke_icon_anim = None
+        self.poke_img_load()
 
         if type_of_battle == "wild_poke":
             catch_success = False
@@ -163,18 +171,27 @@ class Battle_System(pygame.sprite.Sprite):
         # # TEST
         # self.item_effect(2)
 
-        if self.active:
-            if self.battle_status == "waiting":
-                if self.action_A is None and self.action_B is None:  # BUT HERE MUST BE OR (not and)
-                    pass
-                else:
-                    self.battle_status = "action"
-            if self.battle_status == "action":
-                if not self.action:
-                    self.action_func(self.action_A, self.action_B)
-                    self.action = True
-                else:
-                    pass
+    def poke_img_load(self):
+        self.player_A_active_poke_icon_standart = pygame.image.load(
+            resource_path(f"resources/pokemon/"
+                          f"{self.player_A_active_poke.type_poke}/{self.player_A_active_poke.id_pokedex}/me.png"))
+        self.player_B_active_poke_icon = pygame.image.load(
+            resource_path(f"resources/pokemon/"
+                          f"{self.player_B_active_poke.type_poke}/{self.player_B_active_poke.id_pokedex}/foe.png"))
+        self.player_A_active_poke_standart = pygame.transform.scale(self.player_A_active_poke_icon_standart,
+                                                                    (192, 192))
+        self.player_A_active_poke_icon = pygame.Surface([192, 198], pygame.SRCALPHA)
+        # create poke anim in battle_background
+        self.player_A_active_poke_icon_frame_1 = pygame.Surface([192, 198], pygame.SRCALPHA)
+        self.player_A_active_poke_icon_frame_2 = pygame.Surface([192, 198], pygame.SRCALPHA)
+        self.player_A_active_poke_icon_frame_1.blit(self.player_A_active_poke_standart, [0, 0])
+        self.player_A_active_poke_icon_frame_2.blit(self.player_A_active_poke_standart, [0, 6])
+        self.player_A_active_poke_icon_anim = pyganim.PygAnimation([
+            (self.player_A_active_poke_icon_frame_1, 0.5),
+            (self.player_A_active_poke_icon_frame_2, 0.5)])
+        self.player_A_active_poke_icon_anim.play()
+        self.image.blit(self.player_B_active_poke_icon, [370, 82])
+        self.text_surface = font.render(self.text, True, self.color)
 
     def item_access(self, id_of_item):
         if self.type_of_battle == "NPC":
@@ -235,10 +252,17 @@ class Battle_System(pygame.sprite.Sprite):
 
     def action_func(self, action_A, action_B):  # WE NEED CHECK IT < ADD BUTTON SURRENDER
         if action_A == "surrender" or action_B == "surrender":
-            self.log_message("you are surrender!")
-            self.battle_status = "waiting"
-            self.action = False
-            self.kill()
+            self.player_A_active_poke_icon_anim.pause()
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append("· You are surrendered!")
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append(True)
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append("· You lost the battle!")
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append(True)
+            self.actions_list.append(self.end_battle)
+            self.arguments_list.append(None)
         # if action_A == "change" or action_A == "item":
         #     if action_B == "change" or action_B == "item":
         #         if self.player_A_active_poke.STAT_SPD > self.player_B_active_poke.STAT_SPD:
@@ -251,23 +275,34 @@ class Battle_System(pygame.sprite.Sprite):
         self.battle_status = status
 
     def start_battle(self):
-        self.battle_log.append("")
+        self.battle_log.append("Battle started.")
+
+    def end_battle(self):
+        self.battle_status = "end"
+        self.action = False
 
     def log_message(self, message):
         self.log = message
         if self.letter_index != len(self.log):
             self.text += self.log[self.letter_index]
             self.letter_index += 1
-            print(self.text)
-        self.text_surface = font_standart.render(self.text, True, self.color)
+            self.current_action_value = True
+        else:
+            self.letter_index = 0
+            self.current_action_value = False
+            self.action_index += 1
+        self.text_surface = font.render(self.text, True, self.color)
 
-    def delay_func(self):
+    def delay_func(self, log_clear=False):
         if self.time_delay < 0:
-            self.time_delay = 120
-            return True
+            if log_clear:
+                self.text = ""
+                self.text_surface = font.render(self.text, True, self.color)
+            self.time_delay = 50
+            self.current_action_value = False
+            self.action_index += 1
         else:
             self.time_delay -= 1
-            return False
 
     def button_hover(self, x_mouse, y_mouse):
         if (700 + self.rect.x) < x_mouse < (770 + self.rect.x) and (400 + self.rect.y) < y_mouse < (456 + self.rect.y):
@@ -277,26 +312,72 @@ class Battle_System(pygame.sprite.Sprite):
 
     def press_checker(self, e_pos_x, e_pos_y):
         # close button condition
-        if self.close_button_x[0] <= e_pos_x <= self.close_button_x[1] and \
-                self.close_button_y[0] <= e_pos_y <= self.close_button_y[1]:
+        if self.surrender_button_x[0] <= e_pos_x <= self.surrender_button_x[1] and \
+                self.surrender_button_y[0] <= e_pos_y <= self.surrender_button_y[1]:
             self.action_A = "surrender"
 
     def update(self, screen, *args):
-        self.image.fill((255, 255, 255, 0))
-        self.image.blit(self.background_img, [0, 0])
+        # update buttons pos
+        self.surrender_button_x = [self.rect.x + 700, self.rect.x + 770]
+        self.surrender_button_y = [self.rect.y + 400, self.rect.y + 456]
 
-        self.image.blit(self.battle_location_background, [9, 50])
-        self.image.blit(self.right_hp_background, [20, 70])
-        self.image.blit(self.left_hp_background, [410, 305])
+        # battle status
+        if self.active:
+            # print(self.battle_status)
+            if self.battle_status == "waiting":
+                if self.action_A is None and self.action_B is None:  # BUT HERE MUST BE OR (not and)
+                    pass
+                else:
+                    self.battle_status = "action"
+            if self.battle_status == "action":
+                if not self.action:
+                    self.action_func(self.action_A, self.action_B)
+                    self.action = True
+                else:
+                    #  If there are still any functions in the list, we perform them
+                    if self.action_index + 1 <= len(self.actions_list) != 0:
+                        if self.current_action_value is False:  # if current action is empty
+                            self.current_action = self.actions_list[self.action_index]
+                            self.current_arguments = self.arguments_list[self.action_index]
+                            self.current_action_value = True
+                        else:
+                            if self.current_arguments is None:  # if function doesn't need any arguments
+                                self.current_action()
+                            else:  # if function need arguments, we give them
+                                self.current_action(self.current_arguments)
+                    else:
+                        self.actions_list = []
+                        self.action_index = 0
+                        self.current_action = None
+                        self.current_arguments = None
+                        self.current_action_value = False
+                        self.battle_status = "waiting"
 
-        self.pokeball_icons_draw()
-        self.button_hover(args[0][0], args[0][1])  # mouse pos in args
+            # if battle end
+            elif self.battle_status == "end":
+                self.active = False
+                args[1].world_status_changer("MAIN")  # change status of world
+                # args[2].map_changer("from_TestMap_to_TestHouse", "up", 19 * 32, 15 * 32)
+                self.kill()
 
-        self.image.blit(self.player_A_active_poke_icon, [30, 215])
-        self.image.blit(self.player_B_active_poke_icon, [370, 82])
+        #
+        if self.active:
+            self.image.fill((255, 255, 255, 0))
+            self.image.blit(self.background_img, [0, 0])
 
-        self.image.blit(self.text_surface, (100, 100))
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+            self.image.blit(self.battle_location_background, [9, 50])
+            self.image.blit(self.battle_log_background, [9, 410])
+            self.image.blit(self.right_hp_background, [20, 70])
+            self.image.blit(self.left_hp_background, [410, 305])
+
+            self.pokeball_icons_draw()
+            self.button_hover(args[0][0], args[0][1])  # mouse pos in args
+
+            self.player_A_active_poke_icon_anim.blit(self.image, [30, 215])
+            self.image.blit(self.player_B_active_poke_icon, [370, 82])
+
+            self.image.blit(self.text_surface, (30, 425))
+            screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def pokeball_icons_draw(self):
         x_cord_of_A_icons = 432

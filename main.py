@@ -235,15 +235,16 @@ while True:
             # Из всех имеющих спрайтов в system_mech определяется, нажата ли мышка на какой-либо спрайт.
             # если да, тов курсор записывается данный спрайт, а затем выполняется дальнейшее указания.
             for sprite in system_mech:  # getting all sprites from system_mech
-                # getting sprites type="icon_poke"
-                if sprite.type_system == "icon_poke" or sprite.type_system == "poke_info":
+                # getting sprites type
+                if sprite.type_system == "icon_poke" or sprite.type_system == "poke_info"\
+                        or sprite.type_system == "battle_system":
                     if sprite.rect.collidepoint(pos):  # getting clicked sprite
                         mouse_cursor = sprite  # getting mouse_curso
                         x_diff = e.pos[0] - mouse_cursor.rect.x
                         y_diff = e.pos[1] - mouse_cursor.rect.y
 
         if pygame.mouse.get_pressed()[0] and mouse_cursor:
-            if mouse_cursor.type_system == "icon_poke" or "poke_info":
+            if mouse_cursor.type_system == "icon_poke" or "poke_info" or "battle_system":
                 try:
                     mouse_cursor.rect.x = e.pos[0] - x_diff
                     mouse_cursor.rect.y = e.pos[1] - y_diff
@@ -317,6 +318,9 @@ while True:
                         system_mech.add(poke_info)
                         system_mech.poke_info_sprite = poke_info
                         settings.poke_info = True
+                elif mouse_cursor.type_system == "battle_system":
+                    # checking, which button we pressed
+                    mouse_cursor.press_checker(e.pos[0], e.pos[1])
 
             mouse_cursor = None
             x_diff = 0
@@ -331,7 +335,7 @@ while True:
     player.draw(world1.current_place.layer_internal)
 
     items.update(player, world1.current_place.layer_internal, font, system_mech, settings)
-    system_mech.update(screen, pos)
+    system_mech.update(screen, pos, settings, world1)
 
     clock.tick(settings.FPS)
     pygame.display.update()

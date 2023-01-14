@@ -147,3 +147,8 @@ Upgrade Battle system:
 - Added world_status when battling
 
 Added NPC pokes DB
+
+0.7.3.4:
+Add some upgrades on battle system:
+- poke anim (pyganim)
+- some design of battle

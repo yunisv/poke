@@ -4,7 +4,7 @@ from pygame import *
 import pygame
 import pyganim
 from setting import *
-from battle import  *
+from battle import *
 
 
 def resource_path(relative_path):
