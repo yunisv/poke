@@ -202,8 +202,8 @@ class Battle_System(pygame.sprite.Sprite):
         # create poke anim in battle_background
         self.player_A_active_poke_icon_frame_1 = pygame.Surface([192, 198], pygame.SRCALPHA)
         self.player_A_active_poke_icon_frame_2 = pygame.Surface([192, 198], pygame.SRCALPHA)
-        self.player_A_active_poke_icon_frame_1.blit(self.player_A_active_poke_standart, [0, 0])
-        self.player_A_active_poke_icon_frame_2.blit(self.player_A_active_poke_standart, [0, 6])
+        self.player_A_active_poke_icon_frame_1.blit(self.player_A_active_poke_standart, [0, 5])
+        self.player_A_active_poke_icon_frame_2.blit(self.player_A_active_poke_standart, [0, 0])
         self.player_A_active_poke_icon_anim = pyganim.PygAnimation([
             (self.player_A_active_poke_icon_frame_1, 0.5),
             (self.player_A_active_poke_icon_frame_2, 0.5)])
@@ -447,7 +447,7 @@ class Battle_System(pygame.sprite.Sprite):
             x_cord_of_B_icons = x_cord_of_B_icons + 22
 
     def pokemon_onset_anim_setter(self, pokeball):
-        for i in range(1, 25):
+        for i in range(1, 23):
             exec(f"self.frame_me_{i} = pygame.Surface([340, 340], pygame.SRCALPHA)")
 
         if pokeball == "pokeball":
@@ -551,17 +551,17 @@ class Battle_System(pygame.sprite.Sprite):
 
         # frame 16
         self.pokeball_close_sprite_16 = pygame.Surface([28, 28], pygame.SRCALPHA)
-        self.pokeball_close_sprite_16 = pygame.transform.rotate(self.pokeball_close_sprite, 80)
+        self.pokeball_close_sprite_16 = pygame.transform.rotate(self.pokeball_close_sprite, 70)
         self.frame_me_16.blit(self.pokeball_close_sprite_16, [100, 170])
 
         # frame 17
         self.pokeball_close_sprite_17 = pygame.Surface([28, 28], pygame.SRCALPHA)
-        self.pokeball_close_sprite_17 = pygame.transform.rotate(self.pokeball_close_sprite, 70)
+        self.pokeball_close_sprite_17 = pygame.transform.rotate(self.pokeball_close_sprite, 50)
         self.frame_me_17.blit(self.pokeball_close_sprite_17, [100, 180])
 
         # frame 18
         self.pokeball_close_sprite_18 = pygame.Surface([28, 28], pygame.SRCALPHA)
-        self.pokeball_close_sprite_18 = pygame.transform.rotate(self.pokeball_close_sprite, 60)
+        self.pokeball_close_sprite_18 = pygame.transform.rotate(self.pokeball_close_sprite, 30)
         self.frame_me_18.blit(self.pokeball_close_sprite_18, [100, 200])
 
         # frame 19
