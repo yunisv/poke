@@ -152,3 +152,6 @@ Added NPC pokes DB
 Add some upgrades on battle system:
 - poke anim (pyganim)
 - some design of battle
+
+0.7.3.5:
+Add animation for poke_onset_append

@@ -20,6 +20,9 @@ def resource_path(relative_path):
 
 
 system_photo = pygame.image.load(resource_path("resources/system/sprites/MainUIAtlasTrilinear.png"))
+pokeballs_photo = pygame.image.load(resource_path("resources/system/sprites/Pokeballs.png"))
+pokeballs_photo_scaled = pygame.transform.scale(pokeballs_photo, (768, 768))
+stars_append_photo = pygame.image.load(resource_path("resources/system/sprites/stars_append.png"))
 font = pygame.font.Font(resource_path("resources/font/Pixel_Times.ttf"), 20)  # setting font
 
 
@@ -67,6 +70,20 @@ class Battle_System(pygame.sprite.Sprite):
         self.poke_icon_false.blit(system_photo, (0, 0), [704, 12, 19, 19])
         self.poke_icon_none.blit(system_photo, (0, 0), [1500, 400, 20, 21])
 
+        # this need for anim in def "pokemon_onset_anim"
+        self.pokeball_sprite_data = {
+            "hand_with_ball_x": 0,
+            "hand_with_ball_y": 0,
+            "pokeball_close_x": 0,
+            "pokeball_close_y": 0,
+            "pokeball_open_x": 0,
+            "pokeball_open_y": 0,
+        }
+        self.hand_with_ball_sprite = None
+        self.hand_without_ball_sprite = None
+        self.pokeball_close_sprite = None
+        self.pokemon_onset_anim = None
+
         # setting buttons icons
         self.surrender_icon_none = pygame.Surface([70, 56], pygame.SRCALPHA)
         self.surrender_icon_none.blit(system_photo, (0, 0), [725, 266, 70, 56])
@@ -78,7 +95,7 @@ class Battle_System(pygame.sprite.Sprite):
 
         # Action mechanics
         self.active = True  # Battle status (going/end)
-        self.battle_status = "waiting"  # status of battle
+        self.battle_status = "start"  # status of battle
         self.action = False  # action mechanics
         self.action_A = None  # action of player A
         self.action_B = None  # action of player B
@@ -170,6 +187,7 @@ class Battle_System(pygame.sprite.Sprite):
 
         # # TEST
         # self.item_effect(2)
+        self.pokemon_onset_anim_setter("pokeball")
 
     def poke_img_load(self):
         self.player_A_active_poke_icon_standart = pygame.image.load(
@@ -251,16 +269,22 @@ class Battle_System(pygame.sprite.Sprite):
                 catch_rate = True
 
     def action_func(self, action_A, action_B):  # WE NEED CHECK IT < ADD BUTTON SURRENDER
-        if action_A == "surrender" or action_B == "surrender":
+        if action_A == "start" and action_B == "start":
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append("· Battle start!")
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, "start_end"])
+
+        elif action_A == "surrender" or action_B == "surrender":
             self.player_A_active_poke_icon_anim.pause()
             self.actions_list.append(self.log_message)
             self.arguments_list.append("· You are surrendered!")
             self.actions_list.append(self.delay_func)
-            self.arguments_list.append(True)
+            self.arguments_list.append([True, None])
             self.actions_list.append(self.log_message)
             self.arguments_list.append("· You lost the battle!")
             self.actions_list.append(self.delay_func)
-            self.arguments_list.append(True)
+            self.arguments_list.append([True, None])
             self.actions_list.append(self.end_battle)
             self.arguments_list.append(None)
         # if action_A == "change" or action_A == "item":
@@ -293,11 +317,16 @@ class Battle_System(pygame.sprite.Sprite):
             self.action_index += 1
         self.text_surface = font.render(self.text, True, self.color)
 
-    def delay_func(self, log_clear=False):
+    def delay_func(self, args):
+        # [log_clear, type_of_end]
         if self.time_delay < 0:
-            if log_clear:
+            if args[0]:
                 self.text = ""
                 self.text_surface = font.render(self.text, True, self.color)
+            if args[1] == "start_end":
+                self.pokemon_onset_anim.stop()
+                self.action_A = None
+                self.action_B = None
             self.time_delay = 50
             self.current_action_value = False
             self.action_index += 1
@@ -323,13 +352,12 @@ class Battle_System(pygame.sprite.Sprite):
 
         # battle status
         if self.active:
-            # print(self.battle_status)
             if self.battle_status == "waiting":
                 if self.action_A is None and self.action_B is None:  # BUT HERE MUST BE OR (not and)
                     pass
                 else:
                     self.battle_status = "action"
-            if self.battle_status == "action":
+            elif self.battle_status == "action":
                 if not self.action:
                     self.action_func(self.action_A, self.action_B)
                     self.action = True
@@ -347,11 +375,21 @@ class Battle_System(pygame.sprite.Sprite):
                                 self.current_action(self.current_arguments)
                     else:
                         self.actions_list = []
+                        self.arguments_list = []
                         self.action_index = 0
+                        self.action = False
                         self.current_action = None
                         self.current_arguments = None
                         self.current_action_value = False
                         self.battle_status = "waiting"
+
+            # if battle just started
+            elif self.battle_status == "start":
+                self.pokemon_onset_anim.play()
+                self.action_A = "start"
+                self.action_B = "start"
+                self.battle_status = "action"
+
 
             # if battle end
             elif self.battle_status == "end":
@@ -373,7 +411,13 @@ class Battle_System(pygame.sprite.Sprite):
             self.pokeball_icons_draw()
             self.button_hover(args[0][0], args[0][1])  # mouse pos in args
 
-            self.player_A_active_poke_icon_anim.blit(self.image, [30, 215])
+            if self.action_A == 'start':
+                if self.pokemon_onset_anim.state != "stopped":
+                    self.pokemon_onset_anim.blit(self.image, [0, 100])
+                else:
+                    self.image.blit(self.player_A_active_poke_standart, [30, 220])
+            else:
+                self.player_A_active_poke_icon_anim.blit(self.image, [30, 215])
             self.image.blit(self.player_B_active_poke_icon, [370, 82])
 
             self.image.blit(self.text_surface, (30, 425))
@@ -401,3 +445,170 @@ class Battle_System(pygame.sprite.Sprite):
 
             x_cord_of_A_icons = x_cord_of_A_icons + 22
             x_cord_of_B_icons = x_cord_of_B_icons + 22
+
+    def pokemon_onset_anim_setter(self, pokeball):
+        for i in range(1, 25):
+            exec(f"self.frame_me_{i} = pygame.Surface([340, 340], pygame.SRCALPHA)")
+
+        if pokeball == "pokeball":
+            self.pokeball_sprite_data["hand_with_ball_x"] = 384
+            self.pokeball_sprite_data["hand_with_ball_y"] = 448
+            self.pokeball_sprite_data["pokeball_close_x"] = 357
+            self.pokeball_sprite_data["pokeball_close_y"] = 308
+
+        # getting needing sprites for anim
+        self.hand_with_ball_sprite = pygame.Surface([47, 62], pygame.SRCALPHA)
+        self.hand_without_ball_sprite = pygame.Surface([46, 64], pygame.SRCALPHA)
+        self.pokeball_close_sprite = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.hand_with_ball_sprite.blit(
+            pokeballs_photo, (0, 0),
+            [self.pokeball_sprite_data["hand_with_ball_x"], self.pokeball_sprite_data["hand_with_ball_y"], 47, 62])
+        self.hand_without_ball_sprite.blit(pokeballs_photo, (0, 0), [336, 383, 46, 64])
+        self.pokeball_close_sprite.blit(
+            pokeballs_photo, (0, 0),
+            [self.pokeball_sprite_data["pokeball_close_x"], self.pokeball_sprite_data["pokeball_close_y"], 28, 28])
+        self.frame_me_hand_with_ball = pygame.transform.flip(self.hand_with_ball_sprite, True, False)
+        self.frame_me_hand_without_ball = pygame.transform.flip(self.hand_without_ball_sprite, True, False)
+
+        # frame 1
+        self.frame_me_1_hand_with_ball = pygame.transform.rotate(self.frame_me_hand_with_ball, 240)
+        self.frame_me_1.blit(self.frame_me_1_hand_with_ball, [-50, 250])
+
+        # frame 2
+        self.frame_me_2_hand_with_ball = pygame.transform.rotate(self.frame_me_hand_with_ball, 240)
+        self.frame_me_2.blit(self.frame_me_2_hand_with_ball, [-40, 250])
+
+        # frame 3
+        self.frame_me_3_hand_with_ball = pygame.transform.rotate(self.frame_me_hand_with_ball, 240)
+        self.frame_me_3.blit(self.frame_me_3_hand_with_ball, [-30, 250])
+
+        # frame 4
+        self.frame_me_4_hand_with_ball = pygame.transform.rotate(self.frame_me_hand_with_ball, 240)
+        self.frame_me_4.blit(self.frame_me_4_hand_with_ball, [-20, 250])
+
+        # frame 5
+        self.frame_me_5_hand_with_ball = pygame.transform.rotate(self.frame_me_hand_with_ball, 250)
+        self.frame_me_5.blit(self.frame_me_5_hand_with_ball, [-13, 247])
+
+        # frame 6
+        self.frame_me_6_hand_with_ball = pygame.transform.rotate(self.frame_me_hand_with_ball, 260)
+        self.frame_me_6.blit(self.frame_me_6_hand_with_ball, [-6, 243])
+
+        # frame 7
+        self.frame_me_7_hand_with_ball = pygame.transform.rotate(self.frame_me_hand_with_ball, 270)
+        self.frame_me_7.blit(self.frame_me_7_hand_with_ball, [0, 240])
+
+        # frame 8
+        self.frame_me_8_hand_with_ball = pygame.transform.rotate(self.frame_me_hand_with_ball, 280)
+        self.frame_me_8.blit(self.frame_me_8_hand_with_ball, [-4, 230])
+
+        # frame 9
+        self.frame_me_9_hand_without_ball = pygame.transform.rotate(self.frame_me_hand_without_ball, 265)
+        self.pokeball_close_sprite_9 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_9 = pygame.transform.rotate(self.pokeball_close_sprite, 210)
+        self.frame_me_9.blit(self.frame_me_9_hand_without_ball, [-10, 210])
+        self.frame_me_9.blit(self.pokeball_close_sprite_9, [30, 180])
+
+        # frame 10
+        self.frame_me_10_hand_without_ball = pygame.transform.rotate(self.frame_me_hand_without_ball, 265)
+        self.pokeball_close_sprite_10 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_10 = pygame.transform.rotate(self.pokeball_close_sprite, 190)
+        self.frame_me_10.blit(self.frame_me_10_hand_without_ball, [-10, 210])
+        self.frame_me_10.blit(self.pokeball_close_sprite_10, [40, 160])
+
+        # frame 11
+        self.frame_me_11_hand_without_ball = pygame.transform.rotate(self.frame_me_hand_without_ball, 265)
+        self.pokeball_close_sprite_11 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_11 = pygame.transform.rotate(self.pokeball_close_sprite, 170)
+        self.frame_me_11.blit(self.frame_me_11_hand_without_ball, [-20, 210])
+        self.frame_me_11.blit(self.pokeball_close_sprite_11, [50, 140])
+
+        # frame 12
+        self.frame_me_12_hand_without_ball = pygame.transform.rotate(self.frame_me_hand_without_ball, 265)
+        self.pokeball_close_sprite_12 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_12 = pygame.transform.rotate(self.pokeball_close_sprite, 150)
+        self.frame_me_12.blit(self.frame_me_12_hand_without_ball, [-30, 210])
+        self.frame_me_12.blit(self.pokeball_close_sprite_12, [60, 120])
+
+        # frame 13
+        self.frame_me_13_hand_without_ball = pygame.transform.rotate(self.frame_me_hand_without_ball, 265)
+        self.pokeball_close_sprite_13 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_13 = pygame.transform.rotate(self.pokeball_close_sprite, 130)
+        self.frame_me_13.blit(self.frame_me_13_hand_without_ball, [-40, 210])
+        self.frame_me_13.blit(self.pokeball_close_sprite_13, [70, 120])
+
+        # frame 14
+        self.frame_me_14_hand_without_ball = pygame.transform.rotate(self.frame_me_hand_without_ball, 265)
+        self.pokeball_close_sprite_14 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_14 = pygame.transform.rotate(self.pokeball_close_sprite, 110)
+        self.frame_me_14.blit(self.frame_me_14_hand_without_ball, [-50, 210])
+        self.frame_me_14.blit(self.pokeball_close_sprite_14, [80, 140])
+
+        # frame 15
+        self.pokeball_close_sprite_15 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_15 = pygame.transform.rotate(self.pokeball_close_sprite, 90)
+        self.frame_me_15.blit(self.pokeball_close_sprite_15, [90, 160])
+
+        # frame 16
+        self.pokeball_close_sprite_16 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_16 = pygame.transform.rotate(self.pokeball_close_sprite, 80)
+        self.frame_me_16.blit(self.pokeball_close_sprite_16, [100, 170])
+
+        # frame 17
+        self.pokeball_close_sprite_17 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_17 = pygame.transform.rotate(self.pokeball_close_sprite, 70)
+        self.frame_me_17.blit(self.pokeball_close_sprite_17, [100, 180])
+
+        # frame 18
+        self.pokeball_close_sprite_18 = pygame.Surface([28, 28], pygame.SRCALPHA)
+        self.pokeball_close_sprite_18 = pygame.transform.rotate(self.pokeball_close_sprite, 60)
+        self.frame_me_18.blit(self.pokeball_close_sprite_18, [100, 200])
+
+        # frame 19
+        self.stars_append_sprite_19 = pygame.Surface([140, 140], pygame.SRCALPHA)
+        self.stars_append_sprite_19.blit(stars_append_photo, (0, 0), [200, 27, 140, 140])
+        self.frame_me_19.blit(self.player_A_active_poke_standart, [30, 120])
+        self.frame_me_19.blit(self.stars_append_sprite_19, [60, 185])
+
+        # frame 20
+        self.stars_append_sprite_20 = pygame.Surface([140, 140], pygame.SRCALPHA)
+        self.stars_append_sprite_20.blit(stars_append_photo, (0, 0), [20, 644, 140, 140])
+        self.frame_me_20.blit(self.player_A_active_poke_standart, [30, 120])
+        self.frame_me_20.blit(self.stars_append_sprite_20, [60, 185])
+
+        # frame 21
+        self.stars_append_sprite_21 = pygame.Surface([140, 140], pygame.SRCALPHA)
+        self.stars_append_sprite_21.blit(stars_append_photo, (0, 0), [375, 639, 140, 140])
+        self.frame_me_21.blit(self.player_A_active_poke_standart, [30, 120])
+        self.frame_me_21.blit(self.stars_append_sprite_21, [60, 185])
+
+        # frame 22
+        self.stars_append_sprite_22 = pygame.Surface([140, 140], pygame.SRCALPHA)
+        self.stars_append_sprite_22.blit(stars_append_photo, (0, 0), [17, 25, 140, 140])
+        self.frame_me_22.blit(self.player_A_active_poke_standart, [30, 120])
+        self.frame_me_22.blit(self.stars_append_sprite_22, [60, 185])
+
+        self.pokemon_onset_anim = pyganim.PygAnimation([
+            (self.frame_me_1, 0.07),
+            (self.frame_me_2, 0.07),
+            (self.frame_me_3, 0.07),
+            (self.frame_me_4, 0.07),
+            (self.frame_me_5, 0.07),
+            (self.frame_me_6, 0.07),
+            (self.frame_me_7, 0.07),
+            (self.frame_me_8, 0.07),
+            (self.frame_me_9, 0.07),
+            (self.frame_me_10, 0.07),
+            (self.frame_me_11, 0.07),
+            (self.frame_me_12, 0.07),
+            (self.frame_me_13, 0.07),
+            (self.frame_me_14, 0.07),
+            (self.frame_me_15, 0.07),
+            (self.frame_me_16, 0.07),
+            (self.frame_me_17, 0.07),
+            (self.frame_me_18, 0.07),
+            (self.frame_me_19, 0.12),
+            (self.frame_me_20, 0.12),
+            (self.frame_me_21, 0.12),
+            (self.frame_me_22, 0.12)])
+        self.pokemon_onset_anim.loop = not self.pokemon_onset_anim.loop
