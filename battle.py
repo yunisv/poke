@@ -37,9 +37,10 @@ class Battle_System(pygame.sprite.Sprite):
         self.place = place[0]
         self.time = place[1]
         self.background_img = pygame.image.load(resource_path("resources/system/sprites/battle_background.png"))
-        self.image = Surface([791, 750], pygame.SRCALPHA)  # Battle Sprite
+        self.image = Surface([791, 465], pygame.HWSURFACE)  # Battle Sprite
+        self.image = self.image.convert_alpha()  # transparent
         self.image.blit(self.background_img, [0, 0])
-        self.rect = Rect(x, y, 791, 750)
+        self.rect = Rect(x, y, 791, 465)
 
         # getting location of battle
         if 4.0 < self.time <= 10.0:
@@ -115,6 +116,15 @@ class Battle_System(pygame.sprite.Sprite):
         self.letter_index = 0
         self.color = (255, 255, 255)
 
+        # text:"GO {Pokemon}
+        self.text_go = ""
+        self.text_go_pokemon = ""
+        self.text_surface_go_pokemon_go = None
+        self.text_surface_go_pokemon = None
+        self.letter_index_go_pokemon = 0
+        self.letter_index_go_pokemon_go = 0
+        self.color_gold = (255, 160, 0)
+
         self.battle_log = []  # here will be keep battle_log
 
         self.player_A_active_poke = None
@@ -188,6 +198,7 @@ class Battle_System(pygame.sprite.Sprite):
         # # TEST
         # self.item_effect(2)
         self.pokemon_onset_anim_setter("pokeball")
+        self.pokemon_hp_xp_sprite_setter()
 
     def poke_img_load(self):
         self.player_A_active_poke_icon_standart = pygame.image.load(
@@ -210,6 +221,8 @@ class Battle_System(pygame.sprite.Sprite):
         self.player_A_active_poke_icon_anim.play()
         self.image.blit(self.player_B_active_poke_icon, [370, 82])
         self.text_surface = font.render(self.text, True, self.color)
+        self.text_surface_go_pokemon = font.render(self.text_go_pokemon, True, self.color_gold)
+        self.text_surface_go_pokemon_go = font.render(self.text_go, True, self.color)
 
     def item_access(self, id_of_item):
         if self.type_of_battle == "NPC":
@@ -270,21 +283,42 @@ class Battle_System(pygame.sprite.Sprite):
 
     def action_func(self, action_A, action_B):  # WE NEED CHECK IT < ADD BUTTON SURRENDER
         if action_A == "start" and action_B == "start":
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 20])
+
             self.actions_list.append(self.log_message)
             self.arguments_list.append("· Battle start!")
+
             self.actions_list.append(self.delay_func)
-            self.arguments_list.append([True, "start_end"])
+            self.arguments_list.append([True, 20])
+
+            # self.actions_list.append(self.log_message)
+            # self.arguments_list.append(f"· Go {self.player_A_active_poke.name_poke}!")
+
+            self.actions_list.append(self.log_message_go_pokemon)
+            self.arguments_list.append(['· Go ', f"{self.player_A_active_poke.name_poke}!"])
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+
+            self.actions_list.append(self.start_ender_func)
+            self.arguments_list.append(None)
 
         elif action_A == "surrender" or action_B == "surrender":
             self.player_A_active_poke_icon_anim.pause()
+
             self.actions_list.append(self.log_message)
             self.arguments_list.append("· You are surrendered!")
+
             self.actions_list.append(self.delay_func)
-            self.arguments_list.append([True, None])
+            self.arguments_list.append([True, 50])
+
             self.actions_list.append(self.log_message)
             self.arguments_list.append("· You lost the battle!")
+
             self.actions_list.append(self.delay_func)
-            self.arguments_list.append([True, None])
+            self.arguments_list.append([True, 50])
+
             self.actions_list.append(self.end_battle)
             self.arguments_list.append(None)
         # if action_A == "change" or action_A == "item":
@@ -297,9 +331,6 @@ class Battle_System(pygame.sprite.Sprite):
 
     def battle_status_changer(self, status):
         self.battle_status = status
-
-    def start_battle(self):
-        self.battle_log.append("Battle started.")
 
     def end_battle(self):
         self.battle_status = "end"
@@ -317,17 +348,55 @@ class Battle_System(pygame.sprite.Sprite):
             self.action_index += 1
         self.text_surface = font.render(self.text, True, self.color)
 
+    def log_message_go_pokemon(self, message):
+        self.log = message
+        if self.letter_index_go_pokemon_go != len(self.log[0]):
+            self.text_go += self.log[0][self.letter_index_go_pokemon_go]
+            self.letter_index_go_pokemon_go += 1
+            self.current_action_value = True
+        else:
+            if self.letter_index_go_pokemon != len(self.log[1]):
+                self.text_go_pokemon += self.log[1][self.letter_index_go_pokemon]
+                self.letter_index_go_pokemon += 1
+                self.current_action_value = True
+            else:
+                self.letter_index_go_pokemon = 0
+                self.letter_index_go_pokemon_go = 0
+                self.current_action_value = False
+                self.action_index += 1
+        self.text_surface_go_pokemon_go = font.render(self.text_go, True, self.color)
+        self.text_surface_go_pokemon = font.render(self.text_go_pokemon, True, self.color_gold)
+
+    def start_ender_func(self):
+        self.pokemon_onset_anim.stop()
+        self.pokemon_hp_anim.stop()
+        self.action_A = None
+        self.action_B = None
+        self.action_index += 1
+
+    def log_clearner(self):
+        self.text = ""
+        self.text_surface = font.render(self.text, True, self.color)
+
+        self.text_go = ""
+        self.text_go_pokemon = ""
+        self.text_surface_go_pokemon_go = font.render(self.text_go, True, self.color)
+        self.text_surface_go_pokemon = font.render(self.text_go_pokemon, True, self.color_gold)
+
+        self.action_index += 1
+
     def delay_func(self, args):
-        # [log_clear, type_of_end]
+        # [log_clear, time_for_future_delay_func]
         if self.time_delay < 0:
             if args[0]:
                 self.text = ""
                 self.text_surface = font.render(self.text, True, self.color)
-            if args[1] == "start_end":
-                self.pokemon_onset_anim.stop()
-                self.action_A = None
-                self.action_B = None
-            self.time_delay = 50
+
+                self.text_go = ""
+                self.text_go_pokemon = ""
+                self.text_surface_go_pokemon_go = font.render(self.text_go, True, self.color)
+                self.text_surface_go_pokemon = font.render(self.text_go_pokemon, True, self.color_gold)
+            self.time_delay = args[1]
             self.current_action_value = False
             self.action_index += 1
         else:
@@ -358,6 +427,7 @@ class Battle_System(pygame.sprite.Sprite):
                 else:
                     self.battle_status = "action"
             elif self.battle_status == "action":
+                # print(self.arguments_list)
                 if not self.action:
                     self.action_func(self.action_A, self.action_B)
                     self.action = True
@@ -386,10 +456,10 @@ class Battle_System(pygame.sprite.Sprite):
             # if battle just started
             elif self.battle_status == "start":
                 self.pokemon_onset_anim.play()
+                self.pokemon_hp_anim.play()
                 self.action_A = "start"
                 self.action_B = "start"
                 self.battle_status = "action"
-
 
             # if battle end
             elif self.battle_status == "end":
@@ -412,15 +482,29 @@ class Battle_System(pygame.sprite.Sprite):
             self.button_hover(args[0][0], args[0][1])  # mouse pos in args
 
             if self.action_A == 'start':
+                # poke onset anim setting
                 if self.pokemon_onset_anim.state != "stopped":
                     self.pokemon_onset_anim.blit(self.image, [0, 100])
                 else:
                     self.image.blit(self.player_A_active_poke_standart, [30, 220])
+
+                # poke hp anim setting
+                if self.pokemon_hp_anim.state != "stopped":
+                    self.pokemon_hp_anim.blit(self.image, [414, 326])
+                else:
+                    self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (0, 200, 64),
+                                                                [self.HP_line_percentage_pokemon_A, 327],
+                                                                [560, 327], 4)
             else:
                 self.player_A_active_poke_icon_anim.blit(self.image, [30, 215])
+                self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (0, 200, 64),
+                                                            [self.HP_line_percentage_pokemon_A, 327],
+                                                            [560, 327], 4)
             self.image.blit(self.player_B_active_poke_icon, [370, 82])
 
             self.image.blit(self.text_surface, (30, 425))
+            self.image.blit(self.text_surface_go_pokemon_go, (30, 425))
+            self.image.blit(self.text_surface_go_pokemon, (75, 425))
             screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def pokeball_icons_draw(self):
@@ -445,6 +529,23 @@ class Battle_System(pygame.sprite.Sprite):
 
             x_cord_of_A_icons = x_cord_of_A_icons + 22
             x_cord_of_B_icons = x_cord_of_B_icons + 22
+
+    def pokemon_hp_xp_sprite_setter(self):
+        self.hp_drop = (147 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP))/20
+        for i in range(0, 21):
+            exec(f"self.frame_hp_A_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
+            exec(f"self.frame_hp_A_drop_{i} = pygame.Surface([{round(self.hp_drop * i)}, 4])")
+            exec(f"self.frame_hp_A_drop_{i}.fill((0, 200, 64))")
+            exec(f"self.frame_hp_A_{i}.blit(self.frame_hp_A_drop_{i}, [{147 - round(self.hp_drop * i)}, 0])")
+
+        # creating array for frames (animations)
+        self.pokemon_hp_anim_array = []
+        for i in range(0, 21):
+            exec(f"self.pokemon_hp_anim_array.append([self.frame_hp_A_{i}, 0.05])")
+        self.pokemon_hp_anim = pyganim.PygAnimation(self.pokemon_hp_anim_array)
+        self.pokemon_hp_anim.loop = not self.pokemon_hp_anim.loop
+
+        self.HP_line_percentage_pokemon_A = 560 - (146 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP))
 
     def pokemon_onset_anim_setter(self, pokeball):
         for i in range(1, 23):
@@ -589,24 +690,24 @@ class Battle_System(pygame.sprite.Sprite):
         self.frame_me_22.blit(self.stars_append_sprite_22, [60, 185])
 
         self.pokemon_onset_anim = pyganim.PygAnimation([
-            (self.frame_me_1, 0.07),
-            (self.frame_me_2, 0.07),
-            (self.frame_me_3, 0.07),
-            (self.frame_me_4, 0.07),
-            (self.frame_me_5, 0.07),
-            (self.frame_me_6, 0.07),
-            (self.frame_me_7, 0.07),
-            (self.frame_me_8, 0.07),
-            (self.frame_me_9, 0.07),
-            (self.frame_me_10, 0.07),
-            (self.frame_me_11, 0.07),
-            (self.frame_me_12, 0.07),
-            (self.frame_me_13, 0.07),
-            (self.frame_me_14, 0.07),
-            (self.frame_me_15, 0.07),
-            (self.frame_me_16, 0.07),
-            (self.frame_me_17, 0.07),
-            (self.frame_me_18, 0.07),
+            (self.frame_me_1, 0.06),
+            (self.frame_me_2, 0.06),
+            (self.frame_me_3, 0.06),
+            (self.frame_me_4, 0.06),
+            (self.frame_me_5, 0.06),
+            (self.frame_me_6, 0.06),
+            (self.frame_me_7, 0.06),
+            (self.frame_me_8, 0.06),
+            (self.frame_me_9, 0.06),
+            (self.frame_me_10, 0.06),
+            (self.frame_me_11, 0.06),
+            (self.frame_me_12, 0.06),
+            (self.frame_me_13, 0.06),
+            (self.frame_me_14, 0.06),
+            (self.frame_me_15, 0.06),
+            (self.frame_me_16, 0.06),
+            (self.frame_me_17, 0.06),
+            (self.frame_me_18, 0.06),
             (self.frame_me_19, 0.12),
             (self.frame_me_20, 0.12),
             (self.frame_me_21, 0.12),
