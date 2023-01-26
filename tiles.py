@@ -64,7 +64,9 @@ class Tile(pygame.sprite.Sprite):
         self.real_id = self.id_item - self.first_id  # setting real_id
         self.set_x_and_y_on_spritesheet()  # setting image's position from spritesheet
 
-        self.sprite_from_spritesheet = pygame.Surface((self.weight, self.height), pygame.SRCALPHA)  # create surface
+        self.sprite_from_spritesheet = pygame.Surface((self.weight, self.height), pygame.HWSURFACE)  # create surface
+        self.sprite_from_spritesheet.set_colorkey((0, 0, 0))
+        self.sprite_from_spritesheet = self.sprite_from_spritesheet.convert_alpha()
         self.set_sprite_image()  # getting image from spritesheet and bliting on sprite_from_spritesheet
 
     def set_x_and_y_on_spritesheet(self):  # function for getting image's position from spritesheet
@@ -200,9 +202,13 @@ class TileMap:
 
     def backgrounds_setter(self):
         # create background_internal surface
-        self.background_internal = pygame.Surface((self.width * 32, self.height * 32), pygame.SRCALPHA)
+        self.background_internal = pygame.Surface((self.width * 32, self.height * 32), pygame.HWSURFACE)
+        self.background_internal.set_colorkey((0, 0, 0))
+        self.background_internal = self.background_internal.convert_alpha()
         # create background_external surface
-        self.background_external = pygame.Surface((self.width * 32, self.height * 32), pygame.SRCALPHA)
+        self.background_external = pygame.Surface((self.width * 32, self.height * 32), pygame.HWSURFACE)
+        self.background_external.set_colorkey((0, 0, 0))
+        self.background_external = self.background_external.convert_alpha()
 
     def map_draw(self):
         for y in self.background_internal_items:

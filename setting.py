@@ -24,6 +24,7 @@ with open(resource_path('resources/system/database/Pokedex.json')) as f:
 
 system_mech = pygame.sprite.Group()  # pygame sprite's group for system
 font_standart = pygame.font.Font(resource_path("resources/font/roboto.ttf"), 10)  # setting font
+font_small = pygame.font.Font(resource_path("resources/font/roboto.ttf"), 11)  # setting font
 font_medium = pygame.font.Font(resource_path("resources/font/roboto.ttf"), 12)  # setting font
 font_large = pygame.font.Font(resource_path("resources/font/roboto.ttf"), 20)  # setting font
 
@@ -53,6 +54,10 @@ ground_type = pygame.Surface([31, 11], pygame.SRCALPHA)
 
 shiny_icon_s = pygame.Surface([10, 14], pygame.SRCALPHA)
 
+status_attack_icon = pygame.Surface([28, 14], pygame.HWSURFACE)
+special_attack_icon = pygame.Surface([28, 14], pygame.HWSURFACE)
+damage_attack_icon = pygame.Surface([28, 14], pygame.HWSURFACE)
+
 # bliting system images
 flying_type.blit(system_photo, (0, 0), [825, 57, 31, 11])
 fairy_type.blit(system_photo, (0, 0), [860, 184, 31, 11])
@@ -74,6 +79,10 @@ fire_type.blit(system_photo, (0, 0), [1368, 1172, 31, 11])
 ground_type.blit(system_photo, (0, 0), [1335, 1172, 31, 11])
 
 shiny_icon_s.blit(system_photo, (0, 0), [2038, 1713, 10, 14])
+
+status_attack_icon.blit(system_photo, (0, 0), [1754, 1367, 28, 14])
+special_attack_icon.blit(system_photo, (0, 0), [1873, 1367, 28, 14])
+damage_attack_icon.blit(system_photo, (0, 0), [1844, 1367, 28, 14])
 
 
 class Pokemon:
@@ -645,7 +654,8 @@ class Poke_info(sprite.Sprite):
                                 sqlite_select_query_2_pp = \
                                     f'UPDATE poke SET pp_1={self.pp_1} WHERE id_db = {self.id_db_poke};'
 
-                    sqlite_connection_for_move = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+                    sqlite_connection_for_move = sqlite3.connect(
+                        resource_path(f'resources/system/database/player_pokes.db'))
                     cursor = sqlite_connection_for_move.cursor()
 
                     cursor.execute(sqlite_select_query_1_move)
@@ -684,7 +694,8 @@ class Poke_info(sprite.Sprite):
                         sqlite_select_query_2_pp = \
                             f'UPDATE poke SET pp_1={self.pp_1} WHERE id_db = {self.id_db_poke};'
 
-                    sqlite_connection_for_move = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+                    sqlite_connection_for_move = sqlite3.connect(
+                        resource_path(f'resources/system/database/player_pokes.db'))
                     cursor = sqlite_connection_for_move.cursor()
 
                     cursor.execute(sqlite_select_query_1_move)
@@ -712,7 +723,8 @@ class Poke_info(sprite.Sprite):
                     f'UPDATE poke SET pp_2={self.pp_1} WHERE id_db = {self.id_db_poke};'
 
                 try:
-                    sqlite_connection_for_move = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+                    sqlite_connection_for_move = sqlite3.connect(
+                        resource_path(f'resources/system/database/player_pokes.db'))
                     cursor = sqlite_connection_for_move.cursor()
 
                     cursor.execute(sqlite_select_query_1_move)
@@ -749,7 +761,8 @@ class Poke_info(sprite.Sprite):
                         sqlite_select_query_2_pp = \
                             f'UPDATE poke SET pp_2={self.pp_1} WHERE id_db = {self.id_db_poke};'
 
-                    sqlite_connection_for_move = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+                    sqlite_connection_for_move = sqlite3.connect(
+                        resource_path(f'resources/system/database/player_pokes.db'))
                     cursor = sqlite_connection_for_move.cursor()
 
                     cursor.execute(sqlite_select_query_1_move)
@@ -777,7 +790,8 @@ class Poke_info(sprite.Sprite):
                     f'UPDATE poke SET pp_3={self.pp_2} WHERE id_db = {self.id_db_poke};'
 
                 try:
-                    sqlite_connection_for_move = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+                    sqlite_connection_for_move = sqlite3.connect(
+                        resource_path(f'resources/system/database/player_pokes.db'))
                     cursor = sqlite_connection_for_move.cursor()
 
                     cursor.execute(sqlite_select_query_1_move)
@@ -814,7 +828,8 @@ class Poke_info(sprite.Sprite):
                         sqlite_select_query_2_pp = \
                             f'UPDATE poke SET pp_3={self.pp_1} WHERE id_db = {self.id_db_poke};'
 
-                    sqlite_connection_for_move = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+                    sqlite_connection_for_move = sqlite3.connect(
+                        resource_path(f'resources/system/database/player_pokes.db'))
                     cursor = sqlite_connection_for_move.cursor()
 
                     cursor.execute(sqlite_select_query_1_move)
@@ -842,7 +857,8 @@ class Poke_info(sprite.Sprite):
                     f'UPDATE poke SET pp_4={self.pp_3} WHERE id_db = {self.id_db_poke};'
 
                 try:
-                    sqlite_connection_for_move = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+                    sqlite_connection_for_move = sqlite3.connect(
+                        resource_path(f'resources/system/database/player_pokes.db'))
                     cursor = sqlite_connection_for_move.cursor()
 
                     cursor.execute(sqlite_select_query_1_move)

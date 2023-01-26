@@ -257,30 +257,159 @@ class Battle_System(pygame.sprite.Sprite):
 
         # setting poke attack moves sprite
         self.moves_sprite = []
+        sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/POKE_DB.db'))
+        cursor = sqlite_connection.cursor()
         if self.player_A_active_poke.move_1:
             self.poke_move_1_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
             self.poke_move_1_sprite.set_colorkey((0, 0, 0))
             self.poke_move_1_sprite = self.poke_move_1_sprite.convert_alpha()
             self.poke_move_1_sprite.blit(system_photo, (0, 0), [1190, 1640, 170, 40])
+
+            sqlite_select_query = f'SELECT * FROM moves WHERE id like {self.player_A_active_poke.move_1}'
+            cursor.execute(sqlite_select_query)
+            records = cursor.fetchall()
+            for row in records:
+                self.player_A_active_poke_move_1_id = row[0]
+                self.player_A_active_poke_move_1_name = row[1]
+                self.player_A_active_poke_move_1_name = f"{self.player_A_active_poke_move_1_name}".title()
+                self.player_A_active_poke_move_1_element = row[3]
+                self.player_A_active_poke_move_1_power = row[4]
+                self.player_A_active_poke_move_1_pp = row[5]
+                self.player_A_active_poke_move_1_accuracy = row[6]
+                self.player_A_active_poke_move_1_type = row[9]
+                self.player_A_active_poke_move_1_effect = row[10]
+
+            self.poke_move_1_sprite.blit(status_attack_icon, (4, 22))  # type of attack
+            self.element_poke_getter(self.player_A_active_poke_move_1_element, self.poke_move_1_sprite)  # element atk
+            self.player_A_active_poke_move_1_name_sprite = font_small.render(
+                self.player_A_active_poke_move_1_name, True, (255, 255, 255)
+            )  # name of move (font.render)
+            # name of move
+            self.poke_move_1_sprite.blit(self.player_A_active_poke_move_1_name_sprite, (5, 5))
+            # setting pp of move
+            self.player_A_active_poke_move_1_pp_str = \
+                f"{self.player_A_active_poke.pp_1}/{self.player_A_active_poke_move_1_pp}"
+            self.player_A_active_poke_move_1_pp_str = self.zero_adder_to_number(
+                self.player_A_active_poke_move_1_pp_str, 5, "space"
+            )
+            self.player_A_active_poke_move_1_pp_str = font_small.render(
+                self.player_A_active_poke_move_1_pp_str, True, (255, 255, 255)
+            )
+            self.poke_move_1_sprite.blit(self.player_A_active_poke_move_1_pp_str, (130, 22))
             self.moves_sprite.append(self.poke_move_1_sprite)
         if self.player_A_active_poke.move_2:
             self.poke_move_2_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
             self.poke_move_2_sprite.set_colorkey((0, 0, 0))
             self.poke_move_2_sprite = self.poke_move_2_sprite.convert_alpha()
             self.poke_move_2_sprite.blit(system_photo, (0, 0), [1190, 1640, 170, 40])
+
+            sqlite_select_query = f'SELECT * FROM moves WHERE id like {self.player_A_active_poke.move_2}'
+            cursor.execute(sqlite_select_query)
+            records = cursor.fetchall()
+            for row in records:
+                self.player_A_active_poke_move_2_id = row[0]
+                self.player_A_active_poke_move_2_name = row[1]
+                self.player_A_active_poke_move_2_name = f"{self.player_A_active_poke_move_2_name}".title()
+                self.player_A_active_poke_move_2_element = row[3]
+                self.player_A_active_poke_move_2_power = row[4]
+                self.player_A_active_poke_move_2_pp = row[5]
+                self.player_A_active_poke_move_2_accuracy = row[6]
+                self.player_A_active_poke_move_2_type = row[9]
+                self.player_A_active_poke_move_2_effect = row[10]
+
+            self.poke_move_2_sprite.blit(status_attack_icon, (4, 22))
+            self.element_poke_getter(self.player_A_active_poke_move_2_element, self.poke_move_2_sprite)
+            self.player_A_active_poke_move_2_name_sprite = font_small.render(
+                self.player_A_active_poke_move_2_name, True, (255, 255, 255)
+            )
+            # setting pp of move
+            self.player_A_active_poke_move_2_pp_str = \
+                f"{self.player_A_active_poke.pp_2}/{self.player_A_active_poke_move_2_pp}"
+            self.player_A_active_poke_move_2_pp_str = self.zero_adder_to_number(
+                self.player_A_active_poke_move_2_pp_str, 5, "space"
+            )
+            self.player_A_active_poke_move_2_pp_str = font_small.render(
+                self.player_A_active_poke_move_2_pp_str, True, (255, 255, 255)
+            )
+            self.poke_move_2_sprite.blit(self.player_A_active_poke_move_2_pp_str, (130, 22))
+            self.poke_move_2_sprite.blit(self.player_A_active_poke_move_2_name_sprite, (5, 5))
             self.moves_sprite.append(self.poke_move_2_sprite)
         if self.player_A_active_poke.move_3:
             self.poke_move_3_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
             self.poke_move_3_sprite.set_colorkey((0, 0, 0))
             self.poke_move_3_sprite = self.poke_move_3_sprite.convert_alpha()
             self.poke_move_3_sprite.blit(system_photo, (0, 0), [1190, 1640, 170, 40])
+
+            sqlite_select_query = f'SELECT * FROM moves WHERE id like {self.player_A_active_poke.move_3}'
+            cursor.execute(sqlite_select_query)
+            records = cursor.fetchall()
+            for row in records:
+                self.player_A_active_poke_move_3_id = row[0]
+                self.player_A_active_poke_move_3_name = row[1]
+                self.player_A_active_poke_move_3_name = f"{self.player_A_active_poke_move_3_name}".title()
+                self.player_A_active_poke_move_3_element = row[3]
+                self.player_A_active_poke_move_3_power = row[4]
+                self.player_A_active_poke_move_3_pp = row[5]
+                self.player_A_active_poke_move_3_accuracy = row[6]
+                self.player_A_active_poke_move_3_type = row[9]
+                self.player_A_active_poke_move_3_effect = row[10]
+
+            self.poke_move_3_sprite.blit(status_attack_icon, (4, 22))
+            self.element_poke_getter(self.player_A_active_poke_move_3_element, self.poke_move_3_sprite)
+            self.player_A_active_poke_move_3_name_sprite = font_small.render(
+                self.player_A_active_poke_move_3_name, True, (255, 255, 255)
+            )
+            # setting pp of move
+            self.player_A_active_poke_move_3_pp_str = \
+                f"{self.player_A_active_poke.pp_3}/{self.player_A_active_poke_move_3_pp}"
+            self.player_A_active_poke_move_3_pp_str = self.zero_adder_to_number(
+                self.player_A_active_poke_move_3_pp_str, 5, "space"
+            )
+            self.player_A_active_poke_move_3_pp_str = font_small.render(
+                self.player_A_active_poke_move_3_pp_str, True, (255, 255, 255)
+            )
+            self.poke_move_3_sprite.blit(self.player_A_active_poke_move_3_pp_str, (130, 22))
+            self.poke_move_3_sprite.blit(self.player_A_active_poke_move_3_name_sprite, (5, 5))
             self.moves_sprite.append(self.poke_move_3_sprite)
         if self.player_A_active_poke.move_4:
             self.poke_move_4_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
             self.poke_move_4_sprite.set_colorkey((0, 0, 0))
             self.poke_move_4_sprite = self.poke_move_4_sprite.convert_alpha()
             self.poke_move_4_sprite.blit(system_photo, (0, 0), [1190, 1640, 170, 40])
+
+            sqlite_select_query = f'SELECT * FROM moves WHERE id like {self.player_A_active_poke.move_4}'
+            cursor.execute(sqlite_select_query)
+            records = cursor.fetchall()
+            for row in records:
+                self.player_A_active_poke_move_4_id = row[0]
+                self.player_A_active_poke_move_4_name = row[1]
+                self.player_A_active_poke_move_4_name = f"{self.player_A_active_poke_move_4_name}".title()
+                self.player_A_active_poke_move_4_element = row[3]
+                self.player_A_active_poke_move_4_power = row[4]
+                self.player_A_active_poke_move_4_pp = row[5]
+                self.player_A_active_poke_move_4_accuracy = row[6]
+                self.player_A_active_poke_move_4_type = row[9]
+                self.player_A_active_poke_move_4_effect = row[10]
+
+            self.poke_move_4_sprite.blit(status_attack_icon, (4, 22))
+            self.element_poke_getter(self.player_A_active_poke_move_4_element, self.poke_move_4_sprite)
+            self.player_A_active_poke_move_4_name_sprite = font_small.render(
+                self.player_A_active_poke_move_4_name, True, (255, 255, 255)
+            )
+            # setting pp of move
+            self.player_A_active_poke_move_4_pp_str = \
+                f"{self.player_A_active_poke.pp_4}/{self.player_A_active_poke_move_4_pp}"
+            self.player_A_active_poke_move_4_pp_str = self.zero_adder_to_number(
+                self.player_A_active_poke_move_4_pp_str, 5, "space"
+            )
+            self.player_A_active_poke_move_4_pp_str = font_small.render(
+                self.player_A_active_poke_move_4_pp_str, True, (255, 255, 255)
+            )
+            self.poke_move_4_sprite.blit(self.player_A_active_poke_move_4_pp_str, (130, 22))
+            self.poke_move_4_sprite.blit(self.player_A_active_poke_move_4_name_sprite, (5, 5))
             self.moves_sprite.append(self.poke_move_4_sprite)
+        cursor.close()
+        sqlite_connection.close()
 
         if type_of_battle == "wild_poke":
             catch_success = False
@@ -615,24 +744,62 @@ class Battle_System(pygame.sprite.Sprite):
                 if self.pokemon_hp_A_anim.state != "stopped":
                     self.pokemon_hp_A_anim.blit(self.image, [414, 326])
                 else:
-                    self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (0, 200, 64),
-                                                                [self.HP_line_percentage_pokemon_A, 327],
-                                                                [560, 327], 4)
-
+                    if (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) >= 0.66:
+                        self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (0, 200, 64),
+                                                                    [self.HP_line_percentage_pokemon_A, 327],
+                                                                    [560, 327], 4)
+                    elif (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) <= 0.33:
+                        self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (220, 50, 50),
+                                                                    [self.HP_line_percentage_pokemon_A, 327],
+                                                                    [560, 327], 4)
+                    else:
+                        self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (255, 255, 0),
+                                                                    [self.HP_line_percentage_pokemon_A, 327],
+                                                                    [560, 327], 4)
                 if self.pokemon_hp_B_anim.state != "stopped":
                     self.pokemon_hp_B_anim.blit(self.image, [26, 90])
                 else:
+                    if (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) >= 0.66:
+                        self.hp_pokemon_B_sprite = pygame.draw.line(self.image, (0, 200, 64),
+                                                                    [26, 91],
+                                                                    [self.HP_line_percentage_pokemon_B, 91], 4)
+                    elif (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) <= 0.33:
+                        self.hp_pokemon_B_sprite = pygame.draw.line(self.image, (220, 50, 50),
+                                                                    [26, 91],
+                                                                    [self.HP_line_percentage_pokemon_B, 91], 4)
+                    else:
+                        self.hp_pokemon_B_sprite = pygame.draw.line(self.image, (255, 255, 0),
+                                                                    [26, 91],
+                                                                    [self.HP_line_percentage_pokemon_B, 91], 4)
+            else:
+                self.player_A_active_poke_icon_anim.blit(self.image, [30, 215])
+
+                if (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) >= 0.66:
+                    self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (0, 200, 64),
+                                                                [self.HP_line_percentage_pokemon_A, 327],
+                                                                [560, 327], 4)
+                elif (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) <= 0.33:
+                    self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (220, 50, 50),
+                                                                [self.HP_line_percentage_pokemon_A, 327],
+                                                                [560, 327], 4)
+                else:
+                    self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (255, 255, 0),
+                                                                [self.HP_line_percentage_pokemon_A, 327],
+                                                                [560, 327], 4)
+
+                if (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) >= 0.66:
                     self.hp_pokemon_B_sprite = pygame.draw.line(self.image, (0, 200, 64),
                                                                 [26, 91],
                                                                 [self.HP_line_percentage_pokemon_B, 91], 4)
-            else:
-                self.player_A_active_poke_icon_anim.blit(self.image, [30, 215])
-                self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (0, 200, 64),
-                                                            [self.HP_line_percentage_pokemon_A, 327],
-                                                            [560, 327], 4)
-                self.hp_pokemon_B_sprite = pygame.draw.line(self.image, (0, 200, 64),
-                                                            [26, 91],
-                                                            [self.HP_line_percentage_pokemon_B, 91], 4)
+                elif (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) <= 0.33:
+                    self.hp_pokemon_B_sprite = pygame.draw.line(self.image, (220, 50, 50),
+                                                                [26, 91],
+                                                                [self.HP_line_percentage_pokemon_B, 91], 4)
+                else:
+                    self.hp_pokemon_B_sprite = pygame.draw.line(self.image, (255, 255, 0),
+                                                                [26, 91],
+                                                                [self.HP_line_percentage_pokemon_B, 91], 4)
+
             self.image.blit(self.player_B_active_poke_icon, [370, 82])
 
             self.image.blit(self.player_A_active_poke_name, (430, 308))
@@ -685,12 +852,22 @@ class Battle_System(pygame.sprite.Sprite):
         for i in range(0, 21):
             exec(f"self.frame_hp_A_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
             exec(f"self.frame_hp_A_drop_{i} = pygame.Surface([{round(self.hp_drop_A * i)}, 4])")
-            exec(f"self.frame_hp_A_drop_{i}.fill((0, 200, 64))")
+            if (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) >= 0.66:
+                exec(f"self.frame_hp_A_drop_{i}.fill((0, 200, 64))")
+            elif (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) <= 0.33:
+                exec(f"self.frame_hp_A_drop_{i}.fill((220, 50, 50))")
+            else:
+                exec(f"self.frame_hp_A_drop_{i}.fill((255, 255, 0))")
             exec(f"self.frame_hp_A_{i}.blit(self.frame_hp_A_drop_{i}, [{147 - round(self.hp_drop_A * i)}, 0])")
 
             exec(f"self.frame_hp_B_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
             exec(f"self.frame_hp_B_drop_{i} = pygame.Surface([{round(self.hp_drop_B * i)}, 4])")
-            exec(f"self.frame_hp_B_drop_{i}.fill((0, 200, 64))")
+            if (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) >= 0.66:
+                exec(f"self.frame_hp_B_drop_{i}.fill((0, 200, 64))")
+            elif (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) <= 0.33:
+                exec(f"self.frame_hp_B_drop_{i}.fill((220, 50, 50))")
+            else:
+                exec(f"self.frame_hp_B_drop_{i}.fill((255, 255, 0))")
             exec(f"self.frame_hp_B_{i}.blit(self.frame_hp_B_drop_{i}, [0, 0])")
 
         # creating array for frames (animations)
@@ -887,3 +1064,45 @@ class Battle_System(pygame.sprite.Sprite):
                 list_of_str.insert(0, "   ")
         result = "".join(list_of_str)
         return result
+
+    @staticmethod
+    def element_poke_getter(id_element_move, self_image):
+        def element_drawer(element):
+            if element == 3:
+                return flying_type
+            elif element == 18:
+                return fairy_type
+            elif element == 9:
+                return steel_type
+            elif element == 4:
+                return poison_type
+            elif element == 8:
+                return ghost_type
+            elif element == 13:
+                return electric_type
+            elif element == 15:
+                return ice_type
+            elif element == 14:
+                return psychic_type
+            elif element == 16:
+                return dragon_type
+            elif element == 12:
+                return grass_type
+            elif element == 6:
+                return rock_type
+            elif element == 1:
+                return normal_type
+            elif element == 11:
+                return water_type
+            elif element == 17:
+                return dark_type
+            elif element == 7:
+                return bug_type
+            elif element == 2:
+                return fight_type
+            elif element == 10:
+                return fire_type
+            elif element == 5:
+                return ground_type
+
+        self_image.blit(element_drawer(id_element_move), (36, 24))

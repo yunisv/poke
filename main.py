@@ -151,19 +151,18 @@ try:  # here we try loading save file
         current_location, player_x, player_y, last_move_p = pickle.load(
             fp)  # loading current_place where we stayed last time
         settings = Setting(player_x, player_y, current_location)
-        world1 = CurrentGame(place_loading_from_file(settings.current_location),
-                             player_x_pos=settings.player_x, player_y_pos=settings.player_y)
         # world creation in that place
         settings.last_move_setter(last_move_p)
 except FileNotFoundError:  # if we don't save world before (or just create new world), creating new world
     settings = Setting()
-    world1 = CurrentGame(place_loading_from_file(settings.current_location),
-                         player_x_pos=settings.player_x, player_y_pos=settings.player_y)  # world creation
 
 screen = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT), DOUBLEBUF)  # create main window
 pygame.display.set_caption("Pokemon Red")  # name of game
 font_standart = pygame.font.SysFont('Times New Roman', 30)  # setting font
 font = pygame.font.Font(resource_path("resources/font/Pixel_Times.ttf"), 30)  # setting font
+
+world1 = CurrentGame(place_loading_from_file(settings.current_location),
+                     player_x_pos=settings.player_x, player_y_pos=settings.player_y)  # world creation
 
 world1.current_place.blit_background_to_layer()  # bliting items and background from layers to our world-class
 
@@ -236,7 +235,7 @@ while True:
             # если да, тов курсор записывается данный спрайт, а затем выполняется дальнейшее указания.
             for sprite in system_mech:  # getting all sprites from system_mech
                 # getting sprites type
-                if sprite.type_system == "icon_poke" or sprite.type_system == "poke_info"\
+                if sprite.type_system == "icon_poke" or sprite.type_system == "poke_info" \
                         or sprite.type_system == "battle_system":
                     if sprite.rect.collidepoint(pos):  # getting clicked sprite
                         mouse_cursor = sprite  # getting mouse_curso
