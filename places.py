@@ -57,7 +57,7 @@ def place_loading(items, place):  # loading items for any map
         # drawing items
         items.add(Stars(19, 16, "from_TestHouse_to_TestMap", 39 * 32, 15 * 32, 'down'))
         items.add(Stars(23, 8, "from_TestHouse_to_TestHouse2", 20 * 32, 10 * 32, 'left'))
-        text = ["· hi|· my name is Johns!|· I love poke very much! Do you know, that|"
+        text = ["· hi|· my name is Johns!|· I love poke very much! Do you know, that| "
                 "· Which type of poke you prefer?| | ",
                 " | |  fire poke can win ice type!| | | ",
                 " | | -ps: i've hear this from Pr.Oak| | | ",

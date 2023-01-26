@@ -82,11 +82,7 @@ class NPC(pygame.sprite.Sprite):
 
         self.action_data = action_data[:]
 
-        default_text = text[:]
-        self.text_default = default_text[0].split("|")
-        self.text_default2 = default_text[1].split("|")
-        self.text_default3 = default_text[2].split("|")
-        self.text_default4 = default_text[3].split("|")
+        self.default_text = text.copy()
         self.text_content = text[0].split("|")
         self.text_content2 = text[1].split("|")
         self.text_content3 = text[2].split("|")
@@ -209,10 +205,10 @@ class NPC(pygame.sprite.Sprite):
         self.yvel = 0  # y-coordinate speed
 
     def set_default_text_content(self):
-        self.text_content = self.text_default
-        self.text_content2 = self.text_default2
-        self.text_content3 = self.text_default3
-        self.text_content4 = self.text_default4
+        self.text_content = self.default_text[0].split("|")
+        self.text_content2 = self.default_text[1].split("|")
+        self.text_content3 = self.default_text[2].split("|")
+        self.text_content4 = self.default_text[3].split("|")
 
     def movement(self, count_static, speed_of_count, speed_of_player, *args):
         self.static_count = count_static  # component for static count (its will need be /32 for right cords)

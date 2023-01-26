@@ -24,6 +24,7 @@ with open(resource_path('resources/system/database/Pokedex.json')) as f:
 
 system_mech = pygame.sprite.Group()  # pygame sprite's group for system
 font_standart = pygame.font.Font(resource_path("resources/font/roboto.ttf"), 10)  # setting font
+font_medium = pygame.font.Font(resource_path("resources/font/roboto.ttf"), 12)  # setting font
 font_large = pygame.font.Font(resource_path("resources/font/roboto.ttf"), 20)  # setting font
 
 # loading system photo

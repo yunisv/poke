@@ -242,6 +242,10 @@ while True:
                         mouse_cursor = sprite  # getting mouse_curso
                         x_diff = e.pos[0] - mouse_cursor.rect.x
                         y_diff = e.pos[1] - mouse_cursor.rect.y
+            if mouse_cursor:
+                # fg sprite
+                system_mech.remove(mouse_cursor)
+                system_mech.add(mouse_cursor)
 
         if pygame.mouse.get_pressed()[0] and mouse_cursor:
             if mouse_cursor.type_system == "icon_poke" or "poke_info" or "battle_system":
