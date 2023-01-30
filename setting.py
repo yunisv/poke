@@ -539,7 +539,7 @@ class Poke_info(sprite.Sprite):
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite:", error)
 
-        self.image.blit(self.Moves_word, (35, 182))  # bliting "Moves.json" word
+        self.image.blit(self.Moves_word, (35, 182))  # bliting "Moves.py" word
         self.image.blit(self.Current_word, (35, 138))  # bliting "Current" word
         self.image.blit(self.current_xp_value, (100, 138))  # bliting current xp
         self.image.blit(self.Till_next_word, (35, 154))  # bliting "Till next" word

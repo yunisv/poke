@@ -6,6 +6,7 @@ import pyganim
 from pygame import *
 import sqlite3
 from setting import *
+from Moves import *
 
 
 def resource_path(relative_path):
@@ -259,6 +260,14 @@ class Battle_System(pygame.sprite.Sprite):
         self.moves_sprite = []
         sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/POKE_DB.db'))
         cursor = sqlite_connection.cursor()
+        self.poke_move_1_pos = [self.rect.x + 599, self.rect.y + 59]  # + [170, 40]
+        self.poke_move_2_pos = [self.rect.x + 599, self.rect.y + 106]  # + [170, 40]
+        self.poke_move_3_pos = [self.rect.x + 599, self.rect.y + 153]  # + [170, 40]
+        self.poke_move_4_pos = [self.rect.x + 599, self.rect.y + 200]  # + [170, 40]
+        self.move_desc_surface = pygame.Surface([185, 79], pygame.HWSURFACE)
+        self.move_desc_surface.set_colorkey((0, 0, 0))
+        self.move_desc_surface = self.move_desc_surface.convert_alpha()
+        self.move_desc_surface.blit(system_photo, (0, 0), [515, 20, 185, 79])
         if self.player_A_active_poke.move_1:
             self.poke_move_1_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
             self.poke_move_1_sprite.set_colorkey((0, 0, 0))
@@ -296,6 +305,12 @@ class Battle_System(pygame.sprite.Sprite):
                 self.player_A_active_poke_move_1_pp_str, True, (255, 255, 255)
             )
             self.poke_move_1_sprite.blit(self.player_A_active_poke_move_1_pp_str, (130, 22))
+
+            # getting desc about move
+            for id_of_json_move, data in moves.items():
+                if data['name'] == self.move_word(self.player_A_active_poke_move_1_name):
+                    self.player_A_active_poke_move_1_desc = data["desc"]
+
             self.moves_sprite.append(self.poke_move_1_sprite)
         if self.player_A_active_poke.move_2:
             self.poke_move_2_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
@@ -333,6 +348,12 @@ class Battle_System(pygame.sprite.Sprite):
             )
             self.poke_move_2_sprite.blit(self.player_A_active_poke_move_2_pp_str, (130, 22))
             self.poke_move_2_sprite.blit(self.player_A_active_poke_move_2_name_sprite, (5, 5))
+
+            # getting desc about move
+            for id_of_json_move, data in moves.items():
+                if data['name'] == self.move_word(self.player_A_active_poke_move_2_name):
+                    self.player_A_active_poke_move_2_desc = data["desc"]
+
             self.moves_sprite.append(self.poke_move_2_sprite)
         if self.player_A_active_poke.move_3:
             self.poke_move_3_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
@@ -370,6 +391,12 @@ class Battle_System(pygame.sprite.Sprite):
             )
             self.poke_move_3_sprite.blit(self.player_A_active_poke_move_3_pp_str, (130, 22))
             self.poke_move_3_sprite.blit(self.player_A_active_poke_move_3_name_sprite, (5, 5))
+
+            # getting desc about move
+            for id_of_json_move, data in moves.items():
+                if data['name'] == self.move_word(self.player_A_active_poke_move_3_name):
+                    self.player_A_active_poke_move_3_desc = data["desc"]
+
             self.moves_sprite.append(self.poke_move_3_sprite)
         if self.player_A_active_poke.move_4:
             self.poke_move_4_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
@@ -407,7 +434,15 @@ class Battle_System(pygame.sprite.Sprite):
             )
             self.poke_move_4_sprite.blit(self.player_A_active_poke_move_4_pp_str, (130, 22))
             self.poke_move_4_sprite.blit(self.player_A_active_poke_move_4_name_sprite, (5, 5))
+
+            # getting desc about move
+            for id_of_json_move, data in moves.items():
+                if data['name'] == self.move_word(self.player_A_active_poke_move_4_name):
+                    self.player_A_active_poke_move_4_desc = data["desc"]
+
             self.moves_sprite.append(self.poke_move_4_sprite)
+        self.choose_attack_text = "Choose Attack"
+        self.choose_attack_sprite = font_large.render(self.choose_attack_text, True, (255, 255, 255))
         cursor.close()
         sqlite_connection.close()
 
@@ -644,6 +679,33 @@ class Battle_System(pygame.sprite.Sprite):
         else:
             self.image.blit(self.attack_icon_none, (600, 310))
 
+        # checking mouse on "attack" menu
+        if self.menu_type == "attack":
+            if self.player_A_active_poke.move_1:
+                if self.poke_move_1_pos[0] < x_mouse < (self.poke_move_1_pos[0]+170) and \
+                        self.poke_move_1_pos[1] < y_mouse < (self.poke_move_1_pos[1]+40):
+                    self.image.blit(self.move_desc_surface, (410, 39))
+                    self.renderTextCenteredAt(self.player_A_active_poke_move_1_desc, font_small, (255, 255, 255),
+                                              502, 42, self.image, 170, "center")
+            if self.player_A_active_poke.move_2:
+                if self.poke_move_2_pos[0] < x_mouse < (self.poke_move_2_pos[0]+170) and \
+                        self.poke_move_2_pos[1] < y_mouse < (self.poke_move_2_pos[1]+40):
+                    self.image.blit(self.move_desc_surface, (410, 79))
+                    self.renderTextCenteredAt(self.player_A_active_poke_move_2_desc, font_small, (255, 255, 255),
+                                              502, 82, self.image, 170, "center")
+            if self.player_A_active_poke.move_3:
+                if self.poke_move_3_pos[0] < x_mouse < (self.poke_move_3_pos[0]+170) and \
+                        self.poke_move_3_pos[1] < y_mouse < (self.poke_move_3_pos[1]+40):
+                    self.image.blit(self.move_desc_surface, (410, 119))
+                    self.renderTextCenteredAt(self.player_A_active_poke_move_3_desc, font_small, (255, 255, 255),
+                                              502, 122, self.image, 170, "center")
+            if self.player_A_active_poke.move_4:
+                if self.poke_move_4_pos[0] < x_mouse < (self.poke_move_4_pos[0]+170) and \
+                        self.poke_move_4_pos[1] < y_mouse < (self.poke_move_4_pos[1]+40):
+                    self.image.blit(self.move_desc_surface, (410, 159))
+                    self.renderTextCenteredAt(self.player_A_active_poke_move_4_desc, font_small, (255, 255, 255),
+                                              502, 162, self.image, 170, "center")
+
     def press_checker(self, e_pos_x, e_pos_y):
         # close button condition
         if self.battle_status == "waiting":
@@ -662,6 +724,7 @@ class Battle_System(pygame.sprite.Sprite):
                 self.image.blit(i, [599, y])
                 pygame.draw.rect(self.image, (105, 105, 105), [599, y, 170, 40], 2)
                 y += 47
+            self.image.blit(self.choose_attack_sprite, (618, 260))  # choose attack sprite
 
     def update(self, screen, *args):
         # update buttons pos
@@ -669,6 +732,11 @@ class Battle_System(pygame.sprite.Sprite):
         self.surrender_button_y = [self.rect.y + 400, self.rect.y + 456]
         self.attack_button_x = [self.rect.x + 600, self.rect.x + 674]
         self.attack_button_y = [self.rect.y + 310, self.rect.y + 368]
+
+        self.poke_move_1_pos = [self.rect.x + 599, self.rect.y + 59]  # + [170, 40]
+        self.poke_move_2_pos = [self.rect.x + 599, self.rect.y + 106]  # + [170, 40]
+        self.poke_move_3_pos = [self.rect.x + 599, self.rect.y + 153]  # + [170, 40]
+        self.poke_move_4_pos = [self.rect.x + 599, self.rect.y + 200]  # + [170, 40]
 
         # battle status
         if self.active:
@@ -729,9 +797,6 @@ class Battle_System(pygame.sprite.Sprite):
             self.image.blit(self.battle_log_background, [9, 410])
             self.image.blit(self.right_hp_background, [20, 70])
             self.image.blit(self.left_hp_background, [410, 305])
-
-            self.pokeball_icons_draw()
-            self.button_hover(args[0][0], args[0][1])  # mouse pos in args
 
             if self.action_A == 'start':
                 # poke onset anim setting
@@ -816,6 +881,8 @@ class Battle_System(pygame.sprite.Sprite):
                 self.image.blit(self.poke_gender_female_sprite, (30, 72))\
 
             self.menu_updater()  # bliting menu
+            self.pokeball_icons_draw()  # bliting pokeball icons (mini)
+            self.button_hover(args[0][0], args[0][1])  # checking hover possible objects (mouse pos in args)
 
             self.image.blit(self.text_surface, (30, 425))
             self.image.blit(self.text_surface_go_pokemon_go, (30, 425))
@@ -1106,3 +1173,54 @@ class Battle_System(pygame.sprite.Sprite):
                 return ground_type
 
         self_image.blit(element_drawer(id_element_move), (36, 24))
+
+    @staticmethod
+    def move_word(word):
+        word_lst = word.split("-")
+        word = " ".join(word_lst)
+        return word
+
+    @staticmethod
+    def renderTextCenteredAt(text, font, colour, x, y, screen, allowed_width, position):
+        # first, split the text into words
+        words = text.split()
+
+        # now, construct lines out of these words
+        lines = []
+        while len(words) > 0:
+            # get as many words as will fit within allowed_width
+            line_words = []
+            while len(words) > 0:
+                line_words.append(words.pop(0))
+                fw, fh = font.size(' '.join(line_words + words[:1]))
+                if fw > allowed_width:
+                    break
+
+            # add a line consisting of those words
+            line = ' '.join(line_words)
+            lines.append(line)
+
+        # now we've split our text into lines that fit into the width, actually
+        # render them
+
+        # we'll render each line below the last, so we need to keep track of
+        # the culmative height of the lines we've rendered so far
+        y_offset = 0
+        for line in lines:
+            fw, fh = font.size(line)
+
+            # (tx, ty) is the top-left of the font surface
+            if position == "center":
+                tx = x - fw / 2
+                ty = y + y_offset
+            elif position == "left":
+                tx = x
+                ty = y + y_offset
+            else:
+                tx = x - fw / 2
+                ty = y + y_offset
+
+            font_surface = font.render(line, True, colour)
+            screen.blit(font_surface, (tx, ty))
+
+            y_offset += fh
