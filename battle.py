@@ -310,6 +310,14 @@ class Battle_System(pygame.sprite.Sprite):
             for id_of_json_move, data in moves.items():
                 if data['name'] == self.move_word(self.player_A_active_poke_move_1_name):
                     self.player_A_active_poke_move_1_desc = data["desc"]
+            self.player_A_active_poke_move_1_acc_text = f"ACC: {self.player_A_active_poke_move_1_accuracy}"
+            self.player_A_active_poke_move_1_pwr_text = f"PWR: {self.player_A_active_poke_move_1_power}"
+            self.player_A_active_poke_move_1_acc_sprite = font_small.render(
+                self.zero_adder_to_number(self.player_A_active_poke_move_1_acc_text, 8, "space"), True, (255, 255, 255)
+            )
+            self.player_A_active_poke_move_1_pwr_sprite = font_small.render(
+                self.zero_adder_to_number(self.player_A_active_poke_move_1_pwr_text, 8, "space"), True, (255, 255, 255)
+            )
 
             self.moves_sprite.append(self.poke_move_1_sprite)
         if self.player_A_active_poke.move_2:
@@ -353,6 +361,14 @@ class Battle_System(pygame.sprite.Sprite):
             for id_of_json_move, data in moves.items():
                 if data['name'] == self.move_word(self.player_A_active_poke_move_2_name):
                     self.player_A_active_poke_move_2_desc = data["desc"]
+            self.player_A_active_poke_move_2_acc_text = f"ACC: {self.player_A_active_poke_move_2_accuracy}"
+            self.player_A_active_poke_move_2_pwr_text = f"PWR: {self.player_A_active_poke_move_2_power}"
+            self.player_A_active_poke_move_2_acc_sprite = font_small.render(
+                self.zero_adder_to_number(self.player_A_active_poke_move_2_acc_text, 8, "space"), True, (255, 255, 255)
+            )
+            self.player_A_active_poke_move_2_pwr_sprite = font_small.render(
+                self.zero_adder_to_number(self.player_A_active_poke_move_2_pwr_text, 8, "space"), True, (255, 255, 255)
+            )
 
             self.moves_sprite.append(self.poke_move_2_sprite)
         if self.player_A_active_poke.move_3:
@@ -396,7 +412,14 @@ class Battle_System(pygame.sprite.Sprite):
             for id_of_json_move, data in moves.items():
                 if data['name'] == self.move_word(self.player_A_active_poke_move_3_name):
                     self.player_A_active_poke_move_3_desc = data["desc"]
-
+            self.player_A_active_poke_move_3_acc_text = f"ACC: {self.player_A_active_poke_move_3_accuracy}"
+            self.player_A_active_poke_move_3_pwr_text = f"PWR: {self.player_A_active_poke_move_3_power}"
+            self.player_A_active_poke_move_3_acc_sprite = font_small.render(
+                self.zero_adder_to_number(self.player_A_active_poke_move_3_acc_text, 8, "space"), True, (255, 255, 255)
+            )
+            self.player_A_active_poke_move_3_pwr_sprite = font_small.render(
+                self.zero_adder_to_number(self.player_A_active_poke_move_3_pwr_text, 8, "space"), True, (255, 255, 255)
+            )
             self.moves_sprite.append(self.poke_move_3_sprite)
         if self.player_A_active_poke.move_4:
             self.poke_move_4_sprite = pygame.Surface([170, 40], pygame.HWSURFACE)
@@ -439,6 +462,14 @@ class Battle_System(pygame.sprite.Sprite):
             for id_of_json_move, data in moves.items():
                 if data['name'] == self.move_word(self.player_A_active_poke_move_4_name):
                     self.player_A_active_poke_move_4_desc = data["desc"]
+            self.player_A_active_poke_move_4_acc_text = f"ACC: {self.player_A_active_poke_move_4_accuracy}"
+            self.player_A_active_poke_move_4_pwr_text = f"PWR: {self.player_A_active_poke_move_4_power}"
+            self.player_A_active_poke_move_4_acc_sprite = font_small.render(
+                self.zero_adder_to_number(self.player_A_active_poke_move_4_acc_text, 8, "space"), True, (255, 255, 255)
+            )
+            self.player_A_active_poke_move_4_pwr_sprite = font_small.render(
+                self.zero_adder_to_number(self.player_A_active_poke_move_4_pwr_text, 8, "space"), True, (255, 255, 255)
+            )
 
             self.moves_sprite.append(self.poke_move_4_sprite)
         self.choose_attack_text = "Choose Attack"
@@ -687,24 +718,32 @@ class Battle_System(pygame.sprite.Sprite):
                     self.image.blit(self.move_desc_surface, (410, 39))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_1_desc, font_small, (255, 255, 255),
                                               502, 42, self.image, 170, "center")
+                    self.image.blit(self.player_A_active_poke_move_1_acc_sprite, (440, 100))
+                    self.image.blit(self.player_A_active_poke_move_1_pwr_sprite, (500, 100))
             if self.player_A_active_poke.move_2:
                 if self.poke_move_2_pos[0] < x_mouse < (self.poke_move_2_pos[0]+170) and \
                         self.poke_move_2_pos[1] < y_mouse < (self.poke_move_2_pos[1]+40):
                     self.image.blit(self.move_desc_surface, (410, 79))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_2_desc, font_small, (255, 255, 255),
                                               502, 82, self.image, 170, "center")
+                    self.image.blit(self.player_A_active_poke_move_2_acc_sprite, (440, 140))
+                    self.image.blit(self.player_A_active_poke_move_2_pwr_sprite, (500, 140))
             if self.player_A_active_poke.move_3:
                 if self.poke_move_3_pos[0] < x_mouse < (self.poke_move_3_pos[0]+170) and \
                         self.poke_move_3_pos[1] < y_mouse < (self.poke_move_3_pos[1]+40):
                     self.image.blit(self.move_desc_surface, (410, 119))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_3_desc, font_small, (255, 255, 255),
                                               502, 122, self.image, 170, "center")
+                    self.image.blit(self.player_A_active_poke_move_3_acc_sprite, (440, 180))
+                    self.image.blit(self.player_A_active_poke_move_3_pwr_sprite, (500, 180))
             if self.player_A_active_poke.move_4:
                 if self.poke_move_4_pos[0] < x_mouse < (self.poke_move_4_pos[0]+170) and \
                         self.poke_move_4_pos[1] < y_mouse < (self.poke_move_4_pos[1]+40):
                     self.image.blit(self.move_desc_surface, (410, 159))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_4_desc, font_small, (255, 255, 255),
                                               502, 162, self.image, 170, "center")
+                    self.image.blit(self.player_A_active_poke_move_4_acc_sprite, (440, 220))
+                    self.image.blit(self.player_A_active_poke_move_4_pwr_sprite, (500, 220))
 
     def press_checker(self, e_pos_x, e_pos_y):
         # close button condition
