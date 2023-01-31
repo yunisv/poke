@@ -288,7 +288,12 @@ class Battle_System(pygame.sprite.Sprite):
                 self.player_A_active_poke_move_1_type = row[9]
                 self.player_A_active_poke_move_1_effect = row[10]
 
-            self.poke_move_1_sprite.blit(status_attack_icon, (4, 22))  # type of attack
+            if self.player_A_active_poke_move_1_type == 1:
+                self.poke_move_1_sprite.blit(status_attack_icon, (4, 22))  # type of attack
+            elif self.player_A_active_poke_move_1_type == 2:
+                self.poke_move_1_sprite.blit(damage_attack_icon, (4, 22))  # type of attack
+            elif self.player_A_active_poke_move_1_type == 3:
+                self.poke_move_1_sprite.blit(special_attack_icon, (4, 22))  # type of attack
             self.element_poke_getter(self.player_A_active_poke_move_1_element, self.poke_move_1_sprite)  # element atk
             self.player_A_active_poke_move_1_name_sprite = font_small.render(
                 self.player_A_active_poke_move_1_name, True, (255, 255, 255)
@@ -340,7 +345,12 @@ class Battle_System(pygame.sprite.Sprite):
                 self.player_A_active_poke_move_2_type = row[9]
                 self.player_A_active_poke_move_2_effect = row[10]
 
-            self.poke_move_2_sprite.blit(status_attack_icon, (4, 22))
+            if self.player_A_active_poke_move_2_type == 1:
+                self.poke_move_2_sprite.blit(status_attack_icon, (4, 22))  # type of attack
+            elif self.player_A_active_poke_move_2_type == 2:
+                self.poke_move_2_sprite.blit(damage_attack_icon, (4, 22))  # type of attack
+            elif self.player_A_active_poke_move_2_type == 3:
+                self.poke_move_2_sprite.blit(special_attack_icon, (4, 22))  # type of attack
             self.element_poke_getter(self.player_A_active_poke_move_2_element, self.poke_move_2_sprite)
             self.player_A_active_poke_move_2_name_sprite = font_small.render(
                 self.player_A_active_poke_move_2_name, True, (255, 255, 255)
@@ -391,7 +401,12 @@ class Battle_System(pygame.sprite.Sprite):
                 self.player_A_active_poke_move_3_type = row[9]
                 self.player_A_active_poke_move_3_effect = row[10]
 
-            self.poke_move_3_sprite.blit(status_attack_icon, (4, 22))
+            if self.player_A_active_poke_move_3_type == 1:
+                self.poke_move_3_sprite.blit(status_attack_icon, (4, 22))  # type of attack
+            elif self.player_A_active_poke_move_3_type == 2:
+                self.poke_move_3_sprite.blit(damage_attack_icon, (4, 22))  # type of attack
+            elif self.player_A_active_poke_move_3_type == 3:
+                self.poke_move_3_sprite.blit(special_attack_icon, (4, 22))  # type of attack
             self.element_poke_getter(self.player_A_active_poke_move_3_element, self.poke_move_3_sprite)
             self.player_A_active_poke_move_3_name_sprite = font_small.render(
                 self.player_A_active_poke_move_3_name, True, (255, 255, 255)
@@ -441,7 +456,12 @@ class Battle_System(pygame.sprite.Sprite):
                 self.player_A_active_poke_move_4_type = row[9]
                 self.player_A_active_poke_move_4_effect = row[10]
 
-            self.poke_move_4_sprite.blit(status_attack_icon, (4, 22))
+            if self.player_A_active_poke_move_4_type == 1:
+                self.poke_move_4_sprite.blit(status_attack_icon, (4, 22))  # type of attack
+            elif self.player_A_active_poke_move_4_type == 2:
+                self.poke_move_4_sprite.blit(damage_attack_icon, (4, 22))  # type of attack
+            elif self.player_A_active_poke_move_4_type == 3:
+                self.poke_move_4_sprite.blit(special_attack_icon, (4, 22))  # type of attack
             self.element_poke_getter(self.player_A_active_poke_move_4_element, self.poke_move_4_sprite)
             self.player_A_active_poke_move_4_name_sprite = font_small.render(
                 self.player_A_active_poke_move_4_name, True, (255, 255, 255)
@@ -723,27 +743,27 @@ class Battle_System(pygame.sprite.Sprite):
             if self.player_A_active_poke.move_2:
                 if self.poke_move_2_pos[0] < x_mouse < (self.poke_move_2_pos[0]+170) and \
                         self.poke_move_2_pos[1] < y_mouse < (self.poke_move_2_pos[1]+40):
-                    self.image.blit(self.move_desc_surface, (410, 79))
+                    self.image.blit(self.move_desc_surface, (410, 89))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_2_desc, font_small, (255, 255, 255),
-                                              502, 82, self.image, 170, "center")
-                    self.image.blit(self.player_A_active_poke_move_2_acc_sprite, (440, 140))
-                    self.image.blit(self.player_A_active_poke_move_2_pwr_sprite, (500, 140))
+                                              502, 92, self.image, 170, "center")
+                    self.image.blit(self.player_A_active_poke_move_2_acc_sprite, (440, 150))
+                    self.image.blit(self.player_A_active_poke_move_2_pwr_sprite, (500, 150))
             if self.player_A_active_poke.move_3:
                 if self.poke_move_3_pos[0] < x_mouse < (self.poke_move_3_pos[0]+170) and \
                         self.poke_move_3_pos[1] < y_mouse < (self.poke_move_3_pos[1]+40):
-                    self.image.blit(self.move_desc_surface, (410, 119))
+                    self.image.blit(self.move_desc_surface, (410, 129))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_3_desc, font_small, (255, 255, 255),
-                                              502, 122, self.image, 170, "center")
-                    self.image.blit(self.player_A_active_poke_move_3_acc_sprite, (440, 180))
-                    self.image.blit(self.player_A_active_poke_move_3_pwr_sprite, (500, 180))
+                                              502, 132, self.image, 170, "center")
+                    self.image.blit(self.player_A_active_poke_move_3_acc_sprite, (440, 190))
+                    self.image.blit(self.player_A_active_poke_move_3_pwr_sprite, (500, 190))
             if self.player_A_active_poke.move_4:
                 if self.poke_move_4_pos[0] < x_mouse < (self.poke_move_4_pos[0]+170) and \
                         self.poke_move_4_pos[1] < y_mouse < (self.poke_move_4_pos[1]+40):
-                    self.image.blit(self.move_desc_surface, (410, 159))
+                    self.image.blit(self.move_desc_surface, (410, 179))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_4_desc, font_small, (255, 255, 255),
-                                              502, 162, self.image, 170, "center")
-                    self.image.blit(self.player_A_active_poke_move_4_acc_sprite, (440, 220))
-                    self.image.blit(self.player_A_active_poke_move_4_pwr_sprite, (500, 220))
+                                              502, 182, self.image, 170, "center")
+                    self.image.blit(self.player_A_active_poke_move_4_acc_sprite, (440, 240))
+                    self.image.blit(self.player_A_active_poke_move_4_pwr_sprite, (500, 240))
 
     def press_checker(self, e_pos_x, e_pos_y):
         # close button condition

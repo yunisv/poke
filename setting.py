@@ -80,8 +80,8 @@ ground_type.blit(system_photo, (0, 0), [1335, 1172, 31, 11])
 
 shiny_icon_s.blit(system_photo, (0, 0), [2038, 1713, 10, 14])
 
-status_attack_icon.blit(system_photo, (0, 0), [1754, 1367, 28, 14])
-special_attack_icon.blit(system_photo, (0, 0), [1873, 1367, 28, 14])
+special_attack_icon.blit(system_photo, (0, 0), [1754, 1367, 28, 14])
+status_attack_icon.blit(system_photo, (0, 0), [1873, 1367, 28, 14])
 damage_attack_icon.blit(system_photo, (0, 0), [1844, 1367, 28, 14])
 
 
