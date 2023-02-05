@@ -37,6 +37,7 @@ class Battle_System(pygame.sprite.Sprite):
         self.type_of_battle = type_of_battle
         self.place = place[0]
         self.time = place[1]
+        self.weather = None
         self.background_img = pygame.image.load(resource_path("resources/system/sprites/battle_background.png"))
         self.image = Surface([791, 465], pygame.HWSURFACE)  # Battle Sprite
         self.image = self.image.convert_alpha()  # transparent
@@ -143,6 +144,8 @@ class Battle_System(pygame.sprite.Sprite):
         self.action = False  # action mechanics
         self.action_A = None  # action of player A
         self.action_B = None  # action of player B
+        self.selected_A = None  # action mechanics
+        self.selected_B = None  # action mechanics
 
         self.actions_list = []  # actions list
         self.arguments_list = []  # args list
@@ -497,6 +500,68 @@ class Battle_System(pygame.sprite.Sprite):
         cursor.close()
         sqlite_connection.close()
 
+        # setting poke_opponent moves
+        sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/POKE_DB.db'))
+        cursor = sqlite_connection.cursor()
+        if self.player_B_active_poke.move_1:
+            sqlite_select_query = f'SELECT * FROM moves WHERE id like {self.player_B_active_poke.move_1}'
+            cursor.execute(sqlite_select_query)
+            records = cursor.fetchall()
+            for row in records:
+                self.player_B_active_poke_move_1_id = row[0]
+                self.player_B_active_poke_move_1_name = row[1]
+                self.player_B_active_poke_move_1_name = f"{self.player_A_active_poke_move_1_name}".title()
+                self.player_B_active_poke_move_1_element = row[3]
+                self.player_B_active_poke_move_1_power = row[4]
+                self.player_B_active_poke_move_1_pp = row[5]
+                self.player_B_active_poke_move_1_accuracy = row[6]
+                self.player_B_active_poke_move_1_type = row[9]
+                self.player_B_active_poke_move_1_effect = row[10]
+        if self.player_B_active_poke.move_2:
+            sqlite_select_query = f'SELECT * FROM moves WHERE id like {self.player_B_active_poke.move_2}'
+            cursor.execute(sqlite_select_query)
+            records = cursor.fetchall()
+            for row in records:
+                self.player_B_active_poke_move_2_id = row[0]
+                self.player_B_active_poke_move_2_name = row[1]
+                self.player_B_active_poke_move_2_name = f"{self.player_A_active_poke_move_2_name}".title()
+                self.player_B_active_poke_move_2_element = row[3]
+                self.player_B_active_poke_move_2_power = row[4]
+                self.player_B_active_poke_move_2_pp = row[5]
+                self.player_B_active_poke_move_2_accuracy = row[6]
+                self.player_B_active_poke_move_2_type = row[9]
+                self.player_B_active_poke_move_2_effect = row[10]
+        if self.player_B_active_poke.move_3:
+            sqlite_select_query = f'SELECT * FROM moves WHERE id like {self.player_B_active_poke.move_3}'
+            cursor.execute(sqlite_select_query)
+            records = cursor.fetchall()
+            for row in records:
+                self.player_B_active_poke_move_3_id = row[0]
+                self.player_B_active_poke_move_3_name = row[1]
+                self.player_B_active_poke_move_3_name = f"{self.player_A_active_poke_move_3_name}".title()
+                self.player_B_active_poke_move_3_element = row[3]
+                self.player_B_active_poke_move_3_power = row[4]
+                self.player_B_active_poke_move_3_pp = row[5]
+                self.player_B_active_poke_move_3_accuracy = row[6]
+                self.player_B_active_poke_move_3_type = row[9]
+                self.player_B_active_poke_move_3_effect = row[10]
+        if self.player_B_active_poke.move_4:
+            sqlite_select_query = f'SELECT * FROM moves WHERE id like {self.player_B_active_poke.move_4}'
+            cursor.execute(sqlite_select_query)
+            records = cursor.fetchall()
+            for row in records:
+                self.player_B_active_poke_move_4_id = row[0]
+                self.player_B_active_poke_move_4_name = row[1]
+                self.player_B_active_poke_move_4_name = f"{self.player_A_active_poke_move_4_name}".title()
+                self.player_B_active_poke_move_4_element = row[3]
+                self.player_B_active_poke_move_4_power = row[4]
+                self.player_B_active_poke_move_4_pp = row[5]
+                self.player_B_active_poke_move_4_accuracy = row[6]
+                self.player_B_active_poke_move_4_type = row[9]
+                self.player_B_active_poke_move_4_effect = row[10]
+        cursor.close()
+        sqlite_connection.close()
+
         if type_of_battle == "wild_poke":
             catch_success = False
 
@@ -592,7 +657,7 @@ class Battle_System(pygame.sprite.Sprite):
                 print(f"catch_rate is: {catch_number}")
                 catch_rate = True
 
-    def action_func(self, action_A, action_B):  # WE NEED CHECK IT < ADD BUTTON SURRENDER
+    def action_func(self, action_A, action_B):
         if action_A == "start" and action_B == "start":
             self.actions_list.append(self.delay_func)
             self.arguments_list.append([True, 20])
@@ -639,6 +704,42 @@ class Battle_System(pygame.sprite.Sprite):
         #         elif self.player_A_active_poke.STAT_SPD < self.player_B_active_poke.STAT_SPD:
         #
         #         else:
+        if self.action_A == "attack" and self.action_B == "attack":
+            # надо бы придумать сценарий из функций (конец файла)
+            if self.player_A_active_poke.STAT_SPD >= self.player_B_active_poke.STAT_SPD:
+                exec(f"self.damage_counter(self.player_A_active_poke, "
+                     f"self.player_A_active_poke_move_{self.selected_A}_element,"
+                     f" self.player_A_active_poke_move_{self.selected_A}_type,"
+                     f"self.player_B_active_poke, self.player_A_active_poke_move_{self.selected_A}_power,"
+                     f"self.player_A_active_poke.STAT_ATK, self.player_A_active_poke.STAT_SPATK,"
+                     f"self.player_B_active_poke.STAT_DEF, self.player_B_active_poke.STAT_SPDEF)")
+                # !!!!!! here we need check HP of poke
+                exec(f"self.damage_counter(self.player_B_active_poke, "
+                     f"self.player_B_active_poke_move_{self.selected_B}_element,"
+                     f"self.player_B_active_poke_move_{self.selected_B}_type, self.player_A_active_poke,"
+                     f"self.player_B_active_poke_move_{self.selected_B}_power,"
+                     f"self.player_B_active_poke.STAT_ATK,"
+                     f"self.player_B_active_poke.STAT_SPATK,"
+                     f"self.player_A_active_poke.STAT_DEF,"
+                     f"self.player_A_active_poke.STAT_SPDEF)")
+            else:
+                exec(f"self.damage_counter(self.player_B_active_poke,"
+                     f"self.player_B_active_poke_move_{self.selected_B}_element,"
+                     f"self.player_B_active_poke_move_{self.selected_B}_type, self.player_A_active_poke,"
+                     f"self.player_B_active_poke_move_{self.selected_B}_power,"
+                     f"self.player_B_active_poke.STAT_ATK,"
+                     f"self.player_B_active_poke.STAT_SPATK,"
+                     f"self.player_A_active_poke.STAT_DEF,"
+                     f"self.player_A_active_poke.STAT_SPDEF)")
+                # !!!!!! here we need check HP of poke
+                exec(f"self.damage_counter(self.player_A_active_poke,"
+                     f"self.player_A_active_poke_move_{self.selected_A}_element,"
+                     f" self.player_A_active_poke_move_{self.selected_A}_type,"
+                     f"self.player_B_active_poke, self.player_A_active_poke_move_{self.selected_A}_power,"
+                     f"self.player_A_active_poke.STAT_ATK, self.player_A_active_poke.STAT_SPATK,"
+                     f"self.player_B_active_poke.STAT_DEF, self.player_B_active_poke.STAT_SPDEF)")
+            self.action_A = None
+            self.action_B = None
 
     def battle_status_changer(self, status):
         self.battle_status = status
@@ -733,40 +834,140 @@ class Battle_System(pygame.sprite.Sprite):
         # checking mouse on "attack" menu
         if self.menu_type == "attack":
             if self.player_A_active_poke.move_1:
-                if self.poke_move_1_pos[0] < x_mouse < (self.poke_move_1_pos[0]+170) and \
-                        self.poke_move_1_pos[1] < y_mouse < (self.poke_move_1_pos[1]+40):
+                if self.poke_move_1_pos[0] < x_mouse < (self.poke_move_1_pos[0] + 170) and \
+                        self.poke_move_1_pos[1] < y_mouse < (self.poke_move_1_pos[1] + 40):
                     self.image.blit(self.move_desc_surface, (410, 39))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_1_desc, font_small, (255, 255, 255),
                                               502, 42, self.image, 170, "center")
                     self.image.blit(self.player_A_active_poke_move_1_acc_sprite, (440, 100))
                     self.image.blit(self.player_A_active_poke_move_1_pwr_sprite, (500, 100))
             if self.player_A_active_poke.move_2:
-                if self.poke_move_2_pos[0] < x_mouse < (self.poke_move_2_pos[0]+170) and \
-                        self.poke_move_2_pos[1] < y_mouse < (self.poke_move_2_pos[1]+40):
+                if self.poke_move_2_pos[0] < x_mouse < (self.poke_move_2_pos[0] + 170) and \
+                        self.poke_move_2_pos[1] < y_mouse < (self.poke_move_2_pos[1] + 40):
                     self.image.blit(self.move_desc_surface, (410, 89))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_2_desc, font_small, (255, 255, 255),
                                               502, 92, self.image, 170, "center")
                     self.image.blit(self.player_A_active_poke_move_2_acc_sprite, (440, 150))
                     self.image.blit(self.player_A_active_poke_move_2_pwr_sprite, (500, 150))
             if self.player_A_active_poke.move_3:
-                if self.poke_move_3_pos[0] < x_mouse < (self.poke_move_3_pos[0]+170) and \
-                        self.poke_move_3_pos[1] < y_mouse < (self.poke_move_3_pos[1]+40):
+                if self.poke_move_3_pos[0] < x_mouse < (self.poke_move_3_pos[0] + 170) and \
+                        self.poke_move_3_pos[1] < y_mouse < (self.poke_move_3_pos[1] + 40):
                     self.image.blit(self.move_desc_surface, (410, 129))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_3_desc, font_small, (255, 255, 255),
                                               502, 132, self.image, 170, "center")
                     self.image.blit(self.player_A_active_poke_move_3_acc_sprite, (440, 190))
                     self.image.blit(self.player_A_active_poke_move_3_pwr_sprite, (500, 190))
             if self.player_A_active_poke.move_4:
-                if self.poke_move_4_pos[0] < x_mouse < (self.poke_move_4_pos[0]+170) and \
-                        self.poke_move_4_pos[1] < y_mouse < (self.poke_move_4_pos[1]+40):
+                if self.poke_move_4_pos[0] < x_mouse < (self.poke_move_4_pos[0] + 170) and \
+                        self.poke_move_4_pos[1] < y_mouse < (self.poke_move_4_pos[1] + 40):
                     self.image.blit(self.move_desc_surface, (410, 179))
                     self.renderTextCenteredAt(self.player_A_active_poke_move_4_desc, font_small, (255, 255, 255),
                                               502, 182, self.image, 170, "center")
                     self.image.blit(self.player_A_active_poke_move_4_acc_sprite, (440, 240))
                     self.image.blit(self.player_A_active_poke_move_4_pwr_sprite, (500, 240))
 
+    def npc_move_setter(self):
+        attack = 0
+        selected_move = 0
+
+        # checking attack moves
+        if self.player_B_active_poke.move_1:
+            if self.player_B_active_poke.pp_1 != 0:
+                damage_to_poke = self.damage_counter(self.player_B_active_poke,
+                                                     self.player_B_active_poke_move_1_element,
+                                                     self.player_B_active_poke_move_1_type, self.player_A_active_poke,
+                                                     self.player_B_active_poke_move_1_power,
+                                                     self.player_B_active_poke.STAT_ATK,
+                                                     self.player_B_active_poke.STAT_SPATK,
+                                                     self.player_A_active_poke.STAT_DEF,
+                                                     self.player_A_active_poke.STAT_SPDEF)
+                if damage_to_poke > attack:
+                    attack = damage_to_poke
+                    selected_move = 1
+        if self.player_B_active_poke.move_2:
+            if self.player_B_active_poke.pp_2 != 0:
+                damage_to_poke = self.damage_counter(self.player_B_active_poke,
+                                                     self.player_B_active_poke_move_2_element,
+                                                     self.player_B_active_poke_move_2_type, self.player_A_active_poke,
+                                                     self.player_B_active_poke_move_2_power,
+                                                     self.player_B_active_poke.STAT_ATK,
+                                                     self.player_B_active_poke.STAT_SPATK,
+                                                     self.player_A_active_poke.STAT_DEF,
+                                                     self.player_A_active_poke.STAT_SPDEF)
+                if damage_to_poke > attack:
+                    attack = damage_to_poke
+                    selected_move = 2
+        if self.player_B_active_poke.move_3:
+            if self.player_B_active_poke.pp_3 != 0:
+                damage_to_poke = self.damage_counter(self.player_B_active_poke,
+                                                     self.player_B_active_poke_move_3_element,
+                                                     self.player_B_active_poke_move_3_type, self.player_A_active_poke,
+                                                     self.player_B_active_poke_move_3_power,
+                                                     self.player_B_active_poke.STAT_ATK,
+                                                     self.player_B_active_poke.STAT_SPATK,
+                                                     self.player_A_active_poke.STAT_DEF,
+                                                     self.player_A_active_poke.STAT_SPDEF)
+                if damage_to_poke > attack:
+                    attack = damage_to_poke
+                    selected_move = 3
+        if self.player_B_active_poke.move_4:
+            if self.player_B_active_poke.pp_4 != 0:
+                damage_to_poke = self.damage_counter(self.player_B_active_poke,
+                                                     self.player_B_active_poke_move_4_element,
+                                                     self.player_B_active_poke_move_4_type, self.player_A_active_poke,
+                                                     self.player_B_active_poke_move_4_power,
+                                                     self.player_B_active_poke.STAT_ATK,
+                                                     self.player_B_active_poke.STAT_SPATK,
+                                                     self.player_A_active_poke.STAT_DEF,
+                                                     self.player_A_active_poke.STAT_SPDEF)
+                if damage_to_poke > attack:
+                    selected_move = 4
+
+        # checking status moves
+        if self.player_B_active_poke.move_1:
+            if self.player_B_active_poke.pp_1 != 0:
+                if self.player_B_active_poke_move_1_type == 1:
+                    if random.random() <= 0.2:
+                        selected_move = 1
+        if self.player_B_active_poke.move_2:
+            if self.player_B_active_poke.pp_2 != 0:
+                if self.player_B_active_poke_move_2_type == 1:
+                    if random.random() <= 0.2:
+                        selected_move = 2
+        if self.player_B_active_poke.move_3:
+            if self.player_B_active_poke.pp_3 != 0:
+                if self.player_B_active_poke_move_3_type == 1:
+                    if random.random() <= 0.2:
+                        selected_move = 3
+        if self.player_B_active_poke.move_4:
+            if self.player_B_active_poke.pp_4 != 0:
+                if self.player_B_active_poke_move_4_type == 1:
+                    if random.random() <= 0.2:
+                        selected_move = 4
+        # if we don't select move
+        if selected_move == 0:
+            list_of_poke = []
+            if self.player_B_poke_1 and self.player_B_active_poke != self.player_B_poke_1 and self.player_B_poke_1.HP != 0:
+                list_of_poke.append(1)
+            if self.player_B_poke_2 and self.player_B_active_poke != self.player_B_poke_2 and self.player_B_poke_2.HP != 0:
+                list_of_poke.append(2)
+            if self.player_B_poke_3 and self.player_B_active_poke != self.player_B_poke_3 and self.player_B_poke_3.HP != 0:
+                list_of_poke.append(3)
+            if self.player_B_poke_4 and self.player_B_active_poke != self.player_B_poke_4 and self.player_B_poke_4.HP != 0:
+                list_of_poke.append(4)
+            if self.player_B_poke_5 and self.player_B_active_poke != self.player_B_poke_5 and self.player_B_poke_5.HP != 0:
+                list_of_poke.append(5)
+            if self.player_B_poke_6 and self.player_B_active_poke != self.player_B_poke_6 and self.player_B_poke_6.HP != 0:
+                list_of_poke.append(6)
+
+            self.action_B = "change"
+            self.selected_B = random.choice(list_of_poke)
+        else:
+            self.action_B = "attack"
+            self.selected_B = selected_move
+
     def press_checker(self, e_pos_x, e_pos_y):
-        # close button condition
+        # buttons condition
         if self.battle_status == "waiting":
             if self.surrender_button_x[0] <= e_pos_x <= self.surrender_button_x[1] and \
                     self.surrender_button_y[0] <= e_pos_y <= self.surrender_button_y[1]:
@@ -775,6 +976,28 @@ class Battle_System(pygame.sprite.Sprite):
             if self.attack_button_x[0] <= e_pos_x <= self.attack_button_x[1] and \
                     self.attack_button_y[0] <= e_pos_y <= self.attack_button_y[1]:
                 self.menu_type = "attack"
+
+            # if we select attack move
+            if self.menu_type == "attack":
+                if self.poke_move_1_pos[0] < e_pos_x < (self.poke_move_1_pos[0] + 170) and \
+                        self.poke_move_1_pos[1] < e_pos_y < (self.poke_move_1_pos[1] + 40):
+                    self.selected_A = 1
+                    self.action_A = "attack"
+            if self.menu_type == "attack":
+                if self.poke_move_2_pos[0] < e_pos_x < (self.poke_move_2_pos[0] + 170) and \
+                        self.poke_move_2_pos[1] < e_pos_y < (self.poke_move_2_pos[1] + 40):
+                    self.selected_A = 2
+                    self.action_A = "attack"
+            if self.menu_type == "attack":
+                if self.poke_move_3_pos[0] < e_pos_x < (self.poke_move_3_pos[0] + 170) and \
+                        self.poke_move_3_pos[1] < e_pos_y < (self.poke_move_3_pos[1] + 40):
+                    self.selected_A = 3
+                    self.action_A = "attack"
+            if self.menu_type == "attack":
+                if self.poke_move_4_pos[0] < e_pos_x < (self.poke_move_4_pos[0] + 170) and \
+                        self.poke_move_4_pos[1] < e_pos_y < (self.poke_move_4_pos[1] + 40):
+                    self.selected_A = 4
+                    self.action_A = "attack"
 
     def menu_updater(self):
         if self.menu_type == "attack":
@@ -799,8 +1022,12 @@ class Battle_System(pygame.sprite.Sprite):
 
         # battle status
         if self.active:
+            # getting npc move
+            if self.type_of_battle == "npc" and self.action_B is None:
+                self.npc_move_setter()
+
             if self.battle_status == "waiting":
-                if self.action_A is None and self.action_B is None:  # BUT HERE MUST BE OR (not and)
+                if self.action_A is None or self.action_B is None:  # BUT HERE MUST BE OR (not and)
                     pass
                 else:
                     self.battle_status = "action"
@@ -937,8 +1164,7 @@ class Battle_System(pygame.sprite.Sprite):
             if self.player_B_active_poke.poke_gender == "male":
                 self.image.blit(self.poke_gender_male_sprite, (30, 72))
             else:
-                self.image.blit(self.poke_gender_female_sprite, (30, 72))\
-
+                self.image.blit(self.poke_gender_female_sprite, (30, 72))
             self.menu_updater()  # bliting menu
             self.pokeball_icons_draw()  # bliting pokeball icons (mini)
             self.button_hover(args[0][0], args[0][1])  # checking hover possible objects (mouse pos in args)
@@ -1283,3 +1509,194 @@ class Battle_System(pygame.sprite.Sprite):
             screen.blit(font_surface, (tx, ty))
 
             y_offset += fh
+
+    def damage_counter(self, active_poke, move_element, move_type, opponent_poke, power, Atk, Spatk, Def, Spdef, other=1):
+        # 'Weather' is the damage multiplier that is 1 by default but will become 1.5 if
+        # the attacker is using a Water-type move while Rain is active or if they use
+        # a Fire-type move when Sunny Day is active, and, additionally,
+        # can become 0.5 if the attacker uses a Water-type move while Sunny Day is active or
+        # if they use a Fire-type move while Rain is active
+        if self.weather == "rain":
+            if move_element == 17:
+                weather = 1.5
+            elif move_element == 10:
+                weather = 0.5
+            else:
+                weather = 1
+        elif self.weather == "sunny":
+            if move_element == 17:
+                weather = 0.5
+            elif move_element == 10:
+                weather = 1.5
+            else:
+                weather = 1
+        else:
+            weather = 1
+
+        # 'Critical' will be 1 in most cases but is the multiplier applied when the attacker lands a move
+        # that turns out to be a Critical Hit, which will make this factor become 1.5
+        if random.random() >= 0.8:
+            critical = 1.5
+        else:
+            critical = 1
+
+        # 'STAB' stands for Same Type Attack Bonus and will be 1 unless the attacker uses a move that matches their
+        # type, in which case this value will become 1.5 (or 2 if the attacker has the Adaptability ability)
+        STAB = 1
+        for i in pokedex[active_poke.id_pokedex]["Types"]:
+            if move_element == i:
+                STAB = 1.5
+
+        # random is a chaotic value between 0.85 and 1 that is determined by RNG (random number generator)
+        # and represents the natural variance that can occur in battle, which can only potentially decrease
+        # a move's overall damage and is considered by many hardcore gamers to be a
+        # prime example of "artificial difficulty" in the franchise
+        random_num = round(random.uniform(0.75, 1), 2)
+
+        # Type refers to the type effectiveness of a move as determined by the type of the attacker's move as well as
+        # the type of the defending Pokémon, which result in this factor being one of the following:
+        # 0 if the defender is immune, 0.25 if the defender is x2 resistant, 0.5 if the defender is resistant,
+        # 1 if the defender is neutral, 2 if the defender is weak to the attacking type, or
+        # 4 if the defender is x2 weak to the attacking type
+        type_number = 1  # default number
+        for i in pokedex[opponent_poke.id_pokedex]["Types"]:
+            if i == "Normal":
+                if move_element == 2:
+                    type_number = type_number * 2
+                elif move_element == 8:
+                    type_number = 0
+
+            elif i == "Fighting":
+                if move_element in [3, 14, 18]:
+                    type_number = type_number * 2
+                elif move_element in [6, 7, 17]:
+                    type_number = type_number / 2
+
+            elif i == "Flying":
+                if move_element in [6, 13, 15]:
+                    type_number = type_number * 2
+                elif move_element in [2, 12]:
+                    type_number = type_number / 2
+                elif move_element == 5:
+                    type_number = 0
+
+            elif i == "Poison":
+                if move_element in [5, 14]:
+                    type_number = type_number * 2
+                elif move_element in [2, 4, 7, 12, 18]:
+                    type_number = type_number / 2
+
+            elif i == "Ground":
+                if move_element in [11, 12, 15]:
+                    type_number = type_number * 2
+                elif move_element in [4, 6]:
+                    type_number = type_number / 2
+                elif move_element == 13:
+                    type_number = 0
+
+            elif i == "Rock":
+                if move_element in [2, 5, 9, 11, 12]:
+                    type_number = type_number * 2
+                elif move_element in [1, 3, 4, 10]:
+                    type_number = type_number / 2
+
+            elif i == "Bug":
+                if move_element in [3, 6, 10]:
+                    type_number = type_number * 2
+                elif move_element in [2, 5, 12]:
+                    type_number = type_number / 2
+
+            elif i == "Ghost":
+                if move_element in [8, 17]:
+                    type_number = type_number * 2
+                elif move_element in [4, 7]:
+                    type_number = type_number / 2
+                elif move_element in [1, 2]:
+                    type_number = 0
+
+            elif i == "Steel":
+                if move_element in [2, 5, 10]:
+                    type_number = type_number * 2
+                elif move_element in [1, 3, 6, 7, 9, 12, 14, 15, 16, 18]:
+                    type_number = type_number / 2
+                elif move_element == 4:
+                    type_number = 0
+
+            elif i == "Fire":
+                if move_element in [5, 6, 11]:
+                    type_number = type_number * 2
+                elif move_element in [7, 9, 10, 12, 15, 18]:
+                    type_number = type_number / 2
+
+            elif i == "Water":
+                if move_element in [12, 13]:
+                    type_number = type_number * 2
+                elif move_element in [9, 10, 11, 15]:
+                    type_number = type_number / 2
+
+            elif i == "Grass":
+                if move_element in [3, 4, 7, 10, 15]:
+                    type_number = type_number * 2
+                elif move_element in [5, 11, 12, 13]:
+                    type_number = type_number / 2
+
+            elif i == "Electric":
+                if move_element == 5:
+                    type_number = type_number * 2
+                elif move_element in [3, 9, 13]:
+                    type_number = type_number / 2
+
+            elif i == "Psychic":
+                if move_element in [7, 8, 17]:
+                    type_number = type_number * 2
+                elif move_element in [2, 14]:
+                    type_number = type_number / 2
+
+            elif i == "Ice":
+                if move_element in [2, 6, 9, 10]:
+                    type_number = type_number * 2
+                elif move_element == 15:
+                    type_number = type_number / 2
+
+            elif i == "Dragon":
+                if move_element in [15, 17, 18]:
+                    type_number = type_number * 2
+                elif move_element in [10, 11, 12, 13]:
+                    type_number = type_number / 2
+
+            elif i == "Dark":
+                if move_element in [2, 18]:
+                    type_number = type_number * 2
+                elif move_element in [7, 8]:
+                    type_number = type_number / 2
+                elif move_element == 14:
+                    type_number = 0
+
+            elif i == "Fairy":
+                if move_element in [4, 9]:
+                    type_number = type_number * 2
+                elif move_element in [2, 17]:
+                    type_number = type_number / 2
+                elif move_element == 16:
+                    type_number = 0
+
+        #  Burn is normally 1 but will become 0.5 if the attacker has the Burned status condition
+        #  and uses a physical move
+        if opponent_poke.status == "burn" and move_type == 2:
+            burn = 0.5
+        else:
+            burn = 1
+
+        # Check type of attacks
+        if move_type == 2:
+            A = Atk
+            D = Def
+        else:
+            A = Spatk
+            D = Spdef
+
+        damage = ((((active_poke.LV * 2) / 5 + 2) * power * (A / D) / 50) + 2) * burn * weather * critical * STAB * \
+                 random_num * type_number * other
+        print(f"critical - {critical}, STAB-{STAB}, random_num-{random_num}, type_num-{type_number}")
+        print(f" {opponent_poke} takes {damage} dmg")  # !!!!! над обработать
+        return damage

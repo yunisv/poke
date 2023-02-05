@@ -203,13 +203,12 @@ class Pokemon:
     def stat_formula(base, iv, ev, level, nature_poke, STAT):
         with open(resource_path('./resources/system/database/Natures.json')) as d:
             natures = json.load(d)
+            nature_cof = 1
             for nature in natures:
                 if nature["name"] == nature_poke:
                     for item, value in nature.items():
                         if item == STAT:
                             nature_cof = value
-                        else:
-                            nature_cof = 1
         stat = (((2 * base + int(iv) + (int(ev) / 4)) * level / 100) + 5) * nature_cof
         return int(stat)
 
@@ -911,13 +910,12 @@ class Poke_info(sprite.Sprite):
     def stat_formula(base, iv, ev, level, nature_poke, STAT):
         with open(resource_path('./resources/system/database/Natures.json')) as d:
             natures = json.load(d)
+            nature_cof = 1
             for nature in natures:
                 if nature["name"] == nature_poke:
                     for item, value in nature.items():
                         if item == STAT:
                             nature_cof = value
-                        else:
-                            nature_cof = 1
         stat = (((2 * base + int(iv) + (int(ev) / 4)) * level / 100) + 5) * nature_cof
         return int(stat)
 
