@@ -228,6 +228,18 @@ class Battle_System(pygame.sprite.Sprite):
         self.player_A_active_poke = self.player_A_poke_1
         self.player_B_active_poke = self.player_B_poke_1
 
+        # creating stages for active pokes
+        self.player_A_active_poke_stage_atk = 0
+        self.player_A_active_poke_stage_def = 0
+        self.player_A_active_poke_stage_spd = 0
+        self.player_A_active_poke_stage_spatk = 0
+        self.player_A_active_poke_stage_spdef = 0
+        self.player_B_active_poke_stage_atk = 0
+        self.player_B_active_poke_stage_def = 0
+        self.player_B_active_poke_stage_spd = 0
+        self.player_B_active_poke_stage_spatk = 0
+        self.player_B_active_poke_stage_spdef = 0
+
         # bliting poke_icons on field
         self.player_A_active_poke_icon_standart = None
         self.player_B_active_poke_icon = None
@@ -510,7 +522,7 @@ class Battle_System(pygame.sprite.Sprite):
             for row in records:
                 self.player_B_active_poke_move_1_id = row[0]
                 self.player_B_active_poke_move_1_name = row[1]
-                self.player_B_active_poke_move_1_name = f"{self.player_A_active_poke_move_1_name}".title()
+                self.player_B_active_poke_move_1_name = f"{self.player_B_active_poke_move_1_name}".title()
                 self.player_B_active_poke_move_1_element = row[3]
                 self.player_B_active_poke_move_1_power = row[4]
                 self.player_B_active_poke_move_1_pp = row[5]
@@ -524,7 +536,7 @@ class Battle_System(pygame.sprite.Sprite):
             for row in records:
                 self.player_B_active_poke_move_2_id = row[0]
                 self.player_B_active_poke_move_2_name = row[1]
-                self.player_B_active_poke_move_2_name = f"{self.player_A_active_poke_move_2_name}".title()
+                self.player_B_active_poke_move_2_name = f"{self.player_B_active_poke_move_2_name}".title()
                 self.player_B_active_poke_move_2_element = row[3]
                 self.player_B_active_poke_move_2_power = row[4]
                 self.player_B_active_poke_move_2_pp = row[5]
@@ -538,7 +550,7 @@ class Battle_System(pygame.sprite.Sprite):
             for row in records:
                 self.player_B_active_poke_move_3_id = row[0]
                 self.player_B_active_poke_move_3_name = row[1]
-                self.player_B_active_poke_move_3_name = f"{self.player_A_active_poke_move_3_name}".title()
+                self.player_B_active_poke_move_3_name = f"{self.player_B_active_poke_move_3_name}".title()
                 self.player_B_active_poke_move_3_element = row[3]
                 self.player_B_active_poke_move_3_power = row[4]
                 self.player_B_active_poke_move_3_pp = row[5]
@@ -552,7 +564,7 @@ class Battle_System(pygame.sprite.Sprite):
             for row in records:
                 self.player_B_active_poke_move_4_id = row[0]
                 self.player_B_active_poke_move_4_name = row[1]
-                self.player_B_active_poke_move_4_name = f"{self.player_A_active_poke_move_4_name}".title()
+                self.player_B_active_poke_move_4_name = f"{self.player_B_active_poke_move_4_name}".title()
                 self.player_B_active_poke_move_4_element = row[3]
                 self.player_B_active_poke_move_4_power = row[4]
                 self.player_B_active_poke_move_4_pp = row[5]
@@ -707,37 +719,13 @@ class Battle_System(pygame.sprite.Sprite):
         if self.action_A == "attack" and self.action_B == "attack":
             # надо бы придумать сценарий из функций (конец файла)
             if self.player_A_active_poke.STAT_SPD >= self.player_B_active_poke.STAT_SPD:
-                exec(f"self.damage_counter(self.player_A_active_poke, "
-                     f"self.player_A_active_poke_move_{self.selected_A}_element,"
-                     f" self.player_A_active_poke_move_{self.selected_A}_type,"
-                     f"self.player_B_active_poke, self.player_A_active_poke_move_{self.selected_A}_power,"
-                     f"self.player_A_active_poke.STAT_ATK, self.player_A_active_poke.STAT_SPATK,"
-                     f"self.player_B_active_poke.STAT_DEF, self.player_B_active_poke.STAT_SPDEF)")
+                self.attack_a_to_b()
                 # !!!!!! here we need check HP of poke
-                exec(f"self.damage_counter(self.player_B_active_poke, "
-                     f"self.player_B_active_poke_move_{self.selected_B}_element,"
-                     f"self.player_B_active_poke_move_{self.selected_B}_type, self.player_A_active_poke,"
-                     f"self.player_B_active_poke_move_{self.selected_B}_power,"
-                     f"self.player_B_active_poke.STAT_ATK,"
-                     f"self.player_B_active_poke.STAT_SPATK,"
-                     f"self.player_A_active_poke.STAT_DEF,"
-                     f"self.player_A_active_poke.STAT_SPDEF)")
+                self.attack_b_to_a()
             else:
-                exec(f"self.damage_counter(self.player_B_active_poke,"
-                     f"self.player_B_active_poke_move_{self.selected_B}_element,"
-                     f"self.player_B_active_poke_move_{self.selected_B}_type, self.player_A_active_poke,"
-                     f"self.player_B_active_poke_move_{self.selected_B}_power,"
-                     f"self.player_B_active_poke.STAT_ATK,"
-                     f"self.player_B_active_poke.STAT_SPATK,"
-                     f"self.player_A_active_poke.STAT_DEF,"
-                     f"self.player_A_active_poke.STAT_SPDEF)")
+                self.attack_b_to_a()
                 # !!!!!! here we need check HP of poke
-                exec(f"self.damage_counter(self.player_A_active_poke,"
-                     f"self.player_A_active_poke_move_{self.selected_A}_element,"
-                     f" self.player_A_active_poke_move_{self.selected_A}_type,"
-                     f"self.player_B_active_poke, self.player_A_active_poke_move_{self.selected_A}_power,"
-                     f"self.player_A_active_poke.STAT_ATK, self.player_A_active_poke.STAT_SPATK,"
-                     f"self.player_B_active_poke.STAT_DEF, self.player_B_active_poke.STAT_SPDEF)")
+                self.attack_a_to_b()
             self.action_A = None
             self.action_B = None
 
@@ -749,7 +737,7 @@ class Battle_System(pygame.sprite.Sprite):
         self.action = False
 
     def log_message(self, message):
-        self.log = message
+        self.log = str(message)
         if self.letter_index != len(self.log):
             self.text += self.log[self.letter_index]
             self.letter_index += 1
@@ -881,7 +869,7 @@ class Battle_System(pygame.sprite.Sprite):
                                                      self.player_B_active_poke.STAT_SPATK,
                                                      self.player_A_active_poke.STAT_DEF,
                                                      self.player_A_active_poke.STAT_SPDEF)
-                if damage_to_poke > attack:
+                if damage_to_poke[0] > attack:
                     attack = damage_to_poke
                     selected_move = 1
         if self.player_B_active_poke.move_2:
@@ -894,7 +882,7 @@ class Battle_System(pygame.sprite.Sprite):
                                                      self.player_B_active_poke.STAT_SPATK,
                                                      self.player_A_active_poke.STAT_DEF,
                                                      self.player_A_active_poke.STAT_SPDEF)
-                if damage_to_poke > attack:
+                if damage_to_poke[0] > attack:
                     attack = damage_to_poke
                     selected_move = 2
         if self.player_B_active_poke.move_3:
@@ -907,7 +895,7 @@ class Battle_System(pygame.sprite.Sprite):
                                                      self.player_B_active_poke.STAT_SPATK,
                                                      self.player_A_active_poke.STAT_DEF,
                                                      self.player_A_active_poke.STAT_SPDEF)
-                if damage_to_poke > attack:
+                if damage_to_poke[0] > attack:
                     attack = damage_to_poke
                     selected_move = 3
         if self.player_B_active_poke.move_4:
@@ -920,7 +908,7 @@ class Battle_System(pygame.sprite.Sprite):
                                                      self.player_B_active_poke.STAT_SPATK,
                                                      self.player_A_active_poke.STAT_DEF,
                                                      self.player_A_active_poke.STAT_SPDEF)
-                if damage_to_poke > attack:
+                if damage_to_poke[0] > attack:
                     selected_move = 4
 
         # checking status moves
@@ -1510,7 +1498,8 @@ class Battle_System(pygame.sprite.Sprite):
 
             y_offset += fh
 
-    def damage_counter(self, active_poke, move_element, move_type, opponent_poke, power, Atk, Spatk, Def, Spdef, other=1):
+    def damage_counter(self, active_poke, move_element, move_type, opponent_poke, power, Atk, Spatk, Def, Spdef,
+                       other=1):
         # 'Weather' is the damage multiplier that is 1 by default but will become 1.5 if
         # the attacker is using a Water-type move while Rain is active or if they use
         # a Fire-type move when Sunny Day is active, and, additionally,
@@ -1535,7 +1524,7 @@ class Battle_System(pygame.sprite.Sprite):
 
         # 'Critical' will be 1 in most cases but is the multiplier applied when the attacker lands a move
         # that turns out to be a Critical Hit, which will make this factor become 1.5
-        if random.random() >= 0.8:
+        if random.random() >= 0.9:
             critical = 1.5
         else:
             critical = 1
@@ -1689,14 +1678,255 @@ class Battle_System(pygame.sprite.Sprite):
 
         # Check type of attacks
         if move_type == 2:
-            A = Atk
-            D = Def
+            A = Atk * ((self.player_A_active_poke_stage_atk + 2) / 2)
+            D = Def * ((self.player_B_active_poke_stage_def + 2) / 2)
         else:
-            A = Spatk
-            D = Spdef
+            A = Spatk * ((self.player_A_active_poke_stage_spatk + 2) / 2)
+            D = Spdef * ((self.player_B_active_poke_stage_spdef + 2) / 2)
 
         damage = ((((active_poke.LV * 2) / 5 + 2) * power * (A / D) / 50) + 2) * burn * weather * critical * STAB * \
                  random_num * type_number * other
+
+        if type_number > 1:
+            type_word = "· It's super effective!"
+        elif type_number < 1:
+            type_word = "· It's not very effective..."
+        else:
+            type_word = None
+
+        if critical == 1.5:
+            critical_word = "· A critical hit!"
+        else:
+            critical_word = None
+
         print(f"critical - {critical}, STAB-{STAB}, random_num-{random_num}, type_num-{type_number}")
-        print(f" {opponent_poke} takes {damage} dmg")  # !!!!! над обработать
-        return damage
+        print(f" {opponent_poke.name_poke} takes {round(damage, 2)} dmg")  # !!!!! над обработать
+        result = [round(damage, 2), type_word, critical_word]
+        return result
+
+    # def hp_checker(self):
+    #     if self.player_A_active_poke.HP == 0:
+    #         self.
+
+    def attack_a_to_b(self):
+        damage = None
+        # !!!!!! accuracy need
+        if self.selected_A == 1:
+            # [effect_yes_or_none, damage] -> effect_move_checker func
+            if self.player_A_active_poke_move_1_type in [2, 3]:
+                effect = self.effect_of_move_checker(self.player_A_active_poke_move_1_effect, self.player_A_active_poke,
+                                                     self.player_B_active_poke, self.player_A_active_poke_move_1_accuracy)
+                # if move doesn't return any effect
+                if effect[0] == 0:
+                    damage = self.damage_counter(self.player_A_active_poke,
+                                                 self.player_A_active_poke_move_1_element,
+                                                 self.player_A_active_poke_move_1_type,
+                                                 self.player_B_active_poke, self.player_A_active_poke_move_1_power,
+                                                 self.player_A_active_poke.STAT_ATK,
+                                                 self.player_A_active_poke.STAT_SPATK,
+                                                 self.player_B_active_poke.STAT_DEF,
+                                                 self.player_B_active_poke.STAT_SPDEF)
+                else:
+                    damage = [effect[1], None, None]
+
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"· {self.player_A_active_poke.name_poke} attacks "
+                                           f"{self.player_B_active_poke.name_poke} with "
+                                           f"{self.player_A_active_poke_move_1_name}")
+        elif self.selected_A == 2:
+            if self.player_A_active_poke_move_2_type in [2, 3]:
+                effect = self.effect_of_move_checker(self.player_A_active_poke_move_2_effect, self.player_A_active_poke,
+                                                     self.player_B_active_poke, self.player_A_active_poke_move_2_accuracy)
+                if effect[0] == 0:
+                    damage = self.damage_counter(self.player_A_active_poke,
+                                                 self.player_A_active_poke_move_2_element,
+                                                 self.player_A_active_poke_move_2_type,
+                                                 self.player_B_active_poke, self.player_A_active_poke_move_2_power,
+                                                 self.player_A_active_poke.STAT_ATK,
+                                                 self.player_A_active_poke.STAT_SPATK,
+                                                 self.player_B_active_poke.STAT_DEF,
+                                                 self.player_B_active_poke.STAT_SPDEF)
+                else:
+                    damage = [effect[1], None, None]
+
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"· {self.player_A_active_poke.name_poke} attacks "
+                                           f"{self.player_B_active_poke.name_poke} with "
+                                           f"{self.player_A_active_poke_move_2_name}")
+        elif self.selected_A == 3:
+            if self.player_A_active_poke_move_3_type in [2, 3]:
+                effect = self.effect_of_move_checker(self.player_A_active_poke_move_3_effect, self.player_A_active_poke,
+                                                     self.player_B_active_poke, self.player_A_active_poke_move_3_accuracy)
+                if effect[0] == 0:
+                    damage = self.damage_counter(self.player_A_active_poke,
+                                                 self.player_A_active_poke_move_3_element,
+                                                 self.player_A_active_poke_move_3_type,
+                                                 self.player_B_active_poke, self.player_A_active_poke_move_3_power,
+                                                 self.player_A_active_poke.STAT_ATK,
+                                                 self.player_A_active_poke.STAT_SPATK,
+                                                 self.player_B_active_poke.STAT_DEF,
+                                                 self.player_B_active_poke.STAT_SPDEF)
+                else:
+                    damage = [effect[1], None, None]
+
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"· {self.player_A_active_poke.name_poke} attacks "
+                                           f"{self.player_B_active_poke.name_poke} with "
+                                           f"{self.player_A_active_poke_move_3_name}")
+        else:
+            if self.player_A_active_poke_move_4_type in [2, 3]:
+                effect = self.effect_of_move_checker(self.player_A_active_poke_move_4_effect, self.player_A_active_poke,
+                                                     self.player_B_active_poke, self.player_A_active_poke_move_4_accuracy)
+                if effect[0] == 0:
+                    damage = self.damage_counter(self.player_A_active_poke,
+                                                 self.player_A_active_poke_move_4_element,
+                                                 self.player_A_active_poke_move_4_type,
+                                                 self.player_B_active_poke, self.player_A_active_poke_move_4_power,
+                                                 self.player_A_active_poke.STAT_ATK,
+                                                 self.player_A_active_poke.STAT_SPATK,
+                                                 self.player_B_active_poke.STAT_DEF,
+                                                 self.player_B_active_poke.STAT_SPDEF)
+                else:
+                    damage = [effect[1], None, None]
+
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"· {self.player_A_active_poke.name_poke} attacks "
+                                           f"{self.player_B_active_poke.name_poke} with "
+                                           f"{self.player_A_active_poke_move_4_name}")
+        print(damage)
+
+        self.actions_list.append(self.delay_func)
+        self.arguments_list.append([True, 50])
+
+        if damage[1]:
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append(damage[1])
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+
+        if damage[2]:
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append(damage[2])
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+
+    def attack_b_to_a(self):
+        damage = None
+        if self.selected_B == 1:
+            if self.player_B_active_poke_move_1_type in [2, 3]:
+                effect = self.effect_of_move_checker(self.player_B_active_poke_move_1_effect, self.player_B_active_poke,
+                                                     self.player_A_active_poke, self.player_B_active_poke_move_1_accuracy)
+                if effect[0] == 0:
+                    damage = self.damage_counter(self.player_B_active_poke,
+                                                 self.player_B_active_poke_move_1_element,
+                                                 self.player_B_active_poke_move_1_type,
+                                                 self.player_A_active_poke, self.player_B_active_poke_move_1_power,
+                                                 self.player_B_active_poke.STAT_ATK, self.player_B_active_poke.STAT_SPATK,
+                                                 self.player_A_active_poke.STAT_DEF, self.player_A_active_poke.STAT_SPDEF)
+                else:
+                    damage = [effect[1], None, None]
+
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"· {self.player_B_active_poke.name_poke} attacks "
+                                           f"{self.player_A_active_poke.name_poke} with "
+                                           f"{self.player_B_active_poke_move_1_name}")
+        elif self.selected_B == 2:
+            if self.player_B_active_poke_move_2_type in [2, 3]:
+                effect = self.effect_of_move_checker(self.player_B_active_poke_move_2_effect, self.player_B_active_poke,
+                                                     self.player_A_active_poke, self.player_B_active_poke_move_2_accuracy)
+                if effect[0] == 0:
+                    damage = self.damage_counter(self.player_B_active_poke,
+                                                 self.player_B_active_poke_move_2_element,
+                                                 self.player_B_active_poke_move_2_type,
+                                                 self.player_A_active_poke, self.player_B_active_poke_move_2_power,
+                                                 self.player_B_active_poke.STAT_ATK, self.player_B_active_poke.STAT_SPATK,
+                                                 self.player_A_active_poke.STAT_DEF, self.player_A_active_poke.STAT_SPDEF)
+                else:
+                    damage = [effect[1], None, None]
+
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"· {self.player_B_active_poke.name_poke} attacks "
+                                           f"{self.player_A_active_poke.name_poke} with "
+                                           f"{self.player_B_active_poke_move_2_name}")
+        elif self.selected_B == 3:
+            if self.player_B_active_poke_move_3_type in [2, 3]:
+                effect = self.effect_of_move_checker(self.player_B_active_poke_move_3_effect, self.player_B_active_poke,
+                                                     self.player_A_active_poke, self.player_B_active_poke_move_3_accuracy)
+                if effect[0] == 0:
+                    damage = self.damage_counter(self.player_B_active_poke,
+                                                 self.player_B_active_poke_move_3_element,
+                                                 self.player_B_active_poke_move_3_type,
+                                                 self.player_A_active_poke, self.player_B_active_poke_move_3_power,
+                                                 self.player_B_active_poke.STAT_ATK, self.player_B_active_poke.STAT_SPATK,
+                                                 self.player_A_active_poke.STAT_DEF, self.player_A_active_poke.STAT_SPDEF)
+                else:
+                    damage = [effect[1], None, None]
+
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"· {self.player_B_active_poke.name_poke} attacks "
+                                           f"{self.player_A_active_poke.name_poke} with "
+                                           f"{self.player_B_active_poke_move_3_name}")
+        else:
+            if self.player_B_active_poke_move_4_type in [2, 3]:
+                effect = self.effect_of_move_checker(self.player_B_active_poke_move_4_effect, self.player_B_active_poke,
+                                                     self.player_A_active_poke, self.player_B_active_poke_move_4_accuracy)
+                if effect[0] == 0:
+                    damage = self.damage_counter(self.player_B_active_poke,
+                                                 self.player_B_active_poke_move_4_element,
+                                                 self.player_B_active_poke_move_4_type,
+                                                 self.player_A_active_poke, self.player_B_active_poke_move_1_power,
+                                                 self.player_B_active_poke.STAT_ATK, self.player_B_active_poke.STAT_SPATK,
+                                                 self.player_A_active_poke.STAT_DEF, self.player_A_active_poke.STAT_SPDEF)
+                else:
+                    damage = [effect[1], None, None]
+
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"· {self.player_B_active_poke.name_poke} attacks "
+                                           f"{self.player_A_active_poke.name_poke} with "
+                                           f"{self.player_B_active_poke_move_4_name}")
+        print(damage)
+
+        self.actions_list.append(self.delay_func)
+        self.arguments_list.append([True, 50])
+
+        if damage[1]:
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append(damage[1])
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+
+        if damage[2]:
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append(damage[2])
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+
+    def effect_of_move_checker(self, move_effect_id, player_poke, opponent_poke, acc):
+        if move_effect_id == 1:
+            return [0, None]
+        if move_effect_id == 2:
+            # !!!!!!!!! acc formula
+            if random.uniform(0, 100) <= acc:
+                opponent_poke.status = "slp"
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"{opponent_poke.name_poke} is fast asleep!")
+
+                self.actions_list.append(self.delay_func)
+                self.arguments_list.append([True, 50])
+            return [0, None]
+        if move_effect_id == 42:
+            # dragon rage inflict 40 points damage
+            return [1, 40]
+        if move_effect_id == 274:
+            if random.random() <= 0.1:
+                opponent_poke.status = "brn"
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"{opponent_poke.name_poke} gets burned!")
+
+                self.actions_list.append(self.delay_func)
+                self.arguments_list.append([True, 50])
+            return [0, None]
