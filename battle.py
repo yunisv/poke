@@ -171,6 +171,11 @@ class Battle_System(pygame.sprite.Sprite):
         self.letter_index_go_pokemon_go = 0
         self.color_gold = (255, 160, 0)
 
+        #  damage mechanics
+        self.damage = 0
+        self.damage_take_poke = None
+        self.hp_xp_anim_changer_num = -1
+
         self.battle_log = []  # here will be keep battle_log
 
         self.player_A_active_poke = None
@@ -229,6 +234,8 @@ class Battle_System(pygame.sprite.Sprite):
         self.player_B_active_poke = self.player_B_poke_1
 
         # creating stages for active pokes
+        self.player_A_active_poke_stage_acc = 0
+        self.player_B_active_poke_stage_acc = 0
         self.player_A_active_poke_stage_atk = 0
         self.player_A_active_poke_stage_def = 0
         self.player_A_active_poke_stage_spd = 0
@@ -996,6 +1003,12 @@ class Battle_System(pygame.sprite.Sprite):
                 y += 47
             self.image.blit(self.choose_attack_sprite, (618, 260))  # choose attack sprite
 
+    def hp_of_poke_updater(self, num_a=None, num_b=None):
+        if num_a:
+            self.HP_line_percentage_pokemon_A = num_a
+        if num_b:
+            self.HP_line_percentage_pokemon_B = num_b
+
     def update(self, screen, *args):
         # update buttons pos
         self.surrender_button_x = [self.rect.x + 700, self.rect.x + 770]
@@ -1010,6 +1023,9 @@ class Battle_System(pygame.sprite.Sprite):
 
         # battle status
         if self.active:
+            if self.hp_xp_anim_changer_num >= 0:
+                self.pokemon_hp_xp_anim_changer_B(self.damage_take_poke, self.damage)
+                self.hp_xp_anim_changer_num -= 1
             # getting npc move
             if self.type_of_battle == "npc" and self.action_B is None:
                 self.npc_move_setter()
@@ -1223,8 +1239,14 @@ class Battle_System(pygame.sprite.Sprite):
 
         self.HP_line_percentage_pokemon_A = 560 - (
                 146 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP))
-        self.HP_line_percentage_pokemon_B = 173 - (
+        self.HP_line_percentage_pokemon_B = 26+ (
                 146 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP))
+
+    def pokemon_hp_xp_anim_changer_B(self, active_poke, damage):
+        hp_drop_B = damage / 20
+        print((active_poke.HP + (self.hp_xp_anim_changer_num * hp_drop_B)))
+        self.hp_of_poke_updater(num_b=26 + (
+                146 * ((active_poke.HP + (self.hp_xp_anim_changer_num * hp_drop_B)) / active_poke.STAT_HP)))
 
     def pokemon_onset_anim_setter(self, pokeball):
         for i in range(1, 23):
@@ -1715,7 +1737,8 @@ class Battle_System(pygame.sprite.Sprite):
             # [effect_yes_or_none, damage] -> effect_move_checker func
             if self.player_A_active_poke_move_1_type in [2, 3]:
                 effect = self.effect_of_move_checker(self.player_A_active_poke_move_1_effect, self.player_A_active_poke,
-                                                     self.player_B_active_poke, self.player_A_active_poke_move_1_accuracy)
+                                                     self.player_B_active_poke,
+                                                     self.player_A_active_poke_move_1_accuracy)
                 # if move doesn't return any effect
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_A_active_poke,
@@ -1736,7 +1759,8 @@ class Battle_System(pygame.sprite.Sprite):
         elif self.selected_A == 2:
             if self.player_A_active_poke_move_2_type in [2, 3]:
                 effect = self.effect_of_move_checker(self.player_A_active_poke_move_2_effect, self.player_A_active_poke,
-                                                     self.player_B_active_poke, self.player_A_active_poke_move_2_accuracy)
+                                                     self.player_B_active_poke,
+                                                     self.player_A_active_poke_move_2_accuracy)
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_A_active_poke,
                                                  self.player_A_active_poke_move_2_element,
@@ -1756,7 +1780,8 @@ class Battle_System(pygame.sprite.Sprite):
         elif self.selected_A == 3:
             if self.player_A_active_poke_move_3_type in [2, 3]:
                 effect = self.effect_of_move_checker(self.player_A_active_poke_move_3_effect, self.player_A_active_poke,
-                                                     self.player_B_active_poke, self.player_A_active_poke_move_3_accuracy)
+                                                     self.player_B_active_poke,
+                                                     self.player_A_active_poke_move_3_accuracy)
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_A_active_poke,
                                                  self.player_A_active_poke_move_3_element,
@@ -1776,7 +1801,8 @@ class Battle_System(pygame.sprite.Sprite):
         else:
             if self.player_A_active_poke_move_4_type in [2, 3]:
                 effect = self.effect_of_move_checker(self.player_A_active_poke_move_4_effect, self.player_A_active_poke,
-                                                     self.player_B_active_poke, self.player_A_active_poke_move_4_accuracy)
+                                                     self.player_B_active_poke,
+                                                     self.player_A_active_poke_move_4_accuracy)
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_A_active_poke,
                                                  self.player_A_active_poke_move_4_element,
@@ -1793,10 +1819,21 @@ class Battle_System(pygame.sprite.Sprite):
                 self.arguments_list.append(f"· {self.player_A_active_poke.name_poke} attacks "
                                            f"{self.player_B_active_poke.name_poke} with "
                                            f"{self.player_A_active_poke_move_4_name}")
-        print(damage)
 
         self.actions_list.append(self.delay_func)
         self.arguments_list.append([True, 50])
+
+        # update damage here
+        if self.player_B_active_poke.HP - damage[0] < 0:
+            self.damage = self.player_B_active_poke.HP
+            self.player_B_active_poke.HP = 0
+        else:
+            self.damage = damage[0]
+            current_hp_poke = self.player_B_active_poke.HP - damage[0]
+            self.player_B_active_poke.HP = current_hp_poke
+
+        self.damage_take_poke = self.player_B_active_poke
+        self.hp_xp_anim_changer_num = 20
 
         if damage[1]:
             self.actions_list.append(self.log_message)
@@ -1817,14 +1854,17 @@ class Battle_System(pygame.sprite.Sprite):
         if self.selected_B == 1:
             if self.player_B_active_poke_move_1_type in [2, 3]:
                 effect = self.effect_of_move_checker(self.player_B_active_poke_move_1_effect, self.player_B_active_poke,
-                                                     self.player_A_active_poke, self.player_B_active_poke_move_1_accuracy)
+                                                     self.player_A_active_poke,
+                                                     self.player_B_active_poke_move_1_accuracy)
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_B_active_poke,
                                                  self.player_B_active_poke_move_1_element,
                                                  self.player_B_active_poke_move_1_type,
                                                  self.player_A_active_poke, self.player_B_active_poke_move_1_power,
-                                                 self.player_B_active_poke.STAT_ATK, self.player_B_active_poke.STAT_SPATK,
-                                                 self.player_A_active_poke.STAT_DEF, self.player_A_active_poke.STAT_SPDEF)
+                                                 self.player_B_active_poke.STAT_ATK,
+                                                 self.player_B_active_poke.STAT_SPATK,
+                                                 self.player_A_active_poke.STAT_DEF,
+                                                 self.player_A_active_poke.STAT_SPDEF)
                 else:
                     damage = [effect[1], None, None]
 
@@ -1835,14 +1875,17 @@ class Battle_System(pygame.sprite.Sprite):
         elif self.selected_B == 2:
             if self.player_B_active_poke_move_2_type in [2, 3]:
                 effect = self.effect_of_move_checker(self.player_B_active_poke_move_2_effect, self.player_B_active_poke,
-                                                     self.player_A_active_poke, self.player_B_active_poke_move_2_accuracy)
+                                                     self.player_A_active_poke,
+                                                     self.player_B_active_poke_move_2_accuracy)
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_B_active_poke,
                                                  self.player_B_active_poke_move_2_element,
                                                  self.player_B_active_poke_move_2_type,
                                                  self.player_A_active_poke, self.player_B_active_poke_move_2_power,
-                                                 self.player_B_active_poke.STAT_ATK, self.player_B_active_poke.STAT_SPATK,
-                                                 self.player_A_active_poke.STAT_DEF, self.player_A_active_poke.STAT_SPDEF)
+                                                 self.player_B_active_poke.STAT_ATK,
+                                                 self.player_B_active_poke.STAT_SPATK,
+                                                 self.player_A_active_poke.STAT_DEF,
+                                                 self.player_A_active_poke.STAT_SPDEF)
                 else:
                     damage = [effect[1], None, None]
 
@@ -1853,14 +1896,17 @@ class Battle_System(pygame.sprite.Sprite):
         elif self.selected_B == 3:
             if self.player_B_active_poke_move_3_type in [2, 3]:
                 effect = self.effect_of_move_checker(self.player_B_active_poke_move_3_effect, self.player_B_active_poke,
-                                                     self.player_A_active_poke, self.player_B_active_poke_move_3_accuracy)
+                                                     self.player_A_active_poke,
+                                                     self.player_B_active_poke_move_3_accuracy)
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_B_active_poke,
                                                  self.player_B_active_poke_move_3_element,
                                                  self.player_B_active_poke_move_3_type,
                                                  self.player_A_active_poke, self.player_B_active_poke_move_3_power,
-                                                 self.player_B_active_poke.STAT_ATK, self.player_B_active_poke.STAT_SPATK,
-                                                 self.player_A_active_poke.STAT_DEF, self.player_A_active_poke.STAT_SPDEF)
+                                                 self.player_B_active_poke.STAT_ATK,
+                                                 self.player_B_active_poke.STAT_SPATK,
+                                                 self.player_A_active_poke.STAT_DEF,
+                                                 self.player_A_active_poke.STAT_SPDEF)
                 else:
                     damage = [effect[1], None, None]
 
@@ -1871,14 +1917,17 @@ class Battle_System(pygame.sprite.Sprite):
         else:
             if self.player_B_active_poke_move_4_type in [2, 3]:
                 effect = self.effect_of_move_checker(self.player_B_active_poke_move_4_effect, self.player_B_active_poke,
-                                                     self.player_A_active_poke, self.player_B_active_poke_move_4_accuracy)
+                                                     self.player_A_active_poke,
+                                                     self.player_B_active_poke_move_4_accuracy)
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_B_active_poke,
                                                  self.player_B_active_poke_move_4_element,
                                                  self.player_B_active_poke_move_4_type,
                                                  self.player_A_active_poke, self.player_B_active_poke_move_1_power,
-                                                 self.player_B_active_poke.STAT_ATK, self.player_B_active_poke.STAT_SPATK,
-                                                 self.player_A_active_poke.STAT_DEF, self.player_A_active_poke.STAT_SPDEF)
+                                                 self.player_B_active_poke.STAT_ATK,
+                                                 self.player_B_active_poke.STAT_SPATK,
+                                                 self.player_A_active_poke.STAT_DEF,
+                                                 self.player_A_active_poke.STAT_SPDEF)
                 else:
                     damage = [effect[1], None, None]
 
@@ -1886,10 +1935,37 @@ class Battle_System(pygame.sprite.Sprite):
                 self.arguments_list.append(f"· {self.player_B_active_poke.name_poke} attacks "
                                            f"{self.player_A_active_poke.name_poke} with "
                                            f"{self.player_B_active_poke_move_4_name}")
-        print(damage)
 
         self.actions_list.append(self.delay_func)
         self.arguments_list.append([True, 50])
+
+        # update damage here (reduce poke_A HP)
+        sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/player_pokes.db'))
+        cursor = sqlite_connection.cursor()
+        # !!!!!! мне просто надо обновить атрибуты уже созданных к примеру self.poke_A_5
+        if self.player_A_active_poke.HP - damage[0] < 0:
+            current_hp_poke = 0
+            self.player_A_active_poke.HP = 0
+        else:
+            current_hp_poke = self.player_A_active_poke.HP - damage[0]
+            self.player_A_active_poke.HP = current_hp_poke
+
+        sqlite_select_query_1 = f'UPDATE poke SET HP={current_hp_poke} WHERE id_db={self.player_A_active_poke.id_db_poke}'
+        cursor.execute(sqlite_select_query_1)
+
+        sqlite_connection.commit()
+        cursor.close()
+        sqlite_connection.close()
+
+        # updating pp
+        if self.selected_B == 1:
+            self.player_B_active_poke.pp_1 -= 1
+        elif self.selected_B == 2:
+            self.player_B_active_poke.pp_2 -= 1
+        elif self.selected_B == 3:
+            self.player_B_active_poke.pp_3 -= 1
+        elif self.selected_B == 4:
+            self.player_B_active_poke.pp_4 -= 1
 
         if damage[1]:
             self.actions_list.append(self.log_message)
@@ -1905,11 +1981,18 @@ class Battle_System(pygame.sprite.Sprite):
             self.actions_list.append(self.delay_func)
             self.arguments_list.append([True, 50])
 
+    def acc_getter(self, active_poke, acc):
+        if active_poke == self.player_A_active_poke:
+            acc = acc * (self.player_A_active_poke_stage_acc + 2) / 2
+        else:
+            acc = acc * (self.player_B_active_poke_stage_acc + 2) / 2
+        return acc
+
     def effect_of_move_checker(self, move_effect_id, player_poke, opponent_poke, acc):
         if move_effect_id == 1:
             return [0, None]
         if move_effect_id == 2:
-            # !!!!!!!!! acc formula
+            acc = self.acc_getter(player_poke, acc)
             if random.uniform(0, 100) <= acc:
                 opponent_poke.status = "slp"
                 self.actions_list.append(self.log_message)
