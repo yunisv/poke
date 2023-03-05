@@ -1,11 +1,6 @@
-from pygame import *
-import pygame
-import sys
 from tiles import *
 from character import *
 from places import *
-import pickle
-from setting import *
 
 from battle import *
 
@@ -238,7 +233,7 @@ while True:
                 if sprite.type_system == "icon_poke" or sprite.type_system == "poke_info" \
                         or sprite.type_system == "battle_system":
                     if sprite.rect.collidepoint(pos):  # getting clicked sprite
-                        mouse_cursor = sprite  # getting mouse_curso
+                        mouse_cursor = sprite  # getting mouse_cursor
                         x_diff = e.pos[0] - mouse_cursor.rect.x
                         y_diff = e.pos[1] - mouse_cursor.rect.y
             if mouse_cursor:

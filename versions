@@ -155,3 +155,6 @@ Add some upgrades on battle system:
 
 0.7.3.5:
 Add animation for poke_onset_append
+
+0.8.0:
+Add and upgraded battle_system

@@ -1,10 +1,7 @@
 import random
-import sys
-import os
+
 import pygame
 import pyganim
-from pygame import *
-import sqlite3
 from setting import *
 from Moves import *
 
@@ -138,6 +135,19 @@ class Battle_System(pygame.sprite.Sprite):
         self.attack_button_x = [self.rect.x + 600, self.rect.x + 674]
         self.attack_button_y = [self.rect.y + 310, self.rect.y + 368]
 
+        # change button
+        self.change_icon_none = pygame.Surface([54, 55], pygame.HWSURFACE)
+        self.change_icon_none.set_colorkey((0, 0, 0))
+        self.change_icon_none = self.change_icon_none.convert_alpha()
+        self.change_icon_none.blit(system_photo, (0, 0), [453, 2, 54, 55])
+        self.change_icon_hover = pygame.Surface([54, 55], pygame.HWSURFACE)
+        self.change_icon_hover.set_colorkey((0, 0, 0))
+        self.change_icon_hover = self.change_icon_none.convert_alpha()
+        self.change_icon_hover.blit(system_photo, (0, 0), [453, 59, 54, 54])
+
+        self.change_button_x = [self.rect.x + 705, self.rect.x + 760]
+        self.change_button_y = [self.rect.y + 310, self.rect.y + 365]
+
         # Action mechanics
         self.active = True  # Battle status (going/end)
         self.battle_status = "start"  # status of battle
@@ -172,9 +182,12 @@ class Battle_System(pygame.sprite.Sprite):
         self.color_gold = (255, 160, 0)
 
         #  damage mechanics
-        self.damage = 0
-        self.damage_take_poke = None
-        self.hp_xp_anim_changer_num = -1
+        self.damage_A = 0
+        self.damage_B = 0
+        self.damage_take_poke_A = None
+        self.damage_take_poke_B = None
+        self.hp_xp_anim_changer_num_A = -1
+        self.hp_xp_anim_changer_num_B = -1
 
         self.battle_log = []  # here will be keep battle_log
 
@@ -278,6 +291,83 @@ class Battle_System(pygame.sprite.Sprite):
             font_medium.render(self.zero_adder_to_number(f"Lv.{self.player_B_active_poke.LV}", 6, 'space'),
                                True, (255, 255, 255))
 
+        # setting poke icons change sprite
+        self.poke_icon_live_off = pygame.Surface([50, 50], pygame.HWSURFACE)
+        self.poke_icon_live_on = pygame.Surface([50, 50], pygame.HWSURFACE)
+        self.poke_icon_live_off.set_colorkey((0, 0, 0))
+        self.poke_icon_live_off = self.poke_icon_live_off.convert_alpha()
+        self.poke_icon_live_off.blit(system_photo, (0, 0), [775, 51, 50, 50])
+        self.poke_icon_live_on.set_colorkey((0, 0, 0))
+        self.poke_icon_live_on = self.poke_icon_live_on.convert_alpha()
+        self.poke_icon_live_on.blit(system_photo, (0, 0), [775, 1, 50, 50])
+
+        self.choose_pokemon_text = "Choose Pokemon"
+        self.choose_pokemon_sprite = font_large.render(self.choose_pokemon_text, True, (255, 255, 255))
+
+        self.player_A_poke_1_icon_pos = [self.rect.x + 615, self.rect.y + 65]  # + [50, 50]
+        self.player_A_poke_2_icon_pos = [self.rect.x + 705, self.rect.y + 65]  # + [50, 50]
+        self.player_A_poke_3_icon_pos = [self.rect.x + 615, self.rect.y + 130]  # + [50, 50]
+        self.player_A_poke_4_icon_pos = [self.rect.x + 705, self.rect.y + 130]  # + [50, 50]
+        self.player_A_poke_5_icon_pos = [self.rect.x + 615, self.rect.y + 195]  # + [50, 50]
+        self.player_A_poke_6_icon_pos = [self.rect.x + 705, self.rect.y + 195]  # + [50, 50]
+
+        if self.player_A_poke_1:
+            self.player_A_poke_1_icon = pygame.Surface([50, 50], pygame.HWSURFACE)
+            self.player_A_poke_1_icon.set_colorkey((0, 0, 0))
+            self.player_A_poke_1_icon = self.player_A_poke_1_icon.convert_alpha()
+            self.player_A_poke_1_img = pygame.image.load(resource_path(f"resources/pokemon/"
+                                                                       f"{self.player_A_poke_1.type_poke}/"
+                                                                       f"{self.player_A_poke_1.id_pokedex}/icon.png"))
+        if self.player_A_poke_2:
+            self.player_A_poke_2_icon = pygame.Surface([50, 50], pygame.HWSURFACE)
+            self.player_A_poke_2_icon.set_colorkey((0, 0, 0))
+            self.player_A_poke_2_icon = self.player_A_poke_2_icon.convert_alpha()
+            self.player_A_poke_2_img = pygame.image.load(resource_path(f"resources/pokemon/"
+                                                                       f"{self.player_A_poke_2.type_poke}/"
+                                                                       f"{self.player_A_poke_2.id_pokedex}/icon.png"))
+        if self.player_A_poke_3:
+            self.player_A_poke_3_icon = pygame.Surface([50, 50], pygame.HWSURFACE)
+            self.player_A_poke_3_icon.set_colorkey((0, 0, 0))
+            self.player_A_poke_3_icon = self.player_A_poke_3_icon.convert_alpha()
+            self.player_A_poke_3_img = pygame.image.load(resource_path(f"resources/pokemon/"
+                                                                       f"{self.player_A_poke_3.type_poke}/"
+                                                                       f"{self.player_A_poke_3.id_pokedex}/icon.png"))
+        if self.player_A_poke_4:
+            self.player_A_poke_4_icon = pygame.Surface([50, 50], pygame.HWSURFACE)
+            self.player_A_poke_4_icon.set_colorkey((0, 0, 0))
+            self.player_A_poke_4_icon = self.player_A_poke_4_icon.convert_alpha()
+            self.player_A_poke_4_img = pygame.image.load(resource_path(f"resources/pokemon/"
+                                                                       f"{self.player_A_poke_4.type_poke}/"
+                                                                       f"{self.player_A_poke_4.id_pokedex}/icon.png"))
+        if self.player_A_poke_5:
+            self.player_A_poke_5_icon = pygame.Surface([50, 50], pygame.HWSURFACE)
+            self.player_A_poke_5_icon.set_colorkey((0, 0, 0))
+            self.player_A_poke_5_icon = self.player_A_poke_5_icon.convert_alpha()
+            self.player_A_poke_5_img = pygame.image.load(resource_path(f"resources/pokemon/"
+                                                                       f"{self.player_A_poke_5.type_poke}/"
+                                                                       f"{self.player_A_poke_5.id_pokedex}/icon.png"))
+        if self.player_A_poke_6:
+            self.player_A_poke_6_icon = pygame.Surface([50, 50], pygame.HWSURFACE)
+            self.player_A_poke_6_icon.set_colorkey((0, 0, 0))
+            self.player_A_poke_6_icon = self.player_A_poke_6_icon.convert_alpha()
+            self.player_A_poke_6_img = pygame.image.load(resource_path(f"resources/pokemon/"
+                                                                       f"{self.player_A_poke_6.type_poke}/"
+                                                                       f"{self.player_A_poke_6.id_pokedex}/icon.png"))
+
+        # setting player poke moves
+        self.player_A_active_poke_move_setter()
+        # setting poke_opponent moves
+        self.player_B_active_poke_move_setter()
+
+        if type_of_battle == "wild_poke":
+            catch_success = False
+
+        # # TEST
+        # self.item_effect(2)
+        self.pokemon_onset_anim_setter("pokeball")
+        self.pokemon_hp_xp_sprite_setter()
+
+    def player_A_active_poke_move_setter(self):
         # setting poke attack moves sprite
         self.moves_sprite = []
         sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/POKE_DB.db'))
@@ -519,6 +609,7 @@ class Battle_System(pygame.sprite.Sprite):
         cursor.close()
         sqlite_connection.close()
 
+    def player_B_active_poke_move_setter(self):
         # setting poke_opponent moves
         sqlite_connection = sqlite3.connect(resource_path(f'resources/system/database/POKE_DB.db'))
         cursor = sqlite_connection.cursor()
@@ -580,14 +671,6 @@ class Battle_System(pygame.sprite.Sprite):
                 self.player_B_active_poke_move_4_effect = row[10]
         cursor.close()
         sqlite_connection.close()
-
-        if type_of_battle == "wild_poke":
-            catch_success = False
-
-        # # TEST
-        # self.item_effect(2)
-        self.pokemon_onset_anim_setter("pokeball")
-        self.pokemon_hp_xp_sprite_setter()
 
     def poke_img_load(self):
         self.player_A_active_poke_icon_standart = pygame.image.load(
@@ -696,7 +779,7 @@ class Battle_System(pygame.sprite.Sprite):
             self.actions_list.append(self.delay_func)
             self.arguments_list.append([True, 50])
 
-            self.actions_list.append(self.start_ender_func)
+            self.actions_list.append(self.ender_func)
             self.arguments_list.append(None)
 
         elif action_A == "surrender" or action_B == "surrender":
@@ -733,8 +816,24 @@ class Battle_System(pygame.sprite.Sprite):
                 self.attack_b_to_a()
                 # !!!!!! here we need check HP of poke
                 self.attack_a_to_b()
-            self.action_A = None
-            self.action_B = None
+
+            self.actions_list.append(self.ender_func)
+            self.arguments_list.append(None)
+
+        if self.action_A == "change" and self.action_B == "attack":
+            self.pokemon_A_change()
+
+            # надо убрать оставшего покемона в анчале анимации
+
+            self.poke_img_load()  # update poke img
+            self.pokemon_hp_xp_sprite_setter(a=True)  # update poke hp and xp anim
+            self.pokemon_onset_anim_setter("pokeball")  # update poke setter anim
+
+            # self.pokemon_hp_A_anim.play()  # start anim
+            # self.pokemon_onset_anim.play()  # start anim
+
+            self.actions_list.append(self.ender_func)
+            self.arguments_list.append(None)
 
     def battle_status_changer(self, status):
         self.battle_status = status
@@ -774,16 +873,17 @@ class Battle_System(pygame.sprite.Sprite):
         self.text_surface_go_pokemon_go = font.render(self.text_go, True, self.color)
         self.text_surface_go_pokemon = font.render(self.text_go_pokemon, True, self.color_gold)
 
-    def start_ender_func(self):
+    def ender_func(self):
+        self.menu_type = None
         self.pokemon_onset_anim.stop()
-        del self.pokemon_onset_anim
-        self.pokemon_hp_A_anim.stop()
-        del self.pokemon_hp_A_anim
-        self.pokemon_hp_B_anim.stop()
-        del self.pokemon_hp_B_anim
+        self.hp_anim_end_func()
         self.action_A = None
         self.action_B = None
         self.action_index += 1
+
+    def hp_anim_end_func(self):
+        self.pokemon_hp_A_anim.stop()
+        self.pokemon_hp_B_anim.stop()
 
     def log_clearner(self):
         self.text = ""
@@ -825,6 +925,12 @@ class Battle_System(pygame.sprite.Sprite):
             self.image.blit(self.attack_icon_hover, (600, 310))
         else:
             self.image.blit(self.attack_icon_none, (600, 310))
+
+        if self.change_button_x[0] < x_mouse < self.change_button_x[1] and \
+                self.change_button_y[0] < y_mouse < self.change_button_y[1]:
+            self.image.blit(self.change_icon_hover, (705, 311))
+        else:
+            self.image.blit(self.change_icon_none, (705, 310))
 
         # checking mouse on "attack" menu
         if self.menu_type == "attack":
@@ -971,28 +1077,68 @@ class Battle_System(pygame.sprite.Sprite):
             if self.attack_button_x[0] <= e_pos_x <= self.attack_button_x[1] and \
                     self.attack_button_y[0] <= e_pos_y <= self.attack_button_y[1]:
                 self.menu_type = "attack"
+            if self.change_button_x[0] <= e_pos_x <= self.change_button_x[1] and \
+                    self.change_button_y[0] <= e_pos_y <= self.change_button_y[1]:
+                self.menu_type = "change"
 
             # if we select attack move
-            if self.menu_type == "attack":
+            if self.menu_type == "attack" and self.player_A_active_poke.move_1:
                 if self.poke_move_1_pos[0] < e_pos_x < (self.poke_move_1_pos[0] + 170) and \
                         self.poke_move_1_pos[1] < e_pos_y < (self.poke_move_1_pos[1] + 40):
                     self.selected_A = 1
                     self.action_A = "attack"
-            if self.menu_type == "attack":
+            if self.menu_type == "attack" and self.player_A_active_poke.move_2:
                 if self.poke_move_2_pos[0] < e_pos_x < (self.poke_move_2_pos[0] + 170) and \
                         self.poke_move_2_pos[1] < e_pos_y < (self.poke_move_2_pos[1] + 40):
                     self.selected_A = 2
                     self.action_A = "attack"
-            if self.menu_type == "attack":
+            if self.menu_type == "attack" and self.player_A_active_poke.move_3:
                 if self.poke_move_3_pos[0] < e_pos_x < (self.poke_move_3_pos[0] + 170) and \
                         self.poke_move_3_pos[1] < e_pos_y < (self.poke_move_3_pos[1] + 40):
                     self.selected_A = 3
                     self.action_A = "attack"
-            if self.menu_type == "attack":
+            if self.menu_type == "attack" and self.player_A_active_poke.move_4:
                 if self.poke_move_4_pos[0] < e_pos_x < (self.poke_move_4_pos[0] + 170) and \
                         self.poke_move_4_pos[1] < e_pos_y < (self.poke_move_4_pos[1] + 40):
                     self.selected_A = 4
                     self.action_A = "attack"
+
+            if self.menu_type == "change" and self.player_A_poke_1:
+                if self.player_A_poke_1.HP != 0:
+                    if self.player_A_poke_1_icon_pos[0] < e_pos_x < (self.player_A_poke_1_icon_pos[0] + 170) and \
+                            self.player_A_poke_1_icon_pos[1] < e_pos_y < (self.player_A_poke_1_icon_pos[1] + 40):
+                        self.selected_A = 1
+                        self.action_A = "change"
+            if self.menu_type == "change" and self.player_A_poke_2:
+                if self.player_A_poke_2.HP != 0:
+                    if self.player_A_poke_2_icon_pos[0] < e_pos_x < (self.player_A_poke_2_icon_pos[0] + 170) and \
+                            self.player_A_poke_2_icon_pos[1] < e_pos_y < (self.player_A_poke_2_icon_pos[1] + 40):
+                        self.selected_A = 2
+                        self.action_A = "change"
+            if self.menu_type == "change" and self.player_A_poke_3:
+                if self.player_A_poke_3.HP != 0:
+                    if self.player_A_poke_3_icon_pos[0] < e_pos_x < (self.player_A_poke_3_icon_pos[0] + 170) and \
+                            self.player_A_poke_3_icon_pos[1] < e_pos_y < (self.player_A_poke_3_icon_pos[1] + 40):
+                        self.selected_A = 3
+                        self.action_A = "change"
+            if self.menu_type == "change" and self.player_A_poke_4:
+                if self.player_A_poke_4.HP != 0:
+                    if self.player_A_poke_4_icon_pos[0] < e_pos_x < (self.player_A_poke_4_icon_pos[0] + 170) and \
+                            self.player_A_poke_4_icon_pos[1] < e_pos_y < (self.player_A_poke_4_icon_pos[1] + 40):
+                        self.selected_A = 4
+                        self.action_A = "change"
+            if self.menu_type == "change" and self.player_A_poke_5:
+                if self.player_A_poke_5.HP != 0:
+                    if self.player_A_poke_5_icon_pos[0] < e_pos_x < (self.player_A_poke_5_icon_pos[0] + 170) and \
+                            self.player_A_poke_5_icon_pos[1] < e_pos_y < (self.player_A_poke_5_icon_pos[1] + 40):
+                        self.selected_A = 5
+                        self.action_A = "change"
+            if self.menu_type == "change" and self.player_A_poke_6:
+                if self.player_A_poke_6.HP != 0:
+                    if self.player_A_poke_6_icon_pos[0] < e_pos_x < (self.player_A_poke_6_icon_pos[0] + 170) and \
+                            self.player_A_poke_6_icon_pos[1] < e_pos_y < (self.player_A_poke_6_icon_pos[1] + 40):
+                        self.selected_A = 6
+                        self.action_A = "change"
 
     def menu_updater(self):
         if self.menu_type == "attack":
@@ -1002,6 +1148,50 @@ class Battle_System(pygame.sprite.Sprite):
                 pygame.draw.rect(self.image, (105, 105, 105), [599, y, 170, 40], 2)
                 y += 47
             self.image.blit(self.choose_attack_sprite, (618, 260))  # choose attack sprite
+        if self.menu_type == "change":
+            if self.player_A_poke_1:
+                if self.player_A_poke_1.HP == 0:
+                    self.player_A_poke_1_icon.blit(self.poke_icon_live_off, (0, 0))
+                else:
+                    self.player_A_poke_1_icon.blit(self.poke_icon_live_on, (0, 0))
+                self.player_A_poke_1_icon.blit(self.player_A_poke_1_img, (9, 9))
+                self.image.blit(self.player_A_poke_1_icon, (615, 65))
+            if self.player_A_poke_2:
+                if self.player_A_poke_2.HP == 0:
+                    self.player_A_poke_2_icon.blit(self.poke_icon_live_off, (0, 0))
+                else:
+                    self.player_A_poke_2_icon.blit(self.poke_icon_live_on, (0, 0))
+                self.player_A_poke_2_icon.blit(self.player_A_poke_2_img, (9, 9))
+                self.image.blit(self.player_A_poke_2_icon, (705, 65))
+            if self.player_A_poke_3:
+                if self.player_A_poke_3.HP == 0:
+                    self.player_A_poke_3_icon.blit(self.poke_icon_live_off, (0, 0))
+                else:
+                    self.player_A_poke_3_icon.blit(self.poke_icon_live_on, (0, 0))
+                self.player_A_poke_3_icon.blit(self.player_A_poke_3_img, (9, 9))
+                self.image.blit(self.player_A_poke_3_icon, (615, 130))
+            if self.player_A_poke_4:
+                if self.player_A_poke_4.HP == 0:
+                    self.player_A_poke_4_icon.blit(self.poke_icon_live_off, (0, 0))
+                else:
+                    self.player_A_poke_4_icon.blit(self.poke_icon_live_on, (0, 0))
+                self.player_A_poke_4_icon.blit(self.player_A_poke_4_img, (9, 9))
+                self.image.blit(self.player_A_poke_4_icon, (705, 130))
+            if self.player_A_poke_5:
+                if self.player_A_poke_5.HP == 0:
+                    self.player_A_poke_5_icon.blit(self.poke_icon_live_off, (0, 0))
+                else:
+                    self.player_A_poke_5_icon.blit(self.poke_icon_live_on, (0, 0))
+                self.player_A_poke_5_icon.blit(self.player_A_poke_5_img, (9, 9))
+                self.image.blit(self.player_A_poke_5_icon, (615, 195))
+            if self.player_A_poke_6:
+                if self.player_A_poke_6.HP == 0:
+                    self.player_A_poke_6_icon.blit(self.poke_icon_live_off, (0, 0))
+                else:
+                    self.player_A_poke_6_icon.blit(self.poke_icon_live_on, (0, 0))
+                self.player_A_poke_6_icon.blit(self.player_A_poke_6_img, (9, 9))
+                self.image.blit(self.player_A_poke_6_icon, (705, 195))
+            self.image.blit(self.choose_pokemon_sprite, (608, 260))  # choose attack sprite
 
     def hp_of_poke_updater(self, num_a=None, num_b=None):
         if num_a:
@@ -1015,6 +1205,8 @@ class Battle_System(pygame.sprite.Sprite):
         self.surrender_button_y = [self.rect.y + 400, self.rect.y + 456]
         self.attack_button_x = [self.rect.x + 600, self.rect.x + 674]
         self.attack_button_y = [self.rect.y + 310, self.rect.y + 368]
+        self.change_button_x = [self.rect.x + 705, self.rect.x + 760]
+        self.change_button_y = [self.rect.y + 310, self.rect.y + 365]
 
         self.poke_move_1_pos = [self.rect.x + 599, self.rect.y + 59]  # + [170, 40]
         self.poke_move_2_pos = [self.rect.x + 599, self.rect.y + 106]  # + [170, 40]
@@ -1023,9 +1215,12 @@ class Battle_System(pygame.sprite.Sprite):
 
         # battle status
         if self.active:
-            if self.hp_xp_anim_changer_num >= 0:
-                self.pokemon_hp_xp_anim_changer_B(self.damage_take_poke, self.damage)
-                self.hp_xp_anim_changer_num -= 1
+            if self.hp_xp_anim_changer_num_B >= 0:
+                self.pokemon_hp_xp_anim_changer_B(self.damage_take_poke_B, self.damage_B)
+                self.hp_xp_anim_changer_num_B -= 1
+            if self.hp_xp_anim_changer_num_A >= 0:
+                self.pokemon_hp_xp_anim_changer_A(self.damage_take_poke_A, self.damage_A)
+                self.hp_xp_anim_changer_num_A -= 1
             # getting npc move
             if self.type_of_battle == "npc" and self.action_B is None:
                 self.npc_move_setter()
@@ -1088,7 +1283,7 @@ class Battle_System(pygame.sprite.Sprite):
             self.image.blit(self.right_hp_background, [20, 70])
             self.image.blit(self.left_hp_background, [410, 305])
 
-            if self.action_A == 'start':
+            if self.action_A == 'start' or self.action_A == 'change':
                 # poke onset anim setting
                 if self.pokemon_onset_anim.state != "stopped":
                     self.pokemon_onset_anim.blit(self.image, [0, 100])
@@ -1201,52 +1396,114 @@ class Battle_System(pygame.sprite.Sprite):
             x_cord_of_A_icons = x_cord_of_A_icons + 22
             x_cord_of_B_icons = x_cord_of_B_icons + 22
 
-    def pokemon_hp_xp_sprite_setter(self):
-        self.hp_drop_A = (147 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP)) / 20
-        self.hp_drop_B = (147 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP)) / 20
+    def anim_starter(self, type_of_start):
+        if type_of_start == "a":
+            self.pokemon_hp_A_anim.play()  # start anim
+            self.pokemon_onset_anim.play()  # start anim
+        elif type_of_start == "b":
+            self.pokemon_hp_B_anim.play()
+        self.current_action_value = False
+        self.action_index += 1
 
-        for i in range(0, 21):
-            exec(f"self.frame_hp_A_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
-            exec(f"self.frame_hp_A_drop_{i} = pygame.Surface([{round(self.hp_drop_A * i)}, 4])")
-            if (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) >= 0.66:
-                exec(f"self.frame_hp_A_drop_{i}.fill((0, 200, 64))")
-            elif (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) <= 0.33:
-                exec(f"self.frame_hp_A_drop_{i}.fill((220, 50, 50))")
-            else:
-                exec(f"self.frame_hp_A_drop_{i}.fill((255, 255, 0))")
-            exec(f"self.frame_hp_A_{i}.blit(self.frame_hp_A_drop_{i}, [{147 - round(self.hp_drop_A * i)}, 0])")
+    def pokemon_hp_xp_sprite_setter(self, a=None, b=None):
+        if a:
+            self.hp_drop_A = (147 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP)) / 20
 
-            exec(f"self.frame_hp_B_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
-            exec(f"self.frame_hp_B_drop_{i} = pygame.Surface([{round(self.hp_drop_B * i)}, 4])")
-            if (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) >= 0.66:
-                exec(f"self.frame_hp_B_drop_{i}.fill((0, 200, 64))")
-            elif (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) <= 0.33:
-                exec(f"self.frame_hp_B_drop_{i}.fill((220, 50, 50))")
-            else:
-                exec(f"self.frame_hp_B_drop_{i}.fill((255, 255, 0))")
-            exec(f"self.frame_hp_B_{i}.blit(self.frame_hp_B_drop_{i}, [0, 0])")
+            for i in range(0, 21):
+                exec(f"self.frame_hp_A_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
+                exec(f"self.frame_hp_A_drop_{i} = pygame.Surface([{round(self.hp_drop_A * i)}, 4])")
+                if (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) >= 0.66:
+                    exec(f"self.frame_hp_A_drop_{i}.fill((0, 200, 64))")
+                elif (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) <= 0.33:
+                    exec(f"self.frame_hp_A_drop_{i}.fill((220, 50, 50))")
+                else:
+                    exec(f"self.frame_hp_A_drop_{i}.fill((255, 255, 0))")
+                exec(f"self.frame_hp_A_{i}.blit(self.frame_hp_A_drop_{i}, [{147 - round(self.hp_drop_A * i)}, 0])")
 
-        # creating array for frames (animations)
-        self.pokemon_hp_A_anim_array = []
-        self.pokemon_hp_B_anim_array = []
-        for i in range(0, 21):
-            exec(f"self.pokemon_hp_A_anim_array.append([self.frame_hp_A_{i}, 0.05])")
-            exec(f"self.pokemon_hp_B_anim_array.append([self.frame_hp_B_{i}, 0.05])")
-        self.pokemon_hp_A_anim = pyganim.PygAnimation(self.pokemon_hp_A_anim_array)
-        self.pokemon_hp_B_anim = pyganim.PygAnimation(self.pokemon_hp_B_anim_array)
-        self.pokemon_hp_A_anim.loop = not self.pokemon_hp_A_anim.loop
-        self.pokemon_hp_B_anim.loop = not self.pokemon_hp_B_anim.loop
+            self.pokemon_hp_A_anim_array = []
+            for i in range(0, 21):
+                exec(f"self.pokemon_hp_A_anim_array.append([self.frame_hp_A_{i}, 0.05])")
+            self.pokemon_hp_A_anim = pyganim.PygAnimation(self.pokemon_hp_A_anim_array)
+            self.pokemon_hp_A_anim.loop = not self.pokemon_hp_A_anim.loop
 
-        self.HP_line_percentage_pokemon_A = 560 - (
-                146 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP))
-        self.HP_line_percentage_pokemon_B = 26+ (
-                146 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP))
+            self.HP_line_percentage_pokemon_A = 560 - (
+                    146 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP))
+        elif b:
+            self.hp_drop_B = (147 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP)) / 20
+
+            for i in range(0, 21):
+                exec(f"self.frame_hp_B_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
+                exec(f"self.frame_hp_B_drop_{i} = pygame.Surface([{round(self.hp_drop_B * i)}, 4])")
+                if (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) >= 0.66:
+                    exec(f"self.frame_hp_B_drop_{i}.fill((0, 200, 64))")
+                elif (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) <= 0.33:
+                    exec(f"self.frame_hp_B_drop_{i}.fill((220, 50, 50))")
+                else:
+                    exec(f"self.frame_hp_B_drop_{i}.fill((255, 255, 0))")
+                exec(f"self.frame_hp_B_{i}.blit(self.frame_hp_B_drop_{i}, [0, 0])")
+
+                # creating array for frames (animations)
+                self.pokemon_hp_B_anim_array = []
+                for i in range(0, 21):
+                    exec(f"self.pokemon_hp_B_anim_array.append([self.frame_hp_B_{i}, 0.05])")
+                self.pokemon_hp_B_anim = pyganim.PygAnimation(self.pokemon_hp_B_anim_array)
+                self.pokemon_hp_B_anim.loop = not self.pokemon_hp_B_anim.loop
+
+
+                self.HP_line_percentage_pokemon_B = 26 + (
+                        146 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP))
+        else:
+            self.hp_drop_A = (147 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP)) / 20
+            self.hp_drop_B = (147 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP)) / 20
+
+            for i in range(0, 21):
+                exec(f"self.frame_hp_A_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
+                exec(f"self.frame_hp_A_drop_{i} = pygame.Surface([{round(self.hp_drop_A * i)}, 4])")
+                if (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) >= 0.66:
+                    exec(f"self.frame_hp_A_drop_{i}.fill((0, 200, 64))")
+                elif (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) <= 0.33:
+                    exec(f"self.frame_hp_A_drop_{i}.fill((220, 50, 50))")
+                else:
+                    exec(f"self.frame_hp_A_drop_{i}.fill((255, 255, 0))")
+                exec(f"self.frame_hp_A_{i}.blit(self.frame_hp_A_drop_{i}, [{147 - round(self.hp_drop_A * i)}, 0])")
+
+                exec(f"self.frame_hp_B_{i} = pygame.Surface([147, 4], pygame.SRCALPHA)")
+                exec(f"self.frame_hp_B_drop_{i} = pygame.Surface([{round(self.hp_drop_B * i)}, 4])")
+                if (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) >= 0.66:
+                    exec(f"self.frame_hp_B_drop_{i}.fill((0, 200, 64))")
+                elif (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP) <= 0.33:
+                    exec(f"self.frame_hp_B_drop_{i}.fill((220, 50, 50))")
+                else:
+                    exec(f"self.frame_hp_B_drop_{i}.fill((255, 255, 0))")
+                exec(f"self.frame_hp_B_{i}.blit(self.frame_hp_B_drop_{i}, [0, 0])")
+
+            # creating array for frames (animations)
+            self.pokemon_hp_A_anim_array = []
+            self.pokemon_hp_B_anim_array = []
+            for i in range(0, 21):
+                exec(f"self.pokemon_hp_A_anim_array.append([self.frame_hp_A_{i}, 0.05])")
+                exec(f"self.pokemon_hp_B_anim_array.append([self.frame_hp_B_{i}, 0.05])")
+            self.pokemon_hp_A_anim = pyganim.PygAnimation(self.pokemon_hp_A_anim_array)
+            self.pokemon_hp_B_anim = pyganim.PygAnimation(self.pokemon_hp_B_anim_array)
+            self.pokemon_hp_A_anim.loop = not self.pokemon_hp_A_anim.loop
+            self.pokemon_hp_B_anim.loop = not self.pokemon_hp_B_anim.loop
+
+            self.HP_line_percentage_pokemon_A = 560 - (
+                    146 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP))
+            self.HP_line_percentage_pokemon_B = 26 + (
+                    146 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP))
+
+    def pokemon_hp_xp_anim_changer_A(self, active_poke, damage):
+        hp_drop_A = damage / 20
+        print((active_poke.HP + (self.hp_xp_anim_changer_num_A * hp_drop_A)))
+        self.hp_of_poke_updater(num_a=560 - (
+                146 * ((active_poke.HP + (self.hp_xp_anim_changer_num_A * hp_drop_A)) / active_poke.STAT_HP)))
 
     def pokemon_hp_xp_anim_changer_B(self, active_poke, damage):
         hp_drop_B = damage / 20
-        print((active_poke.HP + (self.hp_xp_anim_changer_num * hp_drop_B)))
+        print((active_poke.HP + (self.hp_xp_anim_changer_num_B * hp_drop_B)))
         self.hp_of_poke_updater(num_b=26 + (
-                146 * ((active_poke.HP + (self.hp_xp_anim_changer_num * hp_drop_B)) / active_poke.STAT_HP)))
+                146 * ((active_poke.HP + (self.hp_xp_anim_changer_num_B * hp_drop_B)) / active_poke.STAT_HP)))
 
     def pokemon_onset_anim_setter(self, pokeball):
         for i in range(1, 23):
@@ -1825,15 +2082,15 @@ class Battle_System(pygame.sprite.Sprite):
 
         # update damage here
         if self.player_B_active_poke.HP - damage[0] < 0:
-            self.damage = self.player_B_active_poke.HP
+            self.damage_B = self.player_B_active_poke.HP
             self.player_B_active_poke.HP = 0
         else:
-            self.damage = damage[0]
+            self.damage_B = damage[0]
             current_hp_poke = self.player_B_active_poke.HP - damage[0]
             self.player_B_active_poke.HP = current_hp_poke
 
-        self.damage_take_poke = self.player_B_active_poke
-        self.hp_xp_anim_changer_num = 20
+        self.damage_take_poke_B = self.player_B_active_poke
+        self.hp_xp_anim_changer_num_B = 20
 
         if damage[1]:
             self.actions_list.append(self.log_message)
@@ -1945,8 +2202,10 @@ class Battle_System(pygame.sprite.Sprite):
         # !!!!!! мне просто надо обновить атрибуты уже созданных к примеру self.poke_A_5
         if self.player_A_active_poke.HP - damage[0] < 0:
             current_hp_poke = 0
+            self.damage_A = 0
             self.player_A_active_poke.HP = 0
         else:
+            self.damage_A = damage[0]
             current_hp_poke = self.player_A_active_poke.HP - damage[0]
             self.player_A_active_poke.HP = current_hp_poke
 
@@ -1967,6 +2226,9 @@ class Battle_System(pygame.sprite.Sprite):
         elif self.selected_B == 4:
             self.player_B_active_poke.pp_4 -= 1
 
+        self.damage_take_poke_A = self.player_A_active_poke
+        self.hp_xp_anim_changer_num_A = 20
+
         if damage[1]:
             self.actions_list.append(self.log_message)
             self.arguments_list.append(damage[1])
@@ -1980,6 +2242,37 @@ class Battle_System(pygame.sprite.Sprite):
 
             self.actions_list.append(self.delay_func)
             self.arguments_list.append([True, 50])
+
+    def pokemon_A_change(self):
+        self.actions_list.append(self.anim_starter)
+        self.arguments_list.append("a")
+
+        self.actions_list.append(self.log_message)
+        self.arguments_list.append(f"Go back {self.player_A_active_poke.name_poke}!")
+
+        self.actions_list.append(self.delay_func)
+        self.arguments_list.append([True, 50])
+
+        if self.selected_A == 1:
+            self.player_A_active_poke = self.player_A_poke_1
+        elif self.selected_A == 2:
+            self.player_A_active_poke = self.player_A_poke_2
+        elif self.selected_A == 3:
+            self.player_A_active_poke = self.player_A_poke_3
+        elif self.selected_A == 4:
+            self.player_A_active_poke = self.player_A_poke_4
+        elif self.selected_A == 5:
+            self.player_A_active_poke = self.player_A_poke_5
+        elif self.selected_A == 6:
+            self.player_A_active_poke = self.player_A_poke_6
+
+        self.player_A_active_poke_move_setter()
+
+        self.actions_list.append(self.log_message)
+        self.arguments_list.append(f"Let's go {self.player_A_active_poke.name_poke}!")
+
+        self.actions_list.append(self.delay_func)
+        self.arguments_list.append([True, 50])
 
     def acc_getter(self, active_poke, acc):
         if active_poke == self.player_A_active_poke:
