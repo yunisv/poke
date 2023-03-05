@@ -268,28 +268,12 @@ class Battle_System(pygame.sprite.Sprite):
         self.player_A_active_poke_icon_frame_1 = None
         self.player_A_active_poke_icon_frame_2 = None
         self.player_A_active_poke_icon_anim = None
+
+        # getting poke img
         self.poke_img_load()
 
-        # getting names, lvl from active pokes for bliting
-        if self.player_A_active_poke.type_poke == "shiny":
-            self.player_A_active_poke_name = \
-                font_medium.render(self.player_A_active_poke.name_poke, True, self.color_gold)
-        else:
-            self.player_A_active_poke_name = \
-                font_medium.render(self.player_A_active_poke.name_poke, True, (255, 255, 255))
-        if self.player_B_active_poke.type_poke == "shiny":
-            self.player_B_active_poke_name = \
-                font_medium.render(self.player_B_active_poke.name_poke, True, self.color_gold)
-        else:
-            self.player_B_active_poke_name = \
-                font_medium.render(self.player_B_active_poke.name_poke, True, (255, 255, 255))
-
-        self.player_A_active_poke_lvl = \
-            font_medium.render(self.zero_adder_to_number(f"Lv.{self.player_A_active_poke.LV}", 6, 'space'),
-                               True, (255, 255, 255))
-        self.player_B_active_poke_lvl = \
-            font_medium.render(self.zero_adder_to_number(f"Lv.{self.player_B_active_poke.LV}", 6, 'space'),
-                               True, (255, 255, 255))
+        # getting names, lvl from active pokes for biting
+        self.poke_name_type_load()
 
         # setting poke icons change sprite
         self.poke_icon_live_off = pygame.Surface([50, 50], pygame.HWSURFACE)
@@ -702,6 +686,28 @@ class Battle_System(pygame.sprite.Sprite):
         self.text_surface_go_pokemon = font.render(self.text_go_pokemon, True, self.color_gold)
         self.text_surface_go_pokemon_go = font.render(self.text_go, True, self.color)
 
+    def poke_name_type_load(self):
+        # getting names, lvl from active pokes for bliting
+        if self.player_A_active_poke.type_poke == "shiny":
+            self.player_A_active_poke_name = \
+                font_medium.render(self.player_A_active_poke.name_poke, True, self.color_gold)
+        else:
+            self.player_A_active_poke_name = \
+                font_medium.render(self.player_A_active_poke.name_poke, True, (255, 255, 255))
+        if self.player_B_active_poke.type_poke == "shiny":
+            self.player_B_active_poke_name = \
+                font_medium.render(self.player_B_active_poke.name_poke, True, self.color_gold)
+        else:
+            self.player_B_active_poke_name = \
+                font_medium.render(self.player_B_active_poke.name_poke, True, (255, 255, 255))
+
+        self.player_A_active_poke_lvl = \
+            font_medium.render(self.zero_adder_to_number(f"Lv.{self.player_A_active_poke.LV}", 6, 'space'),
+                               True, (255, 255, 255))
+        self.player_B_active_poke_lvl = \
+            font_medium.render(self.zero_adder_to_number(f"Lv.{self.player_B_active_poke.LV}", 6, 'space'),
+                               True, (255, 255, 255))
+
     def item_access(self, id_of_item):
         if self.type_of_battle == "NPC":
             if 1 <= id_of_item <= 16 or 63 <= id_of_item <= 126 or id_of_item >= 190:
@@ -808,6 +814,8 @@ class Battle_System(pygame.sprite.Sprite):
         #         else:
         if self.action_A == "attack" and self.action_B == "attack":
             # надо бы придумать сценарий из функций (конец файла)
+            self.menu_type = None
+
             if self.player_A_active_poke.STAT_SPD >= self.player_B_active_poke.STAT_SPD:
                 self.attack_a_to_b()
                 # !!!!!! here we need check HP of poke
@@ -821,14 +829,18 @@ class Battle_System(pygame.sprite.Sprite):
             self.arguments_list.append(None)
 
         if self.action_A == "change" and self.action_B == "attack":
+            self.menu_type = None
+
             self.pokemon_A_change()
 
             # надо убрать оставшего покемона в анчале анимации
 
             self.poke_img_load()  # update poke img
+            self.poke_name_type_load()  # update poke name and type
             self.pokemon_hp_xp_sprite_setter(a=True)  # update poke hp and xp anim
             self.pokemon_onset_anim_setter("pokeball")  # update poke setter anim
 
+            self.anim_starter("a")
             # self.pokemon_hp_A_anim.play()  # start anim
             # self.pokemon_onset_anim.play()  # start anim
 
@@ -874,7 +886,6 @@ class Battle_System(pygame.sprite.Sprite):
         self.text_surface_go_pokemon = font.render(self.text_go_pokemon, True, self.color_gold)
 
     def ender_func(self):
-        self.menu_type = None
         self.pokemon_onset_anim.stop()
         self.hp_anim_end_func()
         self.action_A = None
@@ -1104,37 +1115,37 @@ class Battle_System(pygame.sprite.Sprite):
                     self.action_A = "attack"
 
             if self.menu_type == "change" and self.player_A_poke_1:
-                if self.player_A_poke_1.HP != 0:
+                if self.player_A_poke_1.HP != 0 and self.player_A_poke_1 != self.player_A_active_poke:
                     if self.player_A_poke_1_icon_pos[0] < e_pos_x < (self.player_A_poke_1_icon_pos[0] + 170) and \
                             self.player_A_poke_1_icon_pos[1] < e_pos_y < (self.player_A_poke_1_icon_pos[1] + 40):
                         self.selected_A = 1
                         self.action_A = "change"
             if self.menu_type == "change" and self.player_A_poke_2:
-                if self.player_A_poke_2.HP != 0:
+                if self.player_A_poke_2.HP != 0 and self.player_A_poke_2 != self.player_A_active_poke:
                     if self.player_A_poke_2_icon_pos[0] < e_pos_x < (self.player_A_poke_2_icon_pos[0] + 170) and \
                             self.player_A_poke_2_icon_pos[1] < e_pos_y < (self.player_A_poke_2_icon_pos[1] + 40):
                         self.selected_A = 2
                         self.action_A = "change"
             if self.menu_type == "change" and self.player_A_poke_3:
-                if self.player_A_poke_3.HP != 0:
+                if self.player_A_poke_3.HP != 0 and self.player_A_poke_3 != self.player_A_active_poke:
                     if self.player_A_poke_3_icon_pos[0] < e_pos_x < (self.player_A_poke_3_icon_pos[0] + 170) and \
                             self.player_A_poke_3_icon_pos[1] < e_pos_y < (self.player_A_poke_3_icon_pos[1] + 40):
                         self.selected_A = 3
                         self.action_A = "change"
             if self.menu_type == "change" and self.player_A_poke_4:
-                if self.player_A_poke_4.HP != 0:
+                if self.player_A_poke_4.HP != 0 and self.player_A_poke_4 != self.player_A_active_poke:
                     if self.player_A_poke_4_icon_pos[0] < e_pos_x < (self.player_A_poke_4_icon_pos[0] + 170) and \
                             self.player_A_poke_4_icon_pos[1] < e_pos_y < (self.player_A_poke_4_icon_pos[1] + 40):
                         self.selected_A = 4
                         self.action_A = "change"
             if self.menu_type == "change" and self.player_A_poke_5:
-                if self.player_A_poke_5.HP != 0:
+                if self.player_A_poke_5.HP != 0 and self.player_A_poke_5 != self.player_A_active_poke:
                     if self.player_A_poke_5_icon_pos[0] < e_pos_x < (self.player_A_poke_5_icon_pos[0] + 170) and \
                             self.player_A_poke_5_icon_pos[1] < e_pos_y < (self.player_A_poke_5_icon_pos[1] + 40):
                         self.selected_A = 5
                         self.action_A = "change"
             if self.menu_type == "change" and self.player_A_poke_6:
-                if self.player_A_poke_6.HP != 0:
+                if self.player_A_poke_6.HP != 0 and self.player_A_poke_6 != self.player_A_active_poke:
                     if self.player_A_poke_6_icon_pos[0] < e_pos_x < (self.player_A_poke_6_icon_pos[0] + 170) and \
                             self.player_A_poke_6_icon_pos[1] < e_pos_y < (self.player_A_poke_6_icon_pos[1] + 40):
                         self.selected_A = 6
@@ -1402,8 +1413,6 @@ class Battle_System(pygame.sprite.Sprite):
             self.pokemon_onset_anim.play()  # start anim
         elif type_of_start == "b":
             self.pokemon_hp_B_anim.play()
-        self.current_action_value = False
-        self.action_index += 1
 
     def pokemon_hp_xp_sprite_setter(self, a=None, b=None):
         if a:
@@ -2244,9 +2253,6 @@ class Battle_System(pygame.sprite.Sprite):
             self.arguments_list.append([True, 50])
 
     def pokemon_A_change(self):
-        self.actions_list.append(self.anim_starter)
-        self.arguments_list.append("a")
-
         self.actions_list.append(self.log_message)
         self.arguments_list.append(f"Go back {self.player_A_active_poke.name_poke}!")
 

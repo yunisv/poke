@@ -158,3 +158,6 @@ Add animation for poke_onset_append
 
 0.8.0:
 Add and upgraded battle_system
+
+0.8.1:
+Fix some problems
