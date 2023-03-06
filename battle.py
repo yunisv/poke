@@ -104,7 +104,9 @@ class Battle_System(pygame.sprite.Sprite):
         self.hand_with_ball_sprite = None
         self.hand_without_ball_sprite = None
         self.pokeball_close_sprite = None
-        self.pokemon_onset_anim = None
+        self.pokemon_onset_anim_A = None
+        self.pokemon_onset_anim_B = None
+        self.pokemon_onset_anim_B_prev = None
 
         # setting buttons icons
         self.menu_type = None
@@ -348,8 +350,13 @@ class Battle_System(pygame.sprite.Sprite):
 
         # # TEST
         # self.item_effect(2)
-        self.pokemon_onset_anim_setter("pokeball")
+        self.pokemon_onset_anim_setter_A("pokeball")
+        self.pokemon_onset_anim_setter_B()
+        self.pokemon_onset_anim_setter_B_prev()
         self.pokemon_hp_xp_sprite_setter()
+
+        # Надо теперь днлать хп ( для того чтоб было вынужденное смена покемона), то есть проверка н ахп покемона
+        # Также не забыть измеять маленькие значки покеболлов около шкалы hp
 
     def player_A_active_poke_move_setter(self):
         # setting poke attack moves sprite
@@ -838,7 +845,7 @@ class Battle_System(pygame.sprite.Sprite):
             self.poke_img_load()  # update poke img
             self.poke_name_type_load()  # update poke name and type
             self.pokemon_hp_xp_sprite_setter(a=True)  # update poke hp and xp anim
-            self.pokemon_onset_anim_setter("pokeball")  # update poke setter anim
+            self.pokemon_onset_anim_setter_A("pokeball")  # update poke setter anim
 
             self.anim_starter("a")
             # self.pokemon_hp_A_anim.play()  # start anim
@@ -886,7 +893,8 @@ class Battle_System(pygame.sprite.Sprite):
         self.text_surface_go_pokemon = font.render(self.text_go_pokemon, True, self.color_gold)
 
     def ender_func(self):
-        self.pokemon_onset_anim.stop()
+        self.pokemon_onset_anim_A.stop()
+        self.pokemon_onset_anim_B.stop()
         self.hp_anim_end_func()
         self.action_A = None
         self.action_B = None
@@ -1270,7 +1278,8 @@ class Battle_System(pygame.sprite.Sprite):
 
             # if battle just started
             elif self.battle_status == "start":
-                self.pokemon_onset_anim.play()
+                self.pokemon_onset_anim_A.play()
+                self.pokemon_onset_anim_B.play()
                 self.pokemon_hp_A_anim.play()
                 self.pokemon_hp_B_anim.play()
                 self.action_A = "start"
@@ -1294,12 +1303,20 @@ class Battle_System(pygame.sprite.Sprite):
             self.image.blit(self.right_hp_background, [20, 70])
             self.image.blit(self.left_hp_background, [410, 305])
 
-            if self.action_A == 'start' or self.action_A == 'change':
+            if self.action_A == 'start' or self.action_A == 'change' or self.action_B == "change":
                 # poke onset anim setting
-                if self.pokemon_onset_anim.state != "stopped":
-                    self.pokemon_onset_anim.blit(self.image, [0, 100])
+                if self.pokemon_onset_anim_A.state != "stopped":
+                    self.pokemon_onset_anim_A.blit(self.image, [0, 100])
                 else:
                     self.image.blit(self.player_A_active_poke_standart, [30, 220])
+
+                if self.pokemon_onset_anim_B.state != "stopped":
+                    if self.pokemon_onset_anim_B_prev.state != "stopped":
+                        self.pokemon_onset_anim_B_prev.blit(self.image, [370, 82])
+                    else:
+                        self.pokemon_onset_anim_B.blit(self.image, [370, 82])
+                else:
+                    self.image.blit(self.player_B_active_poke_icon, [370, 82])
 
                 # poke hp anim setting
                 if self.pokemon_hp_A_anim.state != "stopped":
@@ -1334,6 +1351,7 @@ class Battle_System(pygame.sprite.Sprite):
                                                                     [self.HP_line_percentage_pokemon_B, 91], 4)
             else:
                 self.player_A_active_poke_icon_anim.blit(self.image, [30, 215])
+                self.image.blit(self.player_B_active_poke_icon, [370, 82])
 
                 if (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP) >= 0.66:
                     self.hp_pokemon_A_sprite = pygame.draw.line(self.image, (0, 200, 64),
@@ -1360,8 +1378,6 @@ class Battle_System(pygame.sprite.Sprite):
                     self.hp_pokemon_B_sprite = pygame.draw.line(self.image, (255, 255, 0),
                                                                 [26, 91],
                                                                 [self.HP_line_percentage_pokemon_B, 91], 4)
-
-            self.image.blit(self.player_B_active_poke_icon, [370, 82])
 
             self.image.blit(self.player_A_active_poke_name, (430, 308))
             self.image.blit(self.player_B_active_poke_name, (45, 72))
@@ -1410,9 +1426,12 @@ class Battle_System(pygame.sprite.Sprite):
     def anim_starter(self, type_of_start):
         if type_of_start == "a":
             self.pokemon_hp_A_anim.play()  # start anim
-            self.pokemon_onset_anim.play()  # start anim
+            self.pokemon_onset_anim_A.play()  # start anim
         elif type_of_start == "b":
             self.pokemon_hp_B_anim.play()
+            self.pokemon_onset_anim_B.play()
+        elif type_of_start == "b_p":
+            self.pokemon_onset_anim_B_prev.play()
 
     def pokemon_hp_xp_sprite_setter(self, a=None, b=None):
         if a:
@@ -1457,7 +1476,6 @@ class Battle_System(pygame.sprite.Sprite):
                     exec(f"self.pokemon_hp_B_anim_array.append([self.frame_hp_B_{i}, 0.05])")
                 self.pokemon_hp_B_anim = pyganim.PygAnimation(self.pokemon_hp_B_anim_array)
                 self.pokemon_hp_B_anim.loop = not self.pokemon_hp_B_anim.loop
-
 
                 self.HP_line_percentage_pokemon_B = 26 + (
                         146 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP))
@@ -1514,7 +1532,7 @@ class Battle_System(pygame.sprite.Sprite):
         self.hp_of_poke_updater(num_b=26 + (
                 146 * ((active_poke.HP + (self.hp_xp_anim_changer_num_B * hp_drop_B)) / active_poke.STAT_HP)))
 
-    def pokemon_onset_anim_setter(self, pokeball):
+    def pokemon_onset_anim_setter_A(self, pokeball):
         for i in range(1, 23):
             exec(f"self.frame_me_{i} = pygame.Surface([340, 340], pygame.SRCALPHA)")
 
@@ -1656,7 +1674,7 @@ class Battle_System(pygame.sprite.Sprite):
         self.frame_me_22.blit(self.player_A_active_poke_standart, [30, 120])
         self.frame_me_22.blit(self.stars_append_sprite_22, [60, 185])
 
-        self.pokemon_onset_anim = pyganim.PygAnimation([
+        self.pokemon_onset_anim_A = pyganim.PygAnimation([
             (self.frame_me_1, 0.06),
             (self.frame_me_2, 0.06),
             (self.frame_me_3, 0.06),
@@ -1679,7 +1697,87 @@ class Battle_System(pygame.sprite.Sprite):
             (self.frame_me_20, 0.12),
             (self.frame_me_21, 0.12),
             (self.frame_me_22, 0.12)])
-        self.pokemon_onset_anim.loop = not self.pokemon_onset_anim.loop
+        self.pokemon_onset_anim_A.loop = not self.pokemon_onset_anim_A.loop
+
+    def pokemon_onset_anim_setter_B(self):
+        iteration_num = 180
+        for i in range(1, 31):
+            exec(f"self.frame_foe_{i} = pygame.Surface([210, 128], pygame.SRCALPHA)")
+            exec(f"self.frame_foe_{i}.blit(self.player_B_active_poke_icon, [{iteration_num}, 0])")
+            iteration_num -= 6
+
+        self.pokemon_onset_anim_B = pyganim.PygAnimation([
+            (self.frame_foe_1, 0.05),
+            (self.frame_foe_2, 0.05),
+            (self.frame_foe_3, 0.05),
+            (self.frame_foe_4, 0.05),
+            (self.frame_foe_5, 0.05),
+            (self.frame_foe_6, 0.05),
+            (self.frame_foe_7, 0.05),
+            (self.frame_foe_8, 0.05),
+            (self.frame_foe_9, 0.05),
+            (self.frame_foe_10, 0.05),
+            (self.frame_foe_11, 0.05),
+            (self.frame_foe_12, 0.05),
+            (self.frame_foe_13, 0.05),
+            (self.frame_foe_14, 0.05),
+            (self.frame_foe_15, 0.05),
+            (self.frame_foe_16, 0.05),
+            (self.frame_foe_17, 0.05),
+            (self.frame_foe_18, 0.05),
+            (self.frame_foe_19, 0.05),
+            (self.frame_foe_20, 0.05),
+            (self.frame_foe_21, 0.05),
+            (self.frame_foe_22, 0.05),
+            (self.frame_foe_23, 0.05),
+            (self.frame_foe_24, 0.05),
+            (self.frame_foe_25, 0.05),
+            (self.frame_foe_26, 0.05),
+            (self.frame_foe_27, 0.05),
+            (self.frame_foe_28, 0.05),
+            (self.frame_foe_29, 0.05),
+            (self.frame_foe_30, 0.05)])
+        self.pokemon_onset_anim_B.loop = not self.pokemon_onset_anim_B.loop
+
+    def pokemon_onset_anim_setter_B_prev(self):
+        iteration_num = 0
+        for i in range(1, 31):
+            exec(f"self.frame_foe_{i}_prev = pygame.Surface([210, 128], pygame.SRCALPHA)")
+            exec(f"self.frame_foe_{i}_prev.blit(self.player_B_active_poke_icon, [{iteration_num}, 0])")
+            iteration_num += 6
+
+        self.pokemon_onset_anim_B_prev = pyganim.PygAnimation([
+            (self.frame_foe_1_prev, 0.05),
+            (self.frame_foe_2_prev, 0.05),
+            (self.frame_foe_3_prev, 0.05),
+            (self.frame_foe_4_prev, 0.05),
+            (self.frame_foe_5_prev, 0.05),
+            (self.frame_foe_6_prev, 0.05),
+            (self.frame_foe_7_prev, 0.05),
+            (self.frame_foe_8_prev, 0.05),
+            (self.frame_foe_9_prev, 0.05),
+            (self.frame_foe_10_prev, 0.05),
+            (self.frame_foe_11_prev, 0.05),
+            (self.frame_foe_12_prev, 0.05),
+            (self.frame_foe_13_prev, 0.05),
+            (self.frame_foe_14_prev, 0.05),
+            (self.frame_foe_15_prev, 0.05),
+            (self.frame_foe_16_prev, 0.05),
+            (self.frame_foe_17_prev, 0.05),
+            (self.frame_foe_18_prev, 0.05),
+            (self.frame_foe_19_prev, 0.05),
+            (self.frame_foe_20_prev, 0.05),
+            (self.frame_foe_21_prev, 0.05),
+            (self.frame_foe_22_prev, 0.05),
+            (self.frame_foe_23_prev, 0.05),
+            (self.frame_foe_24_prev, 0.05),
+            (self.frame_foe_25_prev, 0.05),
+            (self.frame_foe_26_prev, 0.05),
+            (self.frame_foe_27_prev, 0.05),
+            (self.frame_foe_28_prev, 0.05),
+            (self.frame_foe_29_prev, 0.05),
+            (self.frame_foe_30_prev, 0.05)])
+        self.pokemon_onset_anim_B_prev.loop = not self.pokemon_onset_anim_B_prev.loop
 
     @staticmethod
     def zero_adder_to_number(number, zero_number, type_of_adding):
