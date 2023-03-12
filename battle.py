@@ -168,6 +168,7 @@ class Battle_System(pygame.sprite.Sprite):
         self.current_arguments = None  # current arguments for function
         self.current_action_value = False  # current action value (checking function is going or not)
         self.action_index = 0
+        self.action_continue = True  # This arg will be used on a_to_b or b_to_a continue functions
 
         # Log mechanics
         self.time_delay = 50
@@ -828,14 +829,8 @@ class Battle_System(pygame.sprite.Sprite):
 
             if self.player_A_active_poke.STAT_SPD >= self.player_B_active_poke.STAT_SPD:
                 self.attack_a_to_b()
-                # we check HP of poke
-                if self.check_hp_player_b() == "continue":
-                    self.attack_b_to_a()
             else:
                 self.attack_b_to_a()
-                # we check HP of poke
-                if self.check_hp_player_a() == "continue":
-                    self.attack_a_to_b()
 
             self.actions_list.append(self.ender_func)
             self.arguments_list.append(None)
@@ -883,26 +878,43 @@ class Battle_System(pygame.sprite.Sprite):
             self.check_hp_player_b()
 
         if self.action_A == "change" and self.action_B == "player_A_need_change":
-            self.action_B = None
-            self.menu_type = None
+            if self.check_hp_player_a():
+                self.menu_type = None
 
-            self.pokemon_A_change()
+                self.pokemon_A_change()
 
-            # надо убрать оставшего покемона в анчале анимации
+                # надо убрать оставшего покемона в анчале анимации
 
-            self.poke_img_load()  # update poke img
-            self.poke_name_type_load()  # update poke name and type
-            self.pokemon_onset_anim_setter_A("pokeball")  # update poke setter anim
+                self.poke_img_load()  # update poke img
+                self.poke_name_type_load()  # update poke name and type
+                self.pokemon_onset_anim_setter_A("pokeball")  # update poke setter anim
 
-            self.anim_starter("a")
+                self.anim_starter("a")
 
-            self.pokemon_hp_xp_sprite_setter(a=True)  # update poke hp and xp anim
+                self.pokemon_hp_xp_sprite_setter(a=True)  # update poke hp and xp anim
 
-            self.actions_list.append(self.ender_func)
-            self.arguments_list.append(None)
+                self.actions_list.append(self.ender_func)
+                self.arguments_list.append(None)
 
         if self.action_A != "change" and self.action_B == "player_A_need_change":
             self.action_A = None
+
+        if self.action_A == "player_B_need_change" and self.action_B == "player_B_need_change":
+            self.current_action_value = False
+            if self.check_hp_player_b():
+
+                self.pokemon_B_change()
+
+                self.poke_img_load()  # update poke img
+                self.poke_name_type_load()  # update poke name and type
+                self.pokemon_onset_anim_setter_B()  # update poke setter anim
+
+                self.pokemon_hp_xp_sprite_setter(b=True)  # update poke hp and xp anim
+
+                self.anim_starter("b")
+
+                self.actions_list.append(self.ender_func)
+                self.arguments_list.append(None)
 
         # if self.action_A is None and self.action_B == "player_B_need_change":
         #     print(12675856785678567856785678567856785685678568)
@@ -1182,6 +1194,13 @@ class Battle_System(pygame.sprite.Sprite):
             self.action_B = "attack"
             self.selected_B = selected_move
 
+        if self.player_A_active_poke.HP == 0:
+            self.action_B = "player_A_need_change"
+
+        if self.player_B_active_poke.HP == 0:
+            self.action_A = "player_B_need_change"
+            self.action_B = "player_B_need_change"
+
     def press_checker(self, e_pos_x, e_pos_y):
         # buttons condition
         if self.battle_status == "waiting":
@@ -1330,6 +1349,8 @@ class Battle_System(pygame.sprite.Sprite):
 
         # battle status
         if self.active:
+            print(f"action_A: {self.action_A}, action_b:{self.action_B}")
+            print(f'{self.arguments_list}')
             if self.hp_xp_anim_changer_num_B >= 0:
                 self.pokemon_hp_xp_anim_changer_B(self.damage_take_poke_B, self.damage_B)
                 self.hp_xp_anim_changer_num_B -= 1
@@ -1398,7 +1419,8 @@ class Battle_System(pygame.sprite.Sprite):
             self.image.blit(self.right_hp_background, [20, 70])
             self.image.blit(self.left_hp_background, [410, 305])
 
-            if self.action_A == 'start' or self.action_A == 'change' or self.action_B == "change":
+            if self.action_A == 'start' or self.action_A == 'change' or self.action_B == "change"\
+                    or self.action_B == "player_B_need_change":
                 # poke onset anim setting
                 if self.pokemon_onset_anim_A.state != "stopped":
                     self.pokemon_onset_anim_A.blit(self.image, [0, 100])
@@ -1408,10 +1430,7 @@ class Battle_System(pygame.sprite.Sprite):
                 if self.pokemon_onset_anim_B.state != "stopped":
                     self.pokemon_onset_anim_B.blit(self.image, [370, 82])
                 else:
-                    if self.pokemon_onset_anim_B_prev.state != "stopped":
-                        self.pokemon_onset_anim_B_prev.blit(self.image, [370, 82])
-                    else:
-                        self.image.blit(self.player_B_active_poke_icon, [370, 82])
+                    self.image.blit(self.player_B_active_poke_icon, [370, 82])
 
                 # poke hp anim setting
                 if self.pokemon_hp_A_anim.state != "stopped":
@@ -1530,8 +1549,6 @@ class Battle_System(pygame.sprite.Sprite):
         elif type_of_start == "b":
             self.pokemon_hp_B_anim.play()
             self.pokemon_onset_anim_B.play()
-        elif type_of_start == "b_p":
-            self.pokemon_onset_anim_B_prev.play()
 
     def pokemon_hp_xp_sprite_setter(self, a=None, b=None):
         if a:
@@ -1556,7 +1573,7 @@ class Battle_System(pygame.sprite.Sprite):
 
             self.HP_line_percentage_pokemon_A = 560 - (
                     146 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP))
-        elif b:
+        if b:
             self.hp_drop_B = (147 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP)) / 20
 
             for i in range(0, 21):
@@ -1579,7 +1596,7 @@ class Battle_System(pygame.sprite.Sprite):
 
                 self.HP_line_percentage_pokemon_B = 26 + (
                         146 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP))
-        else:
+        if not a and not b:
             self.hp_drop_A = (147 * (self.player_A_active_poke.HP / self.player_A_active_poke.STAT_HP)) / 20
             self.hp_drop_B = (147 * (self.player_B_active_poke.HP / self.player_B_active_poke.STAT_HP)) / 20
 
@@ -2226,42 +2243,78 @@ class Battle_System(pygame.sprite.Sprite):
     #         self.
 
     def check_hp_player_a(self):
-        if self.player_A_active_poke.HP == 0:
-            self.action_B = "player_A_need_change"
+        lose = True
+        if self.player_A_poke_1:
+            if self.player_A_poke_1.HP != 0:
+                lose = False
+        if self.player_A_poke_2:
+            if self.player_A_poke_2.HP != 0:
+                lose = False
+        if self.player_A_poke_3:
+            if self.player_A_poke_3.HP != 0:
+                lose = False
+        if self.player_A_poke_4:
+            if self.player_A_poke_4.HP != 0:
+                lose = False
+        if self.player_A_poke_5:
+            if self.player_A_poke_5.HP != 0:
+                lose = False
+        if self.player_A_poke_6:
+            if self.player_A_poke_6.HP != 0:
+                lose = False
+
+        if lose:
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append("· Oh no! You lose this battle :(!")
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+
+            self.actions_list.append(self.end_battle)
+            self.arguments_list.append(None)
+
             return False
         else:
-            return "continue"
+            return True
 
     def check_hp_player_b(self):
-        if self.player_B_active_poke.HP == 0:
-            #  getting ready pokes (indexes)
-            ready_poke_numbers = []
-            if self.player_B_poke_1:
-                if self.player_B_poke_1.HP != 0 and self.player_B_poke_1 != self.player_B_active_poke:
-                    ready_poke_numbers.append(1)
-            if self.player_B_poke_2:
-                if self.player_B_poke_2.HP != 0 and self.player_B_poke_2 != self.player_B_active_poke:
-                    ready_poke_numbers.append(2)
-            if self.player_B_poke_3:
-                if self.player_B_poke_3.HP != 0 and self.player_B_poke_3 != self.player_B_active_poke:
-                    ready_poke_numbers.append(3)
-            if self.player_B_poke_4:
-                if self.player_B_poke_4.HP != 0 and self.player_B_poke_4 != self.player_B_active_poke:
-                    ready_poke_numbers.append(4)
-            if self.player_B_poke_5:
-                if self.player_B_poke_5.HP != 0 and self.player_B_poke_5 != self.player_B_active_poke:
-                    ready_poke_numbers.append(5)
-            if self.player_B_poke_6:
-                if self.player_B_poke_6.HP != 0 and self.player_B_poke_6 != self.player_B_active_poke:
-                    ready_poke_numbers.append(6)
+        #  getting ready pokes (indexes)
+        ready_poke_numbers = []
+        if self.player_B_poke_1:
+            if self.player_B_poke_1.HP != 0 and self.player_B_poke_1 != self.player_B_active_poke:
+                ready_poke_numbers.append(1)
+        if self.player_B_poke_2:
+            if self.player_B_poke_2.HP != 0 and self.player_B_poke_2 != self.player_B_active_poke:
+                ready_poke_numbers.append(2)
+        if self.player_B_poke_3:
+            if self.player_B_poke_3.HP != 0 and self.player_B_poke_3 != self.player_B_active_poke:
+                ready_poke_numbers.append(3)
+        if self.player_B_poke_4:
+            if self.player_B_poke_4.HP != 0 and self.player_B_poke_4 != self.player_B_active_poke:
+                ready_poke_numbers.append(4)
+        if self.player_B_poke_5:
+            if self.player_B_poke_5.HP != 0 and self.player_B_poke_5 != self.player_B_active_poke:
+                ready_poke_numbers.append(5)
+        if self.player_B_poke_6:
+            if self.player_B_poke_6.HP != 0 and self.player_B_poke_6 != self.player_B_active_poke:
+                ready_poke_numbers.append(6)
 
+        if len(ready_poke_numbers) != 0:
             random_poke = random.choice(ready_poke_numbers)
             self.selected_B = random_poke
 
-            self.action_B = "player_B_need_change"
-            return False
+            return True
         else:
-            return "continue"
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append("· Nice done! You win!")
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+
+            self.actions_list.append(self.end_battle)
+            self.arguments_list.append(None)
+
+            return False
 
     def attack_a_to_b(self):
         damage = None
@@ -2383,6 +2436,21 @@ class Battle_System(pygame.sprite.Sprite):
 
             self.actions_list.append(self.delay_func)
             self.arguments_list.append([True, 50])
+
+        if self.player_B_active_poke.HP - damage[0] < 0:
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 20])
+
+            self.actions_list.append(self.ender_func)
+            self.arguments_list.append(None)
+
+            self.action_continue = True
+        else:
+            if self.action_continue:
+                self.action_continue = False
+                self.attack_b_to_a()
+            else:
+                self.action_continue = True
 
     def attack_b_to_a(self):
         damage = None
@@ -2524,6 +2592,21 @@ class Battle_System(pygame.sprite.Sprite):
             self.actions_list.append(self.delay_func)
             self.arguments_list.append([True, 50])
 
+        if self.player_A_active_poke.HP - damage[0] < 0:
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 20])
+
+            self.actions_list.append(self.ender_func)
+            self.arguments_list.append(None)
+
+            self.action_continue = True
+        else:
+            if self.action_continue:
+                self.action_continue = False
+                self.attack_a_to_b()
+            else:
+                self.action_continue = True
+
     def pokemon_A_change(self):
         self.actions_list.append(self.log_message)
         self.arguments_list.append(f"Go back {self.player_A_active_poke.name_poke}!")
@@ -2553,6 +2636,12 @@ class Battle_System(pygame.sprite.Sprite):
         self.arguments_list.append([True, 50])
 
     def pokemon_B_change(self):
+        self.actions_list.append(self.log_message)
+        self.arguments_list.append(f"{self.player_B_active_poke.name_poke} fainted!")
+
+        self.actions_list.append(self.delay_func)
+        self.arguments_list.append([True, 50])
+
         if self.selected_B == 1:
             self.player_B_active_poke = self.player_B_poke_1
         elif self.selected_B == 2:
@@ -2569,7 +2658,7 @@ class Battle_System(pygame.sprite.Sprite):
         self.player_B_active_poke_move_setter()
 
         self.actions_list.append(self.log_message)
-        self.arguments_list.append(f"Opponent select {self.player_A_active_poke.name_poke}!")
+        self.arguments_list.append(f"Opponent choose {self.player_B_active_poke.name_poke}!")
 
         self.actions_list.append(self.delay_func)
         self.arguments_list.append([True, 50])
