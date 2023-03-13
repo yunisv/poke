@@ -2835,6 +2835,16 @@ class Battle_System(pygame.sprite.Sprite):
                 self.actions_list.append(self.delay_func)
                 self.arguments_list.append([True, 50])
             return [0, None]
+        if move_effect_id == 5:
+            acc = self.acc_getter(player_poke, acc)
+            if random.uniform(0, 100) <= acc:
+                opponent_poke.status = "brn"
+                self.actions_list.append(self.log_message)
+                self.arguments_list.append(f"{opponent_poke.name_poke} is burned!")
+
+                self.actions_list.append(self.delay_func)
+                self.arguments_list.append([True, 50])
+            return [0, None]
         if move_effect_id == 19:
             # Lowers the target's Attack by one stage.
             if player_poke == self.player_A_active_poke:
