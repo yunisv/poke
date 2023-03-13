@@ -1,9 +1,8 @@
 import random
 
-import pygame
 import pyganim
 
-from resources.system.sprites.battle_anim import BattleAttackAnimSetter
+from battle_anim import BattleAttackAnimSetter
 from setting import *
 from Moves import *
 
@@ -39,6 +38,7 @@ class Battle_System(pygame.sprite.Sprite):
         self.weather = None
         self.background_img = pygame.image.load(resource_path("resources/system/sprites/battle_background.png"))
         self.BattleAttackAnim = None
+        self.MoveAnim = None
         self.image = Surface([791, 465], pygame.HWSURFACE)  # Battle Sprite
         self.image = self.image.convert_alpha()  # transparent
         self.image.blit(self.background_img, [0, 0])
@@ -359,7 +359,6 @@ class Battle_System(pygame.sprite.Sprite):
         # self.item_effect(2)
         self.pokemon_onset_anim_setter_A("pokeball")
         self.pokemon_onset_anim_setter_B()
-        self.pokemon_onset_anim_setter_B_prev()
         self.pokemon_hp_xp_sprite_setter()
 
         # Надо теперь днлать хп ( для того чтоб было вынужденное смена покемона), то есть проверка н ахп покемона
@@ -930,7 +929,6 @@ class Battle_System(pygame.sprite.Sprite):
         if self.action_A == "player_B_need_change" and self.action_B == "player_B_need_change":
             self.current_action_value = False
             if self.check_hp_player_b():
-
                 self.pokemon_B_change()
 
                 self.poke_img_load()  # update poke img
@@ -945,6 +943,16 @@ class Battle_System(pygame.sprite.Sprite):
 
                 self.actions_list.append(self.ender_func)
                 self.arguments_list.append(None)
+
+        if self.action_A == "player_A_lose" and self.action_B == "player_A_lose":
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append("· Oh no! You lose this battle :(!")
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+
+            self.actions_list.append(self.end_battle)
+            self.arguments_list.append(None)
 
         # if self.action_A is None and self.action_B == "player_B_need_change":
         #     print(12675856785678567856785678567856785685678568)
@@ -978,6 +986,13 @@ class Battle_System(pygame.sprite.Sprite):
         elif damage_poke_getter == "B":
             self.BattleAttackAnim = BattleAttackAnimSetter(self.battle_location_background, "B")
         self.BattleAttackAnim.play()
+        self.action_index += 1
+        self.current_action_value = False
+
+    def move_anim_starter(self, data):
+        if data[0] in [24, 0]:
+            self.MoveAnim = MoveAnim(data[0], data[1], data[2])
+            self.MoveAnim.anim_play()
         self.action_index += 1
         self.current_action_value = False
 
@@ -1133,8 +1148,10 @@ class Battle_System(pygame.sprite.Sprite):
             if self.player_B_active_poke.pp_1 != 0:
                 if self.player_B_active_poke_move_1_type in [2, 3]:
                     damage_to_poke = self.damage_counter(self.player_B_active_poke,
+                                                         self.player_B_active_poke_move_1_id,
                                                          self.player_B_active_poke_move_1_element,
-                                                         self.player_B_active_poke_move_1_type, self.player_A_active_poke,
+                                                         self.player_B_active_poke_move_1_type,
+                                                         self.player_A_active_poke,
                                                          self.player_B_active_poke_move_1_power,
                                                          self.player_B_active_poke.STAT_ATK,
                                                          self.player_B_active_poke.STAT_SPATK,
@@ -1147,8 +1164,10 @@ class Battle_System(pygame.sprite.Sprite):
             if self.player_B_active_poke.pp_2 != 0:
                 if self.player_B_active_poke_move_2_type in [2, 3]:
                     damage_to_poke = self.damage_counter(self.player_B_active_poke,
+                                                         self.player_B_active_poke_move_2_id,
                                                          self.player_B_active_poke_move_2_element,
-                                                         self.player_B_active_poke_move_2_type, self.player_A_active_poke,
+                                                         self.player_B_active_poke_move_2_type,
+                                                         self.player_A_active_poke,
                                                          self.player_B_active_poke_move_2_power,
                                                          self.player_B_active_poke.STAT_ATK,
                                                          self.player_B_active_poke.STAT_SPATK,
@@ -1161,8 +1180,10 @@ class Battle_System(pygame.sprite.Sprite):
             if self.player_B_active_poke.pp_3 != 0:
                 if self.player_B_active_poke_move_3_type in [2, 3]:
                     damage_to_poke = self.damage_counter(self.player_B_active_poke,
+                                                         self.player_B_active_poke_move_3_id,
                                                          self.player_B_active_poke_move_3_element,
-                                                         self.player_B_active_poke_move_3_type, self.player_A_active_poke,
+                                                         self.player_B_active_poke_move_3_type,
+                                                         self.player_A_active_poke,
                                                          self.player_B_active_poke_move_3_power,
                                                          self.player_B_active_poke.STAT_ATK,
                                                          self.player_B_active_poke.STAT_SPATK,
@@ -1175,8 +1196,10 @@ class Battle_System(pygame.sprite.Sprite):
             if self.player_B_active_poke.pp_4 != 0:
                 if self.player_B_active_poke_move_4_type in [2, 3]:
                     damage_to_poke = self.damage_counter(self.player_B_active_poke,
+                                                         self.player_B_active_poke_move_4_id,
                                                          self.player_B_active_poke_move_4_element,
-                                                         self.player_B_active_poke_move_4_type, self.player_A_active_poke,
+                                                         self.player_B_active_poke_move_4_type,
+                                                         self.player_A_active_poke,
                                                          self.player_B_active_poke_move_4_power,
                                                          self.player_B_active_poke.STAT_ATK,
                                                          self.player_B_active_poke.STAT_SPATK,
@@ -1234,6 +1257,30 @@ class Battle_System(pygame.sprite.Sprite):
         if self.player_B_active_poke.HP == 0:
             self.action_A = "player_B_need_change"
             self.action_B = "player_B_need_change"
+
+        lose = True
+        if self.player_A_poke_1:
+            if self.player_A_poke_1.HP != 0:
+                lose = False
+        if self.player_A_poke_2:
+            if self.player_A_poke_2.HP != 0:
+                lose = False
+        if self.player_A_poke_3:
+            if self.player_A_poke_3.HP != 0:
+                lose = False
+        if self.player_A_poke_4:
+            if self.player_A_poke_4.HP != 0:
+                lose = False
+        if self.player_A_poke_5:
+            if self.player_A_poke_5.HP != 0:
+                lose = False
+        if self.player_A_poke_6:
+            if self.player_A_poke_6.HP != 0:
+                lose = False
+
+        if lose:
+            self.action_A = "player_A_lose"
+            self.action_B = "player_A_lose"
 
     def press_checker(self, e_pos_x, e_pos_y):
         # buttons condition
@@ -1451,7 +1498,7 @@ class Battle_System(pygame.sprite.Sprite):
             self.image.blit(self.right_hp_background, [20, 70])
             self.image.blit(self.left_hp_background, [410, 305])
 
-            if self.action_A == 'start' or self.action_A == 'change' or self.action_B == "change"\
+            if self.action_A == 'start' or self.action_A == 'change' or self.action_B == "change" \
                     or self.action_B == "player_B_need_change":
                 # poke onset anim setting
                 if self.pokemon_onset_anim_A.state != "stopped":
@@ -1527,6 +1574,8 @@ class Battle_System(pygame.sprite.Sprite):
 
             if self.BattleAttackAnim:
                 self.BattleAttackAnim.draw(self.image)  # checking damage animation
+            if self.MoveAnim:
+                self.MoveAnim.draw(self.image)
             self.image.blit(self.battle_log_background, [9, 410])
 
             self.image.blit(self.player_A_active_poke_name, (430, 308))
@@ -1888,77 +1937,6 @@ class Battle_System(pygame.sprite.Sprite):
             (self.frame_foe_30, 0.05)])
         self.pokemon_onset_anim_B.loop = not self.pokemon_onset_anim_B.loop
 
-    def pokemon_onset_anim_setter_B_prev(self):
-        iteration_num = 0
-        for i in range(1, 61):
-            exec(f"self.frame_foe_{i}_prev = pygame.Surface([210, 128], pygame.SRCALPHA)")
-            exec(f"self.frame_foe_{i}_prev.blit(self.player_B_active_poke_icon, [{iteration_num}, 0])")
-            iteration_num += 6
-
-        self.pokemon_onset_anim_B_prev = pyganim.PygAnimation([
-            (self.frame_foe_1_prev, 0.05),
-            (self.frame_foe_2_prev, 0.05),
-            (self.frame_foe_3_prev, 0.05),
-            (self.frame_foe_4_prev, 0.05),
-            (self.frame_foe_5_prev, 0.05),
-            (self.frame_foe_6_prev, 0.05),
-            (self.frame_foe_7_prev, 0.05),
-            (self.frame_foe_8_prev, 0.05),
-            (self.frame_foe_9_prev, 0.05),
-            (self.frame_foe_10_prev, 0.05),
-            (self.frame_foe_11_prev, 0.05),
-            (self.frame_foe_12_prev, 0.05),
-            (self.frame_foe_13_prev, 0.05),
-            (self.frame_foe_14_prev, 0.05),
-            (self.frame_foe_15_prev, 0.05),
-            (self.frame_foe_16_prev, 0.05),
-            (self.frame_foe_17_prev, 0.05),
-            (self.frame_foe_18_prev, 0.05),
-            (self.frame_foe_19_prev, 0.05),
-            (self.frame_foe_20_prev, 0.05),
-            (self.frame_foe_21_prev, 0.05),
-            (self.frame_foe_22_prev, 0.05),
-            (self.frame_foe_23_prev, 0.05),
-            (self.frame_foe_24_prev, 0.05),
-            (self.frame_foe_25_prev, 0.05),
-            (self.frame_foe_26_prev, 0.05),
-            (self.frame_foe_27_prev, 0.05),
-            (self.frame_foe_28_prev, 0.05),
-            (self.frame_foe_29_prev, 0.05),
-            (self.frame_foe_30_prev, 0.05),
-            (self.frame_foe_30_prev, 0.05),
-            (self.frame_foe_29_prev, 0.05),
-            (self.frame_foe_28_prev, 0.05),
-            (self.frame_foe_27_prev, 0.05),
-            (self.frame_foe_26_prev, 0.05),
-            (self.frame_foe_25_prev, 0.05),
-            (self.frame_foe_24_prev, 0.05),
-            (self.frame_foe_23_prev, 0.05),
-            (self.frame_foe_22_prev, 0.05),
-            (self.frame_foe_21_prev, 0.05),
-            (self.frame_foe_20_prev, 0.05),
-            (self.frame_foe_19_prev, 0.05),
-            (self.frame_foe_18_prev, 0.05),
-            (self.frame_foe_17_prev, 0.05),
-            (self.frame_foe_16_prev, 0.05),
-            (self.frame_foe_15_prev, 0.05),
-            (self.frame_foe_14_prev, 0.05),
-            (self.frame_foe_13_prev, 0.05),
-            (self.frame_foe_12_prev, 0.05),
-            (self.frame_foe_11_prev, 0.05),
-            (self.frame_foe_10_prev, 0.05),
-            (self.frame_foe_9_prev, 0.05),
-            (self.frame_foe_8_prev, 0.05),
-            (self.frame_foe_7_prev, 0.05),
-            (self.frame_foe_6_prev, 0.05),
-            (self.frame_foe_5_prev, 0.05),
-            (self.frame_foe_4_prev, 0.05),
-            (self.frame_foe_3_prev, 0.05),
-            (self.frame_foe_2_prev, 0.05),
-            (self.frame_foe_1_prev, 0.05)
-        ])
-        self.pokemon_onset_anim_B_prev.loop = not self.pokemon_onset_anim_B_prev.loop
-
     @staticmethod
     def zero_adder_to_number(number, zero_number, type_of_adding):
         string = str(number)
@@ -2064,7 +2042,8 @@ class Battle_System(pygame.sprite.Sprite):
 
             y_offset += fh
 
-    def damage_counter(self, active_poke, move_element, move_type, opponent_poke, power, Atk, Spatk, Def, Spdef,
+    def damage_counter(self, active_poke, move_id, move_element, move_type, opponent_poke, power, Atk, Spatk, Def,
+                       Spdef,
                        other=1):
         # 'Weather' is the damage multiplier that is 1 by default but will become 1.5 if
         # the attacker is using a Water-type move while Rain is active or if they use
@@ -2285,6 +2264,10 @@ class Battle_System(pygame.sprite.Sprite):
         damage = ((((active_poke.LV * 2) / 5 + 2) * power * (A / D) / 50) + 2) * burn * weather * critical * STAB * \
                  random_num * type_number * other
 
+        # Второстепенные условия
+        if move_id in [45]:
+            damage = damage * 2
+
         if type_number > 1:
             type_word = "· It's super effective!"
         elif type_number < 1:
@@ -2393,6 +2376,7 @@ class Battle_System(pygame.sprite.Sprite):
                 # if move doesn't return any effect
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_A_active_poke,
+                                                 self.player_A_active_poke_move_1_id,
                                                  self.player_A_active_poke_move_1_element,
                                                  self.player_A_active_poke_move_1_type,
                                                  self.player_B_active_poke, self.player_A_active_poke_move_1_power,
@@ -2423,6 +2407,7 @@ class Battle_System(pygame.sprite.Sprite):
                 self.attack_A_type = 2
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_A_active_poke,
+                                                 self.player_A_active_poke_move_2_id,
                                                  self.player_A_active_poke_move_2_element,
                                                  self.player_A_active_poke_move_2_type,
                                                  self.player_B_active_poke, self.player_A_active_poke_move_2_power,
@@ -2453,6 +2438,7 @@ class Battle_System(pygame.sprite.Sprite):
                 self.attack_A_type = 2
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_A_active_poke,
+                                                 self.player_A_active_poke_move_3_id,
                                                  self.player_A_active_poke_move_3_element,
                                                  self.player_A_active_poke_move_3_type,
                                                  self.player_B_active_poke, self.player_A_active_poke_move_3_power,
@@ -2483,6 +2469,7 @@ class Battle_System(pygame.sprite.Sprite):
                 self.attack_A_type = 2
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_A_active_poke,
+                                                 self.player_A_active_poke_move_4_id,
                                                  self.player_A_active_poke_move_4_element,
                                                  self.player_A_active_poke_move_4_type,
                                                  self.player_B_active_poke, self.player_A_active_poke_move_4_power,
@@ -2522,6 +2509,17 @@ class Battle_System(pygame.sprite.Sprite):
 
         self.actions_list.append(self.battle_attack_anim_starter)
         self.arguments_list.append('B')
+
+        self.actions_list.append(self.move_anim_starter)
+        if self.selected_A == 1:
+            move_anim_data = [self.player_A_active_poke_move_1_id, self.player_A_active_poke_move_1_name, "B"]
+        elif self.selected_A == 2:
+            move_anim_data = [self.player_A_active_poke_move_2_id, self.player_A_active_poke_move_2_name, "B"]
+        elif self.selected_A == 3:
+            move_anim_data = [self.player_A_active_poke_move_3_id, self.player_A_active_poke_move_3_name, "B"]
+        else:
+            move_anim_data = [self.player_A_active_poke_move_4_id, self.player_A_active_poke_move_4_name, "B"]
+        self.arguments_list.append(move_anim_data)
 
         if damage[1]:
             self.actions_list.append(self.log_message)
@@ -2569,6 +2567,7 @@ class Battle_System(pygame.sprite.Sprite):
                 self.attack_B_type = 2
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_B_active_poke,
+                                                 self.player_B_active_poke_move_1_id,
                                                  self.player_B_active_poke_move_1_element,
                                                  self.player_B_active_poke_move_1_type,
                                                  self.player_A_active_poke, self.player_B_active_poke_move_1_power,
@@ -2599,6 +2598,7 @@ class Battle_System(pygame.sprite.Sprite):
                 self.attack_B_type = 2
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_B_active_poke,
+                                                 self.player_B_active_poke_move_2_id,
                                                  self.player_B_active_poke_move_2_element,
                                                  self.player_B_active_poke_move_2_type,
                                                  self.player_A_active_poke, self.player_B_active_poke_move_2_power,
@@ -2629,6 +2629,7 @@ class Battle_System(pygame.sprite.Sprite):
                 self.attack_B_type = 2
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_B_active_poke,
+                                                 self.player_B_active_poke_move_3_id,
                                                  self.player_B_active_poke_move_3_element,
                                                  self.player_B_active_poke_move_3_type,
                                                  self.player_A_active_poke, self.player_B_active_poke_move_3_power,
@@ -2659,6 +2660,7 @@ class Battle_System(pygame.sprite.Sprite):
                 self.attack_B_type = 2
                 if effect[0] == 0:
                     damage = self.damage_counter(self.player_B_active_poke,
+                                                 self.player_B_active_poke_move_4_id,
                                                  self.player_B_active_poke_move_4_element,
                                                  self.player_B_active_poke_move_4_type,
                                                  self.player_A_active_poke, self.player_B_active_poke_move_1_power,
@@ -2849,6 +2851,13 @@ class Battle_System(pygame.sprite.Sprite):
         if move_effect_id == 42:
             # dragon rage inflict 40 points damage
             return [1, 40]
+        if move_effect_id == 45:
+            self.actions_list.append(self.log_message)
+            self.arguments_list.append(f"Hit 2 times!")
+
+            self.actions_list.append(self.delay_func)
+            self.arguments_list.append([True, 50])
+            return [0, None]
         if move_effect_id == 274:
             if random.random() <= 0.1:
                 opponent_poke.status = "brn"
@@ -2858,3 +2867,54 @@ class Battle_System(pygame.sprite.Sprite):
                 self.actions_list.append(self.delay_func)
                 self.arguments_list.append([True, 50])
             return [0, None]
+
+
+class MoveAnim:
+    def __init__(self, move_id, move_name, damage_take_poke):
+        super(MoveAnim, self).__init__()
+        # self.image = Surface([570, 400], pygame.HWSURFACE)
+        # self.image.set_colorkey((0, 0, 0))
+        # self.image = self.image.convert_alpha()
+        self.move_anim = None
+
+        if move_id in [24, 0]:
+            self.anim_photo = pygame.image.load(resource_path(f"resources/img/animations/one_moves/{move_name}.png"))
+            self.one_move_anim_creator()
+
+    def one_move_anim_creator(self):
+        iteration_num_x = 0
+        iteration_num_y = 0
+        for i in range(1, 17):
+            if iteration_num_x == 8:
+                iteration_num_y += 1
+                iteration_num_x = 0
+            exec(f"self.frame_{i} = pygame.Surface([570, 400], pygame.SRCALPHA)")
+            exec(
+                f"self.frame_{i}.blit(self.anim_photo, (295, 0), [{iteration_num_x * 256}, {iteration_num_y * 256}, 256, 256])")
+            iteration_num_x += 1
+
+        self.move_anim = pyganim.PygAnimation([
+            (self.frame_1, 0.2),
+            (self.frame_2, 0.2),
+            (self.frame_3, 0.2),
+            (self.frame_4, 0.2),
+            (self.frame_5, 0.2),
+            (self.frame_6, 0.2),
+            (self.frame_7, 0.2),
+            (self.frame_8, 0.2),
+            (self.frame_9, 0.2),
+            (self.frame_10, 0.2),
+            (self.frame_11, 0.2),
+            (self.frame_12, 0.2),
+            (self.frame_13, 0.2),
+            (self.frame_14, 0.2),
+            (self.frame_15, 0.2),
+            (self.frame_16, 0.2)])
+        self.move_anim.loop = not self.move_anim.loop
+
+    def anim_play(self):
+        self.move_anim.play()
+
+    def draw(self, screen):
+        if not self.move_anim.state == "stopped":
+            self.move_anim.blit(screen, [9, 50])
